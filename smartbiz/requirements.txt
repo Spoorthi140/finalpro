@@ -1,0 +1,13 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-WTF
+pandas
+numpy
+scikit-learn
+opencv-python
+dowhy
+matplotlib
+reportlab
+email-validator
+Werkzeug

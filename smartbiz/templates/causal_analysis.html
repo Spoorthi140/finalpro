@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Causal AI Analysis - SmartBiz{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="text-info"><i class="fas fa-brain me-2"></i> Causal Inference Engine</h2>
+        <p class="text-light-50">Understanding the <strong>WHY</strong> behind your business performance using DoWhy.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% if not causal_results %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-card">
+            <h3>No analysis results yet.</h3>
+            <p>Make sure you have uploaded enough data (at least 5 products) to perform causal inference.</p>
+            <a href="{{ url_for('main.upload') }}" class="btn btn-neon mt-3">Upload Data</a>
+        </div>
+    </div>
+    {% else %}
+    {% for res in causal_results %}
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100">
+            <h5 class="text-info border-bottom pb-2 mb-3">{{ res.relation }}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fs-6">Causal Effect:</span>
+                <span class="badge {{ 'bg-success' if res.effect > 0 else 'bg-danger' }} fs-5">
+                    {{ "%.4f"|format(res.effect) }}
+                </span>
+            </div>
+            <p class="text-light-50">{{ res.insight }}</p>
+            <div class="mt-auto">
+                <small class="text-info"><i class="fas fa-info-circle"></i> Backdoor Linear Regression</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="col-12 mt-4">
+        <div class="glass-card">
+            <h4><i class="fas fa-lightbulb text-warning me-2"></i> How to interpret these results?</h4>
+            <p>Traditional analytics shows correlations (e.g., "when price goes up, sales go down"). Causal AI shows the <strong>impact</strong> of a specific action while controlling for other factors.</p>
+            <ul>
+                <li><strong>Positive Effect:</strong> Increasing the treatment variable causes the outcome to increase.</li>
+                <li><strong>Negative Effect:</strong> Increasing the treatment variable causes the outcome to decrease.</li>
+                <li><strong>Zero Effect:</strong> The treatment variable has no causal impact on the outcome.</li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

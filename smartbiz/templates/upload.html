@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Dataset - SmartBiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <h2 class="mb-4 text-info"><i class="fas fa-file-upload me-2"></i> Upload Business Data</h2>
+            <p class="text-light-50 mb-4">Please upload a CSV file containing your product and sales data. The file should include columns for Price, Marketing Spend, Stock Quantity, Sales, and Profit.</p>
+
+            <form method="POST" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-4">
+                    <label for="file" class="form-label fs-5">Select CSV File</label>
+                    <input class="form-control form-control-lg" type="file" id="file" name="file" accept=".csv" required
+                           style="background: rgba(255,255,255,0.1); border: 1px dashed var(--neon-blue); color: white;">
+                </div>
+
+                <div class="alert alert-info">
+                    <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i> CSV Column Requirements:</h5>
+                    <ul class="mb-0">
+                        <li><strong>Product Name:</strong> Unique identifier for the product</li>
+                        <li><strong>Price:</strong> Unit price</li>
+                        <li><strong>Marketing Spend:</strong> Amount spent on marketing</li>
+                        <li><strong>Stock Quantity:</strong> Current inventory level</li>
+                        <li><strong>Sales:</strong> Total units sold</li>
+                        <li><strong>Profit:</strong> Total profit earned</li>
+                    </ul>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-neon btn-lg">
+                        <i class="fas fa-cloud-upload-alt me-2"></i> Process and Analyze
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass-card mt-4">
+            <h4>Sample Data Format</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover mt-3" style="font-size: 0.9rem; border-color: var(--glass-border);">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Marketing Spend</th>
+                            <th>Stock Quantity</th>
+                            <th>Sales</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Alpha Widget</td>
+                            <td>25.0</td>
+                            <td>500.0</td>
+                            <td>150</td>
+                            <td>45</td>
+                            <td>1125.0</td>
+                        </tr>
+                        <tr>
+                            <td>Beta Gadget</td>
+                            <td>40.0</td>
+                            <td>200.0</td>
+                            <td>80</td>
+                            <td>12</td>
+                            <td>480.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

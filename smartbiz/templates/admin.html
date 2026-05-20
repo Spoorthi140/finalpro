@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - SmartBiz{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-info"><i class="fas fa-user-shield me-2"></i> System Administration</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="glass-card mb-4">
+            <h5>System Overview</h5>
+            <ul class="list-unstyled mt-3">
+                <li class="d-flex justify-content-between mb-2">
+                    <span>Total Users:</span>
+                    <span class="badge bg-info">{{ users|length }}</span>
+                </li>
+                <li class="d-flex justify-content-between mb-2">
+                    <span>Database Status:</span>
+                    <span class="text-success">Connected</span>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <span>App Version:</span>
+                    <span class="text-light-50">v1.0.0-AI</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="glass-card">
+            <h5>Admin Actions</h5>
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-outline-danger btn-sm" onclick="alert('Demo: System logs cleared')">Clear Activity Logs</button>
+                <button class="btn btn-outline-info btn-sm" onclick="alert('Demo: Database backed up')">Backup Database</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="glass-card">
+            <h5>User Management</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mt-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><span class="badge {{ 'bg-info' if user.role == 'admin' else 'bg-secondary' }}">{{ user.role }}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-light" onclick="alert('Demo: Edit user')"><i class="fas fa-edit"></i></button>
+                                {% if user.id != current_user.id %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="alert('Demo: Delete user')"><i class="fas fa-trash"></i></button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
