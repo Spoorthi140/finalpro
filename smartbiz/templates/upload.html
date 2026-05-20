@@ -1,76 +1,220 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Dataset - SmartBiz{% endblock %}
+{% block title %}Upload & Analysis - SmartBiz{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="glass-card">
-            <h2 class="mb-4 text-info"><i class="fas fa-file-upload me-2"></i> Upload Business Data</h2>
-            <p class="text-light-50 mb-4">Please upload a CSV file containing your product and sales data. The file should include columns for Price, Marketing Spend, Stock Quantity, Sales, and Profit.</p>
+<div class="row">
+    <!-- Sidebar / Sidebar Nav is in base.html -->
 
-            <form method="POST" enctype="multipart/form-data" class="mt-4">
-                <div class="mb-4">
-                    <label for="file" class="form-label fs-5">Select CSV File</label>
-                    <input class="form-control form-control-lg" type="file" id="file" name="file" accept=".csv" required
-                           style="background: rgba(255,255,255,0.1); border: 1px dashed var(--neon-blue); color: white;">
-                </div>
+    <div class="col-12">
+        <h2 class="text-info mb-4"><i class="fas fa-file-upload me-2"></i> Dataset Upload & Causal AI Center</h2>
 
-                <div class="alert alert-info">
-                    <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i> CSV Column Requirements:</h5>
-                    <ul class="mb-0">
-                        <li><strong>Product_Name:</strong> Unique identifier for the product</li>
-                        <li><strong>Price:</strong> Unit price</li>
-                        <li><strong>Marketing:</strong> Amount spent on marketing</li>
-                        <li><strong>Stock:</strong> Current inventory level</li>
-                        <li><strong>Sales:</strong> Total units sold</li>
-                        <li><strong>Profit:</strong> Total profit earned</li>
-                    </ul>
+        <!-- Upload Card -->
+        <div class="glass-card mb-4">
+            <h4 class="text-info mb-3">Upload Business Data</h4>
+            <p class="text-light-50">Drag and drop your CSV dataset here to trigger automatic AI analysis.</p>
+            <form method="POST" enctype="multipart/form-data" id="upload-form">
+                <div class="mb-3">
+                    <input class="form-control form-control-lg bg-dark text-white border-info" type="file" name="file" accept=".csv" required>
                 </div>
-
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-neon btn-lg">
-                        <i class="fas fa-cloud-upload-alt me-2"></i> Process and Analyze
-                    </button>
-                </div>
+                <button type="submit" class="btn btn-neon btn-lg w-100">
+                    <i class="fas fa-cloud-upload-alt me-2"></i> Process Dataset & Run AI Analysis
+                </button>
             </form>
         </div>
 
-        <div class="glass-card mt-4">
-            <h4>Sample Data Format</h4>
-            <div class="table-responsive">
-                <table class="table table-dark table-striped table-hover mt-3" style="font-size: 0.9rem; border-color: var(--glass-border);">
-                    <thead>
+        {% if upload_results %}
+        <!-- Validation Results -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="glass-card text-center py-4 border-start border-info border-4">
+                    <h6 class="text-info text-uppercase">Total Records</h6>
+                    <h3 class="fw-bold">{{ upload_results.total_records }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center py-4 border-start border-warning border-4">
+                    <h6 class="text-warning text-uppercase">Missing Values</h6>
+                    <h3 class="fw-bold">{{ upload_results.missing_values }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center py-4 border-start border-danger border-4">
+                    <h6 class="text-danger text-uppercase">Duplicates Removed</h6>
+                    <h3 class="fw-bold">{{ upload_results.duplicates_removed }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center py-4 border-start border-success border-4">
+                    <h6 class="text-success text-uppercase">Status</h6>
+                    <p class="small mb-0">Success</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Preview Table -->
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-3">Dataset Preview (Top 10 Rows)</h5>
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-dark table-hover small">
+                    <thead class="sticky-top bg-dark">
                         <tr>
-                            <th>Product_Name</th>
+                            <th>Product Name</th>
                             <th>Price</th>
-                            <th>Marketing</th>
-                            <th>Stock</th>
+                            <th>Marketing Spend</th>
+                            <th>Stock Quantity</th>
                             <th>Sales</th>
                             <th>Profit</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for row in preview_data %}
                         <tr>
-                            <td>Alpha Widget</td>
-                            <td>25.0</td>
-                            <td>500.0</td>
-                            <td>150</td>
-                            <td>45</td>
-                            <td>1125.0</td>
+                            <td>{{ row['Product Name'] }}</td>
+                            <td>${{ row['Price'] }}</td>
+                            <td>${{ row['Marketing Spend'] }}</td>
+                            <td>{{ row['Stock Quantity'] }}</td>
+                            <td>{{ row['Sales'] }}</td>
+                            <td>${{ row['Profit'] }}</td>
                         </tr>
-                        <tr>
-                            <td>Beta Gadget</td>
-                            <td>40.0</td>
-                            <td>200.0</td>
-                            <td>80</td>
-                            <td>12</td>
-                            <td>480.0</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- Causal AI Analysis Results -->
+        <h4 class="text-info mb-3"><i class="fas fa-brain me-2"></i> Automatic Causal AI Results</h4>
+        <div class="row mb-4">
+            {% if causal_results %}
+                {% for res in causal_results %}
+                <div class="col-md-4 mb-3">
+                    <div class="glass-card h-100">
+                        <h5 class="text-info border-bottom pb-2 mb-3">{{ res.relation }}</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fs-6">Causal Effect:</span>
+                            <span class="badge {{ 'bg-success' if res.effect > 0 else 'bg-danger' }} fs-5">
+                                {{ "%.4f"|format(res.effect) }}
+                            </span>
+                        </div>
+                        <p class="small text-light-50">{{ res.insight }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">Insufficient data for detailed causal analysis. Need at least 5 products.</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Business Insights & Recommendations -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <h5 class="text-info mb-3"><i class="fas fa-lightbulb me-2"></i> AI Business Insights</h5>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent text-white border-secondary">
+                            <i class="fas fa-check-circle text-success me-2"></i> Products with high pricing experience lower demand.
+                        </li>
+                        <li class="list-group-item bg-transparent text-white border-secondary">
+                            <i class="fas fa-check-circle text-success me-2"></i> Increasing marketing budget positively impacts revenue.
+                        </li>
+                        <li class="list-group-item bg-transparent text-white border-secondary">
+                            <i class="fas fa-check-circle text-success me-2"></i> Low inventory levels reduce sales opportunities.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <h5 class="text-warning mb-3"><i class="fas fa-robot me-2"></i> Smart Recommendations</h5>
+                    {% for rec in recommendations[:3] %}
+                    <div class="alert alert-warning py-2 mb-2 small">
+                        <strong>{{ rec.type }}:</strong> {{ rec.message }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Graphs & Charts -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h6 class="text-info">Price vs Sales</h6>
+                    <canvas id="priceSalesChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h6 class="text-info">Marketing vs Sales</h6>
+                    <canvas id="marketingSalesChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h6 class="text-info">Stock vs Profit</h6>
+                    <canvas id="stockProfitChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if upload_results %}
+<script>
+    const chartOptions = {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+            x: { grid: { display: false }, ticks: { color: '#fff' } }
+        }
+    };
+
+    // Price vs Sales Chart
+    new Chart(document.getElementById('priceSalesChart'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Price vs Sales',
+                data: [{% for row in preview_data %}{x: {{ row['Price'] }}, y: {{ row['Sales'] }}},{% endfor %}],
+                backgroundColor: '#00d2ff'
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Marketing vs Sales Chart
+    new Chart(document.getElementById('marketingSalesChart'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Marketing vs Sales',
+                data: [{% for row in preview_data %}{x: {{ row['Marketing Spend'] }}, y: {{ row['Sales'] }}},{% endfor %}],
+                backgroundColor: '#3a7bd5'
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Stock vs Profit Chart
+    new Chart(document.getElementById('stockProfitChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for row in preview_data %}'{{ row['Product Name'] }}',{% endfor %}],
+            datasets: [{
+                label: 'Profit',
+                data: [{% for row in preview_data %}{{ row['Profit'] }},{% endfor %}],
+                backgroundColor: '#e94560'
+            }]
+        },
+        options: chartOptions
+    });
+</script>
+{% endif %}
 {% endblock %}

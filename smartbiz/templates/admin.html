@@ -5,51 +5,48 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2 class="text-info"><i class="fas fa-user-shield me-2"></i> System Administration</h2>
+        <h2 class="text-info"><i class="fas fa-user-shield me-2"></i> System Management & Audit</h2>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-        <div class="glass-card mb-4 border-top border-danger border-4">
-            <h5><i class="fas fa-server text-danger me-2"></i> System Overview</h5>
-            <ul class="list-unstyled mt-3">
-                <li class="d-flex justify-content-between mb-2">
-                    <span>Total Users:</span>
-                    <span class="badge bg-danger">{{ users|length }}</span>
+    <div class="col-md-3">
+        <div class="glass-card mb-4 border-top border-danger border-4 text-center">
+            <h6 class="text-danger small">TOTAL USERS</h6>
+            <h2 class="fw-bold">{{ users|length }}</h2>
+        </div>
+        <div class="glass-card mb-4 border-top border-info border-4 text-center">
+            <h6 class="text-info small">TOTAL PRODUCTS</h6>
+            <h2 class="fw-bold">{{ products_count }}</h2>
+        </div>
+        <div class="glass-card mb-4">
+            <h5><i class="fas fa-history me-2 text-info"></i> System Activity</h5>
+            <ul class="list-group list-group-flush bg-transparent mt-3">
+                <li class="list-group-item bg-transparent text-white border-secondary small py-2">
+                    <i class="fas fa-upload text-success me-2"></i> New dataset uploaded
                 </li>
-                <li class="d-flex justify-content-between mb-2">
-                    <span>Database Status:</span>
-                    <span class="text-success">Connected</span>
+                <li class="list-group-item bg-transparent text-white border-secondary small py-2">
+                    <i class="fas fa-camera text-info me-2"></i> Inventory scan performed
                 </li>
-                <li class="d-flex justify-content-between">
-                    <span>App Version:</span>
-                    <span class="text-light-50">v1.0.0-AI</span>
+                <li class="list-group-item bg-transparent text-white border-secondary small py-2">
+                    <i class="fas fa-user-plus text-warning me-2"></i> New user registered
                 </li>
             </ul>
         </div>
-
-        <div class="glass-card">
-            <h5>Admin Actions</h5>
-            <div class="d-grid gap-2 mt-3">
-                <button class="btn btn-outline-danger btn-sm" onclick="alert('Demo: System logs cleared')">Clear Activity Logs</button>
-                <button class="btn btn-outline-info btn-sm" onclick="alert('Demo: Database backed up')">Backup Database</button>
-            </div>
-        </div>
     </div>
 
-    <div class="col-md-8">
-        <div class="glass-card">
-            <h5>User Management</h5>
+    <div class="col-md-9">
+        <div class="glass-card mb-4">
+            <h5 class="mb-3">User Directory</h5>
             <div class="table-responsive">
-                <table class="table table-dark table-hover mt-3">
+                <table class="table table-dark table-hover small">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Username</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Actions</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,17 +55,33 @@
                             <td>{{ user.id }}</td>
                             <td>{{ user.username }}</td>
                             <td>{{ user.email }}</td>
-                            <td><span class="badge {{ 'bg-info' if user.role == 'admin' else 'bg-secondary' }}">{{ user.role }}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-light" onclick="alert('Demo: Edit user')"><i class="fas fa-edit"></i></button>
-                                {% if user.id != current_user.id %}
-                                <button class="btn btn-sm btn-outline-danger" onclick="alert('Demo: Delete user')"><i class="fas fa-trash"></i></button>
-                                {% endif %}
-                            </td>
+                            <td><span class="badge {{ 'bg-danger' if user.role == 'admin' else 'bg-secondary' }}">{{ user.role }}</span></td>
+                            <td><span class="text-success"><i class="fas fa-circle small me-1"></i> Active</span></td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="glass-card">
+                    <h5><i class="fas fa-database me-2 text-info"></i> Dataset Logs</h5>
+                    <p class="small text-light-50">Monitoring recent CSV uploads and validation status.</p>
+                    <div class="alert alert-dark border-secondary py-2 small mb-0">
+                        <i class="fas fa-file-csv me-2"></i> retail_data_v1.csv (Validated)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-card">
+                    <h5><i class="fas fa-clock me-2 text-info"></i> Prediction History</h5>
+                    <p class="small text-light-50">Tracking business simulation frequency.</p>
+                    <div class="alert alert-dark border-secondary py-2 small mb-0">
+                        <i class="fas fa-magic me-2"></i> 12 simulations this week
+                    </div>
+                </div>
             </div>
         </div>
     </div>

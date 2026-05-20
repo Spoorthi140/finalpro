@@ -11,6 +11,7 @@ def home():
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """Handle new user registration with role-based assignment."""
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
     if request.method == 'POST':
@@ -18,8 +19,7 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Security: Don't allow user to set their own role through form
-        # First user becomes admin, others are regular users for safety in demo
+        # Determine user role: The first registered user becomes 'admin'
         user_count = User.query.count()
         role = 'admin' if user_count == 0 else 'user'
 
@@ -106,6 +106,12 @@ def dashboard():
 @bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+    # Initial data to pass to template
+    upload_results = None
+    causal_results = []
+    recommendations = []
+    preview_data = []
+
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'danger')
@@ -121,45 +127,71 @@ def upload():
             import os
             from flask import current_app
             from werkzeug.utils import secure_filename
+            from causal_analysis import run_causal_analysis
+            from recommendation_engine import generate_recommendations
 
             filename = secure_filename(file.filename)
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
             try:
+                # 1. Read and Validate
                 df = pd.read_csv(filepath)
-                # Refined Schema Validation
-                required_cols = ['Product_Name', 'Price', 'Marketing', 'Stock', 'Sales', 'Profit']
+                required_cols = ['Product Name', 'Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Profit']
+
                 if not all(col in df.columns for col in required_cols):
                     flash(f'CSV must contain: {", ".join(required_cols)}', 'danger')
                     return redirect(request.url)
 
-                # Handling missing values
-                df = df.fillna(0)
+                total_records = len(df)
+                missing_values = df.isnull().sum().sum()
+                df_clean = df.drop_duplicates()
+                duplicates_removed = total_records - len(df_clean)
+                df = df_clean.fillna(0)
 
-                # Update Database
+                # 2. Update Database
                 for _, row in df.iterrows():
-                    product = Product.query.filter_by(product_name=row['Product_Name']).first()
+                    product = Product.query.filter_by(product_name=row['Product Name']).first()
                     if product:
                         product.price = row['Price']
-                        product.marketing_spend = row['Marketing']
-                        product.stock_quantity = row['Stock']
+                        product.marketing_spend = row['Marketing Spend']
+                        product.stock_quantity = row['Stock Quantity']
                         product.sales = row['Sales']
                         product.profit = row['Profit']
                     else:
                         new_product = Product(
-                            product_name=row['Product_Name'],
+                            product_name=row['Product Name'],
                             price=row['Price'],
-                            marketing_spend=row['Marketing'],
-                            stock_quantity=row['Stock'],
+                            marketing_spend=row['Marketing Spend'],
+                            stock_quantity=row['Stock Quantity'],
                             sales=row['Sales'],
                             profit=row['Profit']
                         )
                         db.session.add(new_product)
 
                 db.session.commit()
-                flash('Dataset uploaded and processed successfully!', 'success')
-                return redirect(url_for('main.dashboard'))
+
+                # 3. Perform Automatic Causal Analysis & Recommendations
+                if len(df) >= 5:
+                    # Map CSV columns to internal names for analysis
+                    analysis_df = df.rename(columns={
+                        'Marketing Spend': 'Marketing Spend',
+                        'Stock Quantity': 'Stock Quantity'
+                    })
+                    causal_results = run_causal_analysis(analysis_df)
+
+                products = Product.query.all()
+                recommendations = generate_recommendations(products)
+
+                upload_results = {
+                    'total_records': total_records,
+                    'missing_values': missing_values,
+                    'duplicates_removed': duplicates_removed,
+                    'status': 'Dataset Uploaded and Processed Successfully'
+                }
+
+                preview_data = df.head(10).to_dict('records')
+                flash('Data analysis complete!', 'success')
 
             except Exception as e:
                 flash(f'Error processing file: {str(e)}', 'danger')
@@ -168,7 +200,11 @@ def upload():
             flash('Only CSV files are allowed.', 'danger')
             return redirect(request.url)
 
-    return render_template('upload.html')
+    return render_template('upload.html',
+                           upload_results=upload_results,
+                           causal_results=causal_results,
+                           recommendations=recommendations,
+                           preview_data=preview_data)
 
 @bp.route('/inventory')
 @login_required
@@ -298,4 +334,5 @@ def admin():
         flash('Access denied.', 'danger')
         return redirect(url_for('main.dashboard'))
     users = User.query.all()
-    return render_template('admin.html', users=users)
+    products_count = Product.query.count()
+    return render_template('admin.html', users=users, products_count=products_count)

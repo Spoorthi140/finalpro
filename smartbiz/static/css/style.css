@@ -20,11 +20,33 @@ body {
     color: var(--neon-blue);
     border: 1px solid var(--neon-blue);
     background: transparent;
-    transition: 0.3s;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .btn-neon:hover {
     background: var(--neon-blue);
     color: #0f0c29;
-    box-shadow: 0 0 15px var(--neon-blue);
+    box-shadow: 0 0 25px var(--neon-blue);
+    transform: scale(1.02);
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.glass-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 210, 255, 0.15);
 }

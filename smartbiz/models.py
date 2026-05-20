@@ -15,10 +15,10 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
+    marketing_spend = db.Column(db.Float, default=0.0)
     stock_quantity = db.Column(db.Integer, default=0)
     sales = db.Column(db.Integer, default=0)
     profit = db.Column(db.Float, default=0.0)
-    marketing_spend = db.Column(db.Float, default=0.0)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class Prediction(db.Model):

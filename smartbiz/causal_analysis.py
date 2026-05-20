@@ -5,12 +5,9 @@ import numpy as np
 
 def run_causal_analysis(df):
     """
-    df: DataFrame with columns ['Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Profit']
+    df: DataFrame with columns ['Product Name', 'Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Profit']
     """
     results = []
-
-    # Refined Causal Logic: Ensuring we handle any column naming mismatch internally
-    # but the input df from routes.py already uses standard internal names.
 
     # 1. Price -> Sales
     try:
@@ -25,7 +22,7 @@ def run_causal_analysis(df):
         results.append({
             'relation': 'Price → Sales',
             'effect': estimate.value,
-            'insight': "Increasing price by $1 leads to a change of {:.2f} in units sold.".format(estimate.value)
+            'insight': "Average Treatment Effect (ATE): {:.2f}. Increasing price reduces customer demand by this factor on average.".format(estimate.value)
         })
     except Exception as e:
         print(f"Error in Price->Sales: {e}")
@@ -43,7 +40,7 @@ def run_causal_analysis(df):
         results.append({
             'relation': 'Marketing → Sales',
             'effect': estimate.value,
-            'insight': "Every $1 spent on marketing increases sales by {:.2f} units.".format(estimate.value)
+            'insight': "Average Treatment Effect (ATE): {:.2f}. Higher marketing investment improves sales growth causally.".format(estimate.value)
         })
     except Exception as e:
         print(f"Error in Marketing->Sales: {e}")
@@ -61,7 +58,7 @@ def run_causal_analysis(df):
         results.append({
             'relation': 'Stock → Profit',
             'effect': estimate.value,
-            'insight': "Maintaining higher stock levels has a causal impact of {:.2f} on profit per unit.".format(estimate.value)
+            'insight': "Average Treatment Effect (ATE): {:.2f}. Maintaining optimal stock levels ensures higher profit margins.".format(estimate.value)
         })
     except Exception as e:
         print(f"Error in Stock->Profit: {e}")
