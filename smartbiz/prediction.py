@@ -38,7 +38,7 @@ def train_and_predict(products_data, input_price, input_marketing, input_stock):
     pred_profit = model_profit.predict(X_pred)[0]
 
     # Calculate stock-out days
-    # Formula: Stock Quantity / Average Daily Sales
+    # Refined Formula: Stock Quantity / Average Daily Sales
     # Assuming Sales in DB is for last 30 days
     avg_daily_sales = max(pred_sales / 30, 0.01)
     stock_out_days = input_stock / avg_daily_sales

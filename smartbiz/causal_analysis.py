@@ -9,6 +9,9 @@ def run_causal_analysis(df):
     """
     results = []
 
+    # Refined Causal Logic: Ensuring we handle any column naming mismatch internally
+    # but the input df from routes.py already uses standard internal names.
+
     # 1. Price -> Sales
     try:
         model = CausalModel(

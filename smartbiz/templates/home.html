@@ -38,9 +38,12 @@
 
         <div class="mt-5 pt-5">
             {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('main.register') }}" class="btn btn-neon btn-lg px-5">Get Started for Free</a>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('main.register') }}" class="btn btn-neon btn-lg px-5">Register Business</a>
+                <a href="{{ url_for('main.admin_login') }}" class="btn btn-outline-danger btn-lg px-5">Admin Portal</a>
+            </div>
             {% else %}
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-neon btn-lg px-5">Go to Dashboard</a>
+            <a href="{{ url_for('main.dashboard') if current_user.role == 'user' else url_for('main.admin') }}" class="btn btn-neon btn-lg px-5">Go to Dashboard</a>
             {% endif %}
         </div>
     </div>

@@ -20,11 +20,11 @@ def detect_objects(image_data):
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edged = cv2.Canny(blurred, 50, 150)
 
-    # Contour detection
+    # Contour detection - Refined for better object estimation
     contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Filter small contours
-    min_area = 500
+    # Filter contours based on area to avoid noise
+    min_area = 400
     valid_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
 
     # Draw contours for visual feedback

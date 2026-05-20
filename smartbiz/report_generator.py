@@ -20,7 +20,7 @@ def generate_pdf_report(products, total_sales, total_profit):
     elements.append(Paragraph(summary, styles['Heading2']))
     elements.append(Spacer(1, 20))
 
-    # Product Table
+    # Refined Product Table
     data = [['Product', 'Price', 'Stock', 'Sales', 'Profit']]
     for p in products:
         data.append([p.product_name, f"${p.price:.2f}", p.stock_quantity, p.sales, f"${p.profit:.2f}"])

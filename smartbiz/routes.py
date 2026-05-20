@@ -50,11 +50,36 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
+            if user.role == 'admin':
+                flash('Please use the Admin Login portal.', 'info')
+                return redirect(url_for('main.admin_login'))
             login_user(user)
             return redirect(url_for('main.dashboard'))
         else:
             flash('Login failed. Check email and password.', 'danger')
     return render_template('login.html')
+
+@bp.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('main.admin'))
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password, password):
+            if user.role != 'admin':
+                flash('Access denied. This portal is for admins only.', 'danger')
+                return redirect(url_for('main.admin_login'))
+            login_user(user)
+            return redirect(url_for('main.admin'))
+        else:
+            flash('Admin login failed.', 'danger')
+    return render_template('admin_login.html')
 
 @bp.route('/logout')
 @login_required
@@ -103,8 +128,8 @@ def upload():
 
             try:
                 df = pd.read_csv(filepath)
-                # Validation
-                required_cols = ['Product Name', 'Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Profit']
+                # Refined Schema Validation
+                required_cols = ['Product_Name', 'Price', 'Marketing', 'Stock', 'Sales', 'Profit']
                 if not all(col in df.columns for col in required_cols):
                     flash(f'CSV must contain: {", ".join(required_cols)}', 'danger')
                     return redirect(request.url)
@@ -114,19 +139,19 @@ def upload():
 
                 # Update Database
                 for _, row in df.iterrows():
-                    product = Product.query.filter_by(product_name=row['Product Name']).first()
+                    product = Product.query.filter_by(product_name=row['Product_Name']).first()
                     if product:
                         product.price = row['Price']
-                        product.marketing_spend = row['Marketing Spend']
-                        product.stock_quantity = row['Stock Quantity']
+                        product.marketing_spend = row['Marketing']
+                        product.stock_quantity = row['Stock']
                         product.sales = row['Sales']
                         product.profit = row['Profit']
                     else:
                         new_product = Product(
-                            product_name=row['Product Name'],
+                            product_name=row['Product_Name'],
                             price=row['Price'],
-                            marketing_spend=row['Marketing Spend'],
-                            stock_quantity=row['Stock Quantity'],
+                            marketing_spend=row['Marketing'],
+                            stock_quantity=row['Stock'],
                             sales=row['Sales'],
                             profit=row['Profit']
                         )
