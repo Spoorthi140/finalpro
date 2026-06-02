@@ -1,32 +1,38 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Product
+from werkzeug.utils import secure_filename
+import os
+import pandas as pd
+from models import db, User, Product, Prediction, InventoryLog
+from causal_analysis import run_causal_analysis
+from recommendation_engine import generate_recommendations
+from prediction import train_and_predict
+from report_generator import generate_pdf_report
+from inventory_monitor import detect_objects
 
-bp = Blueprint('main', __name__)
+user_bp = Blueprint('user', __name__)
 
-@bp.route('/')
+@user_bp.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('user/home.html')
 
-@bp.route('/register', methods=['GET', 'POST'])
+@user_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """Handle new user registration with role-based assignment."""
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Determine user role: The first registered user becomes 'admin'
         user_count = User.query.count()
         role = 'admin' if user_count == 0 else 'user'
 
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
             flash('Email already exists.', 'danger')
-            return redirect(url_for('main.register'))
+            return redirect(url_for('user.register'))
 
         new_user = User(
             username=username,
@@ -37,13 +43,13 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         flash('Registration successful! Please login.', 'success')
-        return redirect(url_for('main.login'))
-    return render_template('register.html')
+        return redirect(url_for('user.login'))
+    return render_template('user/register.html')
 
-@bp.route('/login', methods=['GET', 'POST'])
+@user_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -52,61 +58,40 @@ def login():
         if user and check_password_hash(user.password, password):
             if user.role == 'admin':
                 flash('Please use the Admin Login portal.', 'info')
-                return redirect(url_for('main.admin_login'))
+                return redirect(url_for('admin.login'))
             login_user(user)
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('user.dashboard'))
         else:
             flash('Login failed. Check email and password.', 'danger')
-    return render_template('login.html')
+    return render_template('user/login.html')
 
-@bp.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if current_user.is_authenticated:
-        if current_user.role == 'admin':
-            return redirect(url_for('main.admin'))
-        return redirect(url_for('main.dashboard'))
-
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
-
-        if user and check_password_hash(user.password, password):
-            if user.role != 'admin':
-                flash('Access denied. This portal is for admins only.', 'danger')
-                return redirect(url_for('main.admin_login'))
-            login_user(user)
-            return redirect(url_for('main.admin'))
-        else:
-            flash('Admin login failed.', 'danger')
-    return render_template('admin_login.html')
-
-@bp.route('/logout')
+@user_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('user.home'))
 
-@bp.route('/dashboard')
+@user_bp.route('/dashboard')
 @login_required
 def dashboard():
+    if current_user.role == 'admin':
+        return redirect(url_for('admin.dashboard'))
     products = Product.query.all()
     total_sales = sum([p.sales for p in products])
     total_profit = sum([p.profit for p in products])
     total_inventory = sum([p.stock_quantity for p in products])
     low_stock_products = Product.query.filter(Product.stock_quantity < 10).all()
 
-    return render_template('dashboard.html',
+    return render_template('user/dashboard.html',
                            products=products,
                            total_sales=total_sales,
                            total_profit=total_profit,
                            total_inventory=total_inventory,
                            low_stock_count=len(low_stock_products))
 
-@bp.route('/upload', methods=['GET', 'POST'])
+@user_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-    # Initial data to pass to template
     upload_results = None
     causal_results = []
     recommendations = []
@@ -123,19 +108,11 @@ def upload():
             return redirect(request.url)
 
         if file and file.filename.endswith('.csv'):
-            import pandas as pd
-            import os
-            from flask import current_app
-            from werkzeug.utils import secure_filename
-            from causal_analysis import run_causal_analysis
-            from recommendation_engine import generate_recommendations
-
             filename = secure_filename(file.filename)
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
             try:
-                # 1. Read and Validate
                 df = pd.read_csv(filepath)
                 required_cols = ['Product Name', 'Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Profit']
 
@@ -149,7 +126,6 @@ def upload():
                 duplicates_removed = total_records - len(df_clean)
                 df = df_clean.fillna(0)
 
-                # 2. Update Database
                 for _, row in df.iterrows():
                     product = Product.query.filter_by(product_name=row['Product Name']).first()
                     if product:
@@ -171,14 +147,8 @@ def upload():
 
                 db.session.commit()
 
-                # 3. Perform Automatic Causal Analysis & Recommendations
                 if len(df) >= 5:
-                    # Map CSV columns to internal names for analysis
-                    analysis_df = df.rename(columns={
-                        'Marketing Spend': 'Marketing Spend',
-                        'Stock Quantity': 'Stock Quantity'
-                    })
-                    causal_results = run_causal_analysis(analysis_df)
+                    causal_results = run_causal_analysis(df)
 
                 products = Product.query.all()
                 recommendations = generate_recommendations(products)
@@ -200,24 +170,23 @@ def upload():
             flash('Only CSV files are allowed.', 'danger')
             return redirect(request.url)
 
-    return render_template('upload.html',
+    return render_template('user/upload.html',
                            upload_results=upload_results,
                            causal_results=causal_results,
                            recommendations=recommendations,
                            preview_data=preview_data)
 
-@bp.route('/inventory')
+@user_bp.route('/inventory')
 @login_required
 def inventory():
     products = Product.query.all()
-    return render_template('inventory.html', products=products)
+    return render_template('user/inventory.html', products=products)
 
-@bp.route('/prediction', methods=['GET', 'POST'])
+@user_bp.route('/prediction', methods=['GET', 'POST'])
 @login_required
 def prediction():
     prediction_result = None
     if request.method == 'POST':
-        from prediction import train_and_predict
         price = float(request.form.get('price', 0))
         marketing = float(request.form.get('marketing', 0))
         stock = float(request.form.get('stock', 0))
@@ -226,9 +195,8 @@ def prediction():
         prediction_result = train_and_predict(products, price, marketing, stock)
 
         if prediction_result:
-            from models import Prediction
             new_pred = Prediction(
-                product_id=products[0].id if products else None, # Simplified for demo
+                product_id=products[0].id if products else None,
                 predicted_sales=prediction_result['predicted_sales'],
                 predicted_profit=prediction_result['predicted_profit'],
                 stock_out_days=prediction_result['stock_out_days']
@@ -236,20 +204,17 @@ def prediction():
             db.session.add(new_pred)
             db.session.commit()
         else:
-            flash("Insufficient data to train prediction models. Please upload more products.", "warning")
+            flash("Insufficient data to train prediction models.", "warning")
 
-    return render_template('prediction.html', prediction=prediction_result)
+    return render_template('user/prediction.html', prediction=prediction_result)
 
-@bp.route('/causal_analysis')
+@user_bp.route('/causal_analysis')
 @login_required
 def causal_analysis():
-    import pandas as pd
-    from causal_analysis import run_causal_analysis
-
     products = Product.query.all()
     if not products:
-        flash("No data available for analysis. Please upload a dataset.", "warning")
-        return redirect(url_for('main.upload'))
+        flash("No data available for analysis.", "warning")
+        return redirect(url_for('user.upload'))
 
     data = {
         'Price': [p.price for p in products],
@@ -260,55 +225,46 @@ def causal_analysis():
     }
     df = pd.DataFrame(data)
 
-    # DoWhy requires more than 1 row to estimate
     if len(df) < 5:
         flash("Need at least 5 products for a reliable causal analysis.", "info")
         causal_results = []
     else:
         causal_results = run_causal_analysis(df)
 
-    return render_template('causal_analysis.html', causal_results=causal_results)
+    return render_template('user/causal_analysis.html', causal_results=causal_results)
 
-@bp.route('/recommendations')
+@user_bp.route('/recommendations')
 @login_required
 def recommendations():
-    from recommendation_engine import generate_recommendations
     products = Product.query.all()
     recs = generate_recommendations(products)
-    return render_template('recommendations.html', recommendations=recs)
+    return render_template('user/recommendations.html', recommendations=recs)
 
-@bp.route('/download_report')
+@user_bp.route('/reports')
+@login_required
+def reports():
+    return render_template('user/reports.html')
+
+@user_bp.route('/download_report')
 @login_required
 def download_report():
-    from report_generator import generate_pdf_report
-    from flask import send_file
-
     products = Product.query.all()
     total_sales = sum([p.sales for p in products])
     total_profit = sum([p.profit for p in products])
-
     pdf_buffer = generate_pdf_report(products, total_sales, total_profit)
+    return send_file(pdf_buffer, as_attachment=True, download_name="smartbiz_report.pdf", mimetype='application/pdf')
 
-    return send_file(
-        pdf_buffer,
-        as_attachment=True,
-        download_name="smartbiz_report.pdf",
-        mimetype='application/pdf'
-    )
-
-@bp.route('/process_inventory', methods=['POST'])
+@user_bp.route('/process_inventory', methods=['POST'])
 @login_required
 def process_inventory():
-    from inventory_monitor import detect_objects
     data = request.get_json()
     image_data = data.get('image')
     count, processed_image = detect_objects(image_data)
     return {'count': count, 'processed_image': processed_image}
 
-@bp.route('/update_inventory', methods=['POST'])
+@user_bp.route('/update_inventory', methods=['POST'])
 @login_required
 def update_inventory():
-    from models import InventoryLog
     data = request.get_json()
     product_id = data.get('product_id')
     quantity = int(data.get('quantity'))
@@ -321,18 +277,3 @@ def update_inventory():
         db.session.commit()
         return {'success': True}
     return {'success': False}
-
-@bp.route('/reports')
-@login_required
-def reports():
-    return render_template('reports.html')
-
-@bp.route('/admin')
-@login_required
-def admin():
-    if current_user.role != 'admin':
-        flash('Access denied.', 'danger')
-        return redirect(url_for('main.dashboard'))
-    users = User.query.all()
-    products_count = Product.query.count()
-    return render_template('admin.html', users=users, products_count=products_count)

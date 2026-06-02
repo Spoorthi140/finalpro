@@ -11,3 +11,5 @@ matplotlib
 reportlab
 email-validator
 Werkzeug
+PyMySQL
+cryptography

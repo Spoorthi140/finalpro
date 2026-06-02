@@ -39,11 +39,11 @@
         <div class="mt-5 pt-5">
             {% if not current_user.is_authenticated %}
             <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('main.register') }}" class="btn btn-neon btn-lg px-5">Register Business</a>
-                <a href="{{ url_for('main.admin_login') }}" class="btn btn-outline-danger btn-lg px-5">Admin Portal</a>
+                <a href="{{ url_for('user.register') }}" class="btn btn-neon btn-lg px-5">Register Business</a>
+                <a href="{{ url_for('admin.login') }}" class="btn btn-outline-danger btn-lg px-5">Admin Portal</a>
             </div>
             {% else %}
-            <a href="{{ url_for('main.dashboard') if current_user.role == 'user' else url_for('main.admin') }}" class="btn btn-neon btn-lg px-5">Go to Dashboard</a>
+            <a href="{{ url_for('user.dashboard') if current_user.role == 'user' else url_for('admin.dashboard') }}" class="btn btn-neon btn-lg px-5">Go to Dashboard</a>
             {% endif %}
         </div>
     </div>

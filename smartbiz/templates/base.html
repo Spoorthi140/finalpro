@@ -145,34 +145,35 @@
         </div>
 
         <ul class="list-unstyled components">
-            <li class="{{ 'active' if request.endpoint == 'main.dashboard' }}">
-                <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.causal_analysis' }}">
-                <a href="{{ url_for('main.causal_analysis') }}"><i class="fas fa-brain me-2"></i> Causal AI</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.upload' }}">
-                <a href="{{ url_for('main.upload') }}"><i class="fas fa-upload me-2"></i> Upload Data</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.inventory' }}">
-                <a href="{{ url_for('main.inventory') }}"><i class="fas fa-camera me-2"></i> Smart Inventory</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.prediction' }}">
-                <a href="{{ url_for('main.prediction') }}"><i class="fas fa-magic me-2"></i> Prediction</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.recommendations' }}">
-                <a href="{{ url_for('main.recommendations') }}"><i class="fas fa-lightbulb me-2"></i> AI Insights</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'main.reports' }}">
-                <a href="{{ url_for('main.reports') }}"><i class="fas fa-file-pdf me-2"></i> Reports</a>
-            </li>
             {% if current_user.role == 'admin' %}
-            <li class="{{ 'active' if request.endpoint == 'main.admin' }}">
-                <a href="{{ url_for('main.admin') }}"><i class="fas fa-user-shield me-2"></i> Admin Panel</a>
+            <li class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-user-shield me-2"></i> Admin Dashboard</a>
+            </li>
+            {% else %}
+            <li class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
+                <a href="{{ url_for('user.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.causal_analysis' }}">
+                <a href="{{ url_for('user.causal_analysis') }}"><i class="fas fa-brain me-2"></i> Causal AI</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.upload' }}">
+                <a href="{{ url_for('user.upload') }}"><i class="fas fa-upload me-2"></i> Upload Data</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.inventory' }}">
+                <a href="{{ url_for('user.inventory') }}"><i class="fas fa-camera me-2"></i> Smart Inventory</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.prediction' }}">
+                <a href="{{ url_for('user.prediction') }}"><i class="fas fa-magic me-2"></i> Prediction</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.recommendations' }}">
+                <a href="{{ url_for('user.recommendations') }}"><i class="fas fa-lightbulb me-2"></i> AI Insights</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'user.reports' }}">
+                <a href="{{ url_for('user.reports') }}"><i class="fas fa-file-pdf me-2"></i> Reports</a>
             </li>
             {% endif %}
             <li>
-                <a href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+                <a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
             </li>
         </ul>
     </nav>
@@ -182,13 +183,13 @@
         {% if not current_user.is_authenticated %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-transparent mb-4">
             <div class="container">
-                <a class="navbar-brand text-info fw-bold" href="{{ url_for('main.home') }}">
+                <a class="navbar-brand text-info fw-bold" href="{{ url_for('user.home') }}">
                     <i class="fas fa-brain"></i> SmartBiz
                 </a>
                 <div class="ms-auto">
-                    <a href="{{ url_for('main.login') }}" class="btn btn-outline-info me-2">User Login</a>
-                    <a href="{{ url_for('main.admin_login') }}" class="btn btn-outline-danger me-2">Admin</a>
-                    <a href="{{ url_for('main.register') }}" class="btn btn-info">Register</a>
+                    <a href="{{ url_for('user.login') }}" class="btn btn-outline-info me-2">User Login</a>
+                    <a href="{{ url_for('admin.login') }}" class="btn btn-outline-danger me-2">Admin</a>
+                    <a href="{{ url_for('user.register') }}" class="btn btn-info">Register</a>
                 </div>
             </div>
         </nav>
