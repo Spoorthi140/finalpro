@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Executive Center - SmartBiz Enterprise{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="text-info mb-2"><i class="fas fa-user-tie me-2"></i> Executive Decision Support Center</h2>
+            <p class="text-secondary">High-level business health monitoring and strategic risk assessment.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100">
+            <h5 class="text-secondary mb-4">Business Health Score</h5>
+            <div class="position-relative d-inline-block">
+                <canvas id="healthGauge" width="200" height="200"></canvas>
+                <h1 class="position-absolute top-50 start-50 translate-middle text-info mb-0">{{ health_score }}</h1>
+            </div>
+            <p class="text-success mt-3"><i class="fas fa-caret-up"></i> 4% vs last month</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4">Strategic Risk Assessment</h5>
+            <div class="row g-3">
+                {% for risk in risks %}
+                <div class="col-md-6">
+                    <div class="p-3 border border-secondary rounded d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0 text-white">{{ risk.name }}</h6>
+                            <small class="text-secondary">Status: {{ risk.level }} Risk</small>
+                        </div>
+                        <div class="rounded-circle bg-{{ risk.color }}" style="width: 15px; height: 15px;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4 p-4 bg-dark rounded border-start border-4 border-info">
+                <h6 class="text-info">Executive Summary</h6>
+                <p class="small text-secondary mb-0">
+                    The overall business health is <strong>Strong</strong>. While Churn Risk has increased due to aggressive competitor pricing, our Revenue and Profit margins remain stable. Recommended action: Approve the loyalty program expansion proposed by the Marketing team to mitigate retention risks.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4 g-4">
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Financial Overview</h5>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary">Operating Revenue</span>
+                <span class="text-white fw-bold">${{ "{:,.2f}".format(total_revenue) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary">Net Profit</span>
+                <span class="text-success fw-bold">${{ "{:,.2f}".format(total_profit) }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-secondary">Profit Margin</span>
+                <span class="text-info fw-bold">{{ ((total_profit / total_revenue * 100) if total_revenue > 0 else 0)|int }}%</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Strategic Priorities</h5>
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3"><i class="fas fa-check-circle text-success"></i></div>
+                <div class="small text-secondary">Complete inventory automation for Warehouse A</div>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3"><i class="fas fa-circle text-warning"></i></div>
+                <div class="small text-secondary">Finalize Q4 Causal Marketing Strategy</div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3"><i class="fas fa-circle text-secondary"></i></div>
+                <div class="small text-secondary">Review Annual Sustainability Report</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('healthGauge').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [{{ health_score }}, 100 - {{ health_score }}],
+                backgroundColor: ['#00d2ff', 'rgba(255,255,255,0.1)'],
+                borderWidth: 0,
+                circumference: 270,
+                rotation: 225,
+                cutout: '85%'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}

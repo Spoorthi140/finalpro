@@ -2,46 +2,62 @@ def generate_recommendations(products):
     recommendations = []
 
     for p in products:
-        # Rule 1: If stock low -> Recommend restocking
+        # Rule 1: Inventory Management
         if p.stock_quantity < 10:
             recommendations.append({
                 'product': p.product_name,
-                'type': 'Inventory',
+                'category': 'Inventory',
                 'priority': 'High',
-                'message': f"Low Stock Alert: Restock {p.product_name} immediately. Current quantity: {p.stock_quantity}.",
+                'message': f"Low Stock Alert: {p.product_name} has only {p.stock_quantity} units remaining. Restock immediately.",
                 'action': 'Restock'
             })
 
-        # Rule 2: If high price + low sales -> Recommend reducing price
-        # Demo thresholds: Price > 50 and Sales < 20
-        if p.price > 50 and p.sales < 20:
+        # Rule 2: Pricing Strategy (Causal-based)
+        # If profit margin is low but price is competitive, maybe increase price?
+        margin = p.profit / p.revenue if p.revenue > 0 else 0
+        if margin < 0.1 and p.revenue > 0:
+             recommendations.append({
+                'product': p.product_name,
+                'category': 'Pricing',
+                'priority': 'Medium',
+                'message': f"Low Margin Detected: {p.product_name} margin is only {margin*100:.1f}%. Consider a 5% price increase.",
+                'action': 'Optimize Price'
+            })
+        elif p.sales < 10 and p.price > 100:
             recommendations.append({
                 'product': p.product_name,
-                'type': 'Pricing',
+                'category': 'Pricing',
                 'priority': 'Medium',
-                'message': f"{p.product_name} has high pricing with low sales volume. Recommend reducing price by 5%.",
-                'action': 'Adjust Price'
+                'message': f"High Price / Low Sales: {p.product_name} is underperforming. Recommend a promotional discount.",
+                'action': 'Discount'
             })
 
-        # Rule 3: If low marketing + low demand -> Recommend increasing marketing
-        # Demo thresholds: Marketing < 100 and Sales < 15
-        if p.marketing_spend < 100 and p.sales < 15:
+        # Rule 3: Marketing Budget
+        if p.marketing_spend < 50 and p.sales < 20:
             recommendations.append({
                 'product': p.product_name,
-                'type': 'Marketing',
-                'priority': 'Medium',
-                'message': f"{p.product_name} has low marketing spend and low demand. Recommend increasing budget.",
+                'category': 'Marketing',
+                'priority': 'Low',
+                'message': f"Under-exposed: {p.product_name} has low marketing visibility. Increase budget by $50.",
                 'action': 'Boost Marketing'
             })
 
-    # Add general AI strategy if no specific recs
-    if not recommendations:
+    # Global Recommendations
+    if not products:
+        recommendations.append({
+            'product': 'System',
+            'category': 'Data',
+            'priority': 'High',
+            'message': "No business data detected. Please upload a dataset to generate insights.",
+            'action': 'Upload Data'
+        })
+    elif len(recommendations) < 3:
         recommendations.append({
             'product': 'General',
-            'type': 'Strategy',
+            'category': 'Strategy',
             'priority': 'Low',
-            'message': "Overall performance is stable. Maintain current marketing and pricing strategies.",
-            'action': 'Maintain'
+            'message': "Operations are stable. Continue monitoring seasonal trends for Q4.",
+            'action': 'Monitor'
         })
 
     return recommendations

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}AI Forecasting - SmartBiz Enterprise{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="text-info mb-2"><i class="fas fa-chart-line me-2"></i> AI Prediction & Forecasting Center</h2>
+            <p class="text-secondary">Future projections for Sales, Revenue, and Profit based on historical patterns.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">6-Month Revenue Projection</h5>
+            <canvas id="forecastChart" height="150"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4">Seasonal Trends</h5>
+            <div class="list-group list-group-flush bg-transparent">
+                <div class="list-group-item bg-transparent text-white border-secondary px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Spring Growth</span>
+                        <span class="text-success">+15% <i class="fas fa-caret-up"></i></span>
+                    </div>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-secondary px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Summer Peak</span>
+                        <span class="text-success">+25% <i class="fas fa-caret-up"></i></span>
+                    </div>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-secondary px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Autumn Dip</span>
+                        <span class="text-warning">-10% <i class="fas fa-caret-down"></i></span>
+                    </div>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-secondary px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Holiday Spike</span>
+                        <span class="text-success">+40% <i class="fas fa-caret-up"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-dark rounded border border-info">
+                <small class="text-info"><i class="fas fa-robot me-1"></i> AI Note:</small>
+                <p class="small mb-0 text-secondary">Strong upward trend detected for next quarter. Recommend increasing inventory for high-demand categories.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Detailed Forecast Data</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Predicted Sales</th>
+                            <th>Predicted Revenue</th>
+                            <th>Predicted Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in forecasts %}
+                        <tr>
+                            <td>{{ f.period }}</td>
+                            <td>{{ f.sales|int }} units</td>
+                            <td>${{ "{:,.2f}".format(f.revenue) }}</td>
+                            <td class="text-success">${{ "{:,.2f}".format(f.profit) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for f in forecasts %}'{{ f.period }}',{% endfor %}],
+            datasets: [{
+                label: 'Revenue Forecast',
+                data: [{% for f in forecasts %}{{ f.revenue }},{% endfor %}],
+                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'Profit Forecast',
+                data: [{% for f in forecasts %}{{ f.profit }},{% endfor %}],
+                borderColor: '#2ecc71',
+                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

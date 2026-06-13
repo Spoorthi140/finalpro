@@ -1,66 +1,75 @@
 {% extends "base.html" %}
 
-{% block title %}AI Recommendations - SmartBiz{% endblock %}
+{% block title %}AI Recommendations - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2 class="text-info"><i class="fas fa-lightbulb me-2"></i> Smart Strategy Recommendations</h2>
-        <p class="text-light-50">Automated AI suggestions based on your sales, profit, and inventory data.</p>
+        <div class="glass-card">
+            <h2 class="text-info mb-2"><i class="fas fa-lightbulb me-2"></i> Smart Recommendation Engine</h2>
+            <p class="text-secondary">AI-driven actionable insights for pricing, marketing, and inventory management.</p>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    {% if not recommendations %}
-    <div class="col-12 text-center py-5">
-        <div class="glass-card">
-            <h3>No recommendations yet.</h3>
-            <p>Upload your product data to receive AI-powered business insights.</p>
-            <a href="{{ url_for('user.upload') }}" class="btn btn-neon mt-3">Upload Data</a>
-        </div>
-    </div>
-    {% else %}
+<div class="row g-4">
     <div class="col-md-8">
-        {% for rec in recommendations %}
-        <div class="glass-card mb-3 border-start {{ 'border-danger' if rec.priority == 'High' else 'border-info' }}" style="border-left-width: 5px !important;">
-            <div class="d-flex justify-content-between">
-                <h5 class="text-info">{{ rec.product }} - {{ rec.type }}</h5>
-                <span class="badge {{ 'bg-danger' if rec.priority == 'High' else 'bg-warning text-dark' }}">{{ rec.priority }} Priority</span>
+        <div class="row g-4">
+            {% for rec in recommendations %}
+            <div class="col-12">
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-{{ 'danger' if rec.priority == 'High' else 'warning' if rec.priority == 'Medium' else 'info' }} mb-2">
+                                {{ rec.priority }} Priority
+                            </span>
+                            <h5 class="text-white">{{ rec.product }} - {{ rec.category }}</h5>
+                        </div>
+                        <span class="text-info small"><i class="fas fa-clock me-1"></i> Generated now</span>
+                    </div>
+                    <p class="text-secondary mt-2">{{ rec.message }}</p>
+                    <div class="mt-3">
+                        <button class="btn btn-outline-info btn-sm px-4">{{ rec.action }}</button>
+                        <button class="btn btn-link btn-sm text-secondary text-decoration-none ms-2">Dismiss</button>
+                    </div>
+                </div>
             </div>
-            <p class="mt-2">{{ rec.message }}</p>
-            <div class="d-flex align-items-center">
-                <button class="btn btn-sm btn-outline-info me-2">Apply {{ rec.action }}</button>
-                <small class="text-light-50">Strategy recommended by SmartBiz Engine</small>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
     <div class="col-md-4">
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-4">Insight Distribution</h5>
+            <canvas id="recPieChart" height="250"></canvas>
+        </div>
         <div class="glass-card">
-            <h5><i class="fas fa-robot text-info me-2"></i> AI Strategy Panel</h5>
-            <p class="small text-light-50">Our engine uses multi-rule logic and causal analysis to find optimization opportunities.</p>
-            <hr class="bg-light">
-            <div class="mb-3">
-                <label class="small text-info">INVENTORY OPTIMIZATION</label>
-                <div class="progress" style="height: 5px;">
-                    <div class="progress-bar bg-info" style="width: 85%"></div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="small text-info">PRICING ELASTICITY</label>
-                <div class="progress" style="height: 5px;">
-                    <div class="progress-bar bg-info" style="width: 60%"></div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="small text-info">MARKETING ROI</label>
-                <div class="progress" style="height: 5px;">
-                    <div class="progress-bar bg-info" style="width: 75%"></div>
-                </div>
-            </div>
+            <h5 class="text-info mb-3">AI Strategy Note</h5>
+            <p class="small text-secondary">Based on current causal analysis and demand forecasting, the system suggests focusing on <strong>Inventory Optimization</strong> for the upcoming week to prevent stock-outs during the projected revenue spike.</p>
         </div>
     </div>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('recPieChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pricing', 'Marketing', 'Inventory', 'Strategy'],
+            datasets: [{
+                data: [30, 20, 40, 10],
+                backgroundColor: ['#00d2ff', '#2ecc71', '#f1c40f', '#9b59b6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#fff' } }
+            }
+        }
+    });
+</script>
 {% endblock %}

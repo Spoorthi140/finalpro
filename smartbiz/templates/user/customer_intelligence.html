@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Intelligence - SmartBiz Enterprise{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="text-info mb-2"><i class="fas fa-users me-2"></i> Customer Intelligence</h2>
+            <p class="text-secondary">Advanced segmentation and retention analysis for target marketing.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <h6 class="text-secondary">Avg. CLV</h6>
+            <h3 class="text-info">${{ clv }}</h3>
+            <p class="small text-secondary mb-0">Lifetime Value per Customer</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <h6 class="text-secondary">Churn Rate</h6>
+            <h3 class="text-danger">4.2%</h3>
+            <p class="small text-secondary mb-0">Last 30 Days</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <h6 class="text-secondary">Acquisition Cost</h6>
+            <h3 class="text-warning">$24.50</h3>
+            <p class="small text-secondary mb-0">Per Customer</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <h6 class="text-secondary">Loyalty Score</h6>
+            <h3 class="text-success">8.5/10</h3>
+            <p class="small text-secondary mb-0">System Average</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">RFM Segmentation</h5>
+            {% for s in segments %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span>{{ s.name }}</span>
+                    <span class="text-secondary">{{ s.count }} customers</span>
+                </div>
+                <div class="progress bg-dark" style="height: 10px;">
+                    <div class="progress-bar bg-{{ s.color }}" role="progressbar" style="width: {{ (s.count / 300 * 100)|int }}%"></div>
+                </div>
+                <small class="text-secondary">Value: ${{ "{:,.0f}".format(s.monetary) }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Retention Curve (Last 6 Months)</h5>
+            <canvas id="retentionChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('retentionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+            datasets: [{
+                label: 'Retention %',
+                data: {{ retention }},
+                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

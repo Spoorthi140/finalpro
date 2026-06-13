@@ -1,54 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Causal AI Analysis - SmartBiz{% endblock %}
+{% block title %}Causal AI Analysis - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-12 text-center">
-        <h2 class="text-info"><i class="fas fa-brain me-2"></i> Causal Inference Engine</h2>
-        <p class="text-light-50">Understanding the <strong>WHY</strong> behind your business performance using DoWhy.</p>
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="text-info mb-2"><i class="fas fa-brain me-2"></i> Causal Decision Intelligence</h2>
+            <p class="text-secondary">Understanding the "Why" behind your business outcomes using Causal Inference.</p>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    {% if not causal_results %}
-    <div class="col-12 text-center py-5">
-        <div class="glass-card">
-            <h3>No analysis results yet.</h3>
-            <p>Make sure you have uploaded enough data (at least 5 products) to perform causal inference.</p>
-            <a href="{{ url_for('user.upload') }}" class="btn btn-neon mt-3">Upload Data</a>
-        </div>
-    </div>
-    {% else %}
+<div class="row g-4">
     {% for res in causal_results %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4">
         <div class="glass-card h-100">
-            <h5 class="text-info border-bottom pb-2 mb-3">{{ res.relation }}</h5>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="fs-6">Causal Effect:</span>
-                <span class="badge {{ 'bg-success' if res.effect > 0 else 'bg-danger' }} fs-5">
-                    {{ "%.4f"|format(res.effect) }}
-                </span>
+                <h5 class="text-info mb-0">{{ res.relation }}</h5>
+                <span class="badge bg-info text-dark">Conf: {{ (res.confidence * 100)|int }}%</span>
             </div>
-            <p class="text-light-50">{{ res.insight }}</p>
-            <div class="mt-auto">
-                <small class="text-info"><i class="fas fa-info-circle"></i> Backdoor Linear Regression</small>
+            <h2 class="text-white mb-3">{{ "{:+.2f}".format(res.effect) }}</h2>
+            <p class="small text-secondary">{{ res.insight }}</p>
+            <div class="mt-4 pt-3 border-top border-secondary">
+                <small class="text-info"><i class="fas fa-lightbulb me-1"></i> Recommendation:</small>
+                <p class="small mb-0">
+                    {% if res.effect > 0 %}
+                    Increase investment in {{ res.relation.split(' → ')[0] }} to maximize {{ res.relation.split(' → ')[1] }}.
+                    {% else %}
+                    Optimize {{ res.relation.split(' → ')[0] }} to mitigate negative impact on {{ res.relation.split(' → ')[1] }}.
+                    {% endif %}
+                </p>
             </div>
         </div>
     </div>
     {% endfor %}
-
-    <div class="col-12 mt-4">
-        <div class="glass-card">
-            <h4><i class="fas fa-lightbulb text-warning me-2"></i> How to interpret these results?</h4>
-            <p>Traditional analytics shows correlations (e.g., "when price goes up, sales go down"). Causal AI shows the <strong>impact</strong> of a specific action while controlling for other factors.</p>
-            <ul>
-                <li><strong>Positive Effect:</strong> Increasing the treatment variable causes the outcome to increase.</li>
-                <li><strong>Negative Effect:</strong> Increasing the treatment variable causes the outcome to decrease.</li>
-                <li><strong>Zero Effect:</strong> The treatment variable has no causal impact on the outcome.</li>
-            </ul>
-        </div>
-    </div>
-    {% endif %}
 </div>
+
+{% if not causal_results %}
+<div class="alert alert-info mt-4">
+    <i class="fas fa-info-circle me-2"></i> Not enough data to run causal analysis. Please upload a dataset with at least 5 records.
+</div>
+{% endif %}
 {% endblock %}

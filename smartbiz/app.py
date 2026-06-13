@@ -1,12 +1,14 @@
 import os
 from flask import Flask
 from flask_login import LoginManager
-from models import db, User
+from .models import db, User
+from .user_routes import user_bp
+from .admin_routes import admin_bp
 
 def create_app(config=None):
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-smartbiz')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/smartbiz_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///smartbiz.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/uploads')
 
@@ -26,16 +28,15 @@ def create_app(config=None):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    with app.app_context():
-        from user_routes import user_bp
-        from admin_routes import admin_bp
-        app.register_blueprint(user_bp)
-        app.register_blueprint(admin_bp)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(admin_bp)
 
-        try:
-            db.create_all()
-        except Exception as e:
-            print(f"Database table creation skipped or failed: {e}")
+    with app.app_context():
+        if app.config.get('SQLALCHEMY_DATABASE_URI') != 'sqlite:///:memory:':
+            try:
+                db.create_all()
+            except Exception as e:
+                print(f"Database table creation skipped or failed: {e}")
 
     return app
 

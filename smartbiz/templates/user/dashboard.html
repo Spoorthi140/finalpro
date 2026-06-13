@@ -1,120 +1,120 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - SmartBiz{% endblock %}
+{% block title %}Dashboard - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-info text-uppercase">Total Sales</h6>
-            <h2 class="fw-bold">{{ total_sales }}</h2>
-            <p class="text-success mb-0"><i class="fas fa-arrow-up"></i> +12%</p>
+            <h6 class="text-secondary">Total Revenue</h6>
+            <h3 class="text-info">${{ "{:,.2f}".format(total_revenue) }}</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 5.2%</small>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-info text-uppercase">Total Profit</h6>
-            <h2 class="fw-bold">${{ "%.2f"|format(total_profit) }}</h2>
-            <p class="text-success mb-0"><i class="fas fa-arrow-up"></i> +8%</p>
+            <h6 class="text-secondary">Total Profit</h6>
+            <h3 class="text-success">${{ "{:,.2f}".format(total_profit) }}</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 3.8%</small>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-info text-uppercase">Inventory</h6>
-            <h2 class="fw-bold">{{ total_inventory }}</h2>
-            <p class="text-warning mb-0"><i class="fas fa-sync"></i> Real-time</p>
+            <h6 class="text-secondary">Inventory Value</h6>
+            <h3 class="text-warning">${{ "{:,.2f}".format(inventory_value) }}</h3>
+            <small class="text-danger"><i class="fas fa-arrow-down"></i> 1.2%</small>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-danger text-uppercase">Low Stock</h6>
-            <h2 class="fw-bold">{{ low_stock_count }}</h2>
-            <p class="text-danger mb-0">Action Required</p>
+            <h6 class="text-secondary">Growth Rate</h6>
+            <h3 class="text-info">{{ growth_rate }}%</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 0.5%</small>
         </div>
     </div>
 </div>
 
-<div class="row mb-4">
+<div class="row g-4">
     <div class="col-md-8">
         <div class="glass-card">
-            <h5 class="mb-4">Sales vs Profit Analysis</h5>
-            <canvas id="salesProfitChart" height="300"></canvas>
+            <h5 class="text-info mb-4">Revenue & Profit Trends</h5>
+            <canvas id="businessChart" height="150"></canvas>
         </div>
     </div>
     <div class="col-md-4">
         <div class="glass-card">
-            <h5 class="mb-4">Inventory Distribution</h5>
-            <canvas id="inventoryPieChart" height="300"></canvas>
+            <h5 class="text-info mb-4">Alert Center</h5>
+            {% if low_stock_count > 0 %}
+            <div class="alert alert-warning py-2 mb-2">
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ low_stock_count }} items are low on stock!
+            </div>
+            {% endif %}
+            <div class="alert alert-info py-2 mb-2">
+                <i class="fas fa-info-circle me-2"></i> New dataset uploaded successfully.
+            </div>
+            <div class="alert alert-success py-2 mb-2">
+                <i class="fas fa-check-circle me-2"></i> Forecast for Q4 is ready.
+            </div>
         </div>
     </div>
 </div>
 
-<div class="glass-card">
-    <h5 class="mb-4">Product Performance Details</h5>
-    <div class="table-responsive">
-        <table class="table table-dark table-hover">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Sales</th>
-                    <th>Profit</th>
-                    <th>Marketing</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.product_name }}</td>
-                    <td>${{ "%.2f"|format(product.price) }}</td>
-                    <td>
-                        {% if product.stock_quantity < 10 %}
-                        <span class="badge bg-danger">{{ product.stock_quantity }}</span>
-                        {% else %}
-                        {{ product.stock_quantity }}
-                        {% endif %}
-                    </td>
-                    <td>{{ product.sales }}</td>
-                    <td>${{ "%.2f"|format(product.profit) }}</td>
-                    <td>${{ "%.2f"|format(product.marketing_spend) }}</td>
-                    <td>
-                        {% if product.stock_quantity < 10 %}
-                        <span class="text-danger">Low Stock</span>
-                        {% else %}
-                        <span class="text-success">Healthy</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Recent Product Performance</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Sales</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products[:5] %}
+                        <tr>
+                            <td>{{ p.product_name }}</td>
+                            <td>{{ p.category }}</td>
+                            <td>${{ p.price }}</td>
+                            <td>{{ p.stock_quantity }}</td>
+                            <td>{{ p.sales }}</td>
+                            <td class="text-success">${{ p.profit }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const ctx1 = document.getElementById('salesProfitChart').getContext('2d');
-    new Chart(ctx1, {
+    const ctx = document.getElementById('businessChart').getContext('2d');
+    new Chart(ctx, {
         type: 'line',
         data: {
-            labels: [{% for p in products %}'{{ p.product_name }}',{% endfor %}],
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
             datasets: [{
-                label: 'Sales',
-                data: [{% for p in products %}{{ p.sales }},{% endfor %}],
+                label: 'Revenue',
+                data: [12000, 19000, 15000, 25000, 22000, 30000],
                 borderColor: '#00d2ff',
-                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                tension: 0.4,
                 fill: true,
-                tension: 0.4
+                backgroundColor: 'rgba(0, 210, 255, 0.1)'
             }, {
                 label: 'Profit',
-                data: [{% for p in products %}{{ p.profit }},{% endfor %}],
-                borderColor: '#3a7bd5',
-                backgroundColor: 'rgba(58, 123, 213, 0.1)',
+                data: [5000, 8000, 6000, 11000, 9000, 14000],
+                borderColor: '#2ecc71',
+                tension: 0.4,
                 fill: true,
-                tension: 0.4
+                backgroundColor: 'rgba(46, 204, 113, 0.1)'
             }]
         },
         options: {
@@ -124,28 +124,7 @@
             },
             scales: {
                 y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-                x: { grid: { display: false }, ticks: { color: '#fff' } }
-            }
-        }
-    });
-
-    const ctx2 = document.getElementById('inventoryPieChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for p in products %}'{{ p.product_name }}',{% endfor %}],
-            datasets: [{
-                data: [{% for p in products %}{{ p.stock_quantity }},{% endfor %}],
-                backgroundColor: [
-                    '#00d2ff', '#3a7bd5', '#1e3c72', '#2a5298', '#2193b0'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { color: '#fff' } }
+                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
             }
         }
     });
