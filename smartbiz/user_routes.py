@@ -339,7 +339,26 @@ def causal_analysis():
 @role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
 def recommendations():
     products = Product.query.all()
-    recs = generate_recommendations(products)
+
+    causal_results = None
+    if products and len(products) >= 5:
+        data = {
+            'Product Name': [p.product_name for p in products],
+            'Category': [p.category for p in products],
+            'Price': [p.price for p in products],
+            'Marketing Spend': [p.marketing_spend for p in products],
+            'Stock Quantity': [p.stock_quantity for p in products],
+            'Sales': [p.sales for p in products],
+            'Revenue': [p.revenue for p in products],
+            'Profit': [p.profit for p in products],
+            'Date': [p.date for p in products]
+        }
+        df = pd.DataFrame(data)
+        causal_results = run_causal_analysis(df)
+
+    forecasts = generate_forecasts(products)
+    recs = generate_recommendations(products, causal_results=causal_results, forecasts=forecasts)
+
     return render_template('user/recommendations.html', recommendations=recs)
 
 @user_bp.route('/reports')

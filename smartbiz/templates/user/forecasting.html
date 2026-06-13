@@ -6,51 +6,79 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="glass-card">
-            <h2 class="text-info mb-2"><i class="fas fa-chart-line me-2"></i> AI Prediction & Forecasting Center</h2>
-            <p class="text-secondary">Future projections for Sales, Revenue, and Profit based on historical patterns.</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-info mb-2"><i class="fas fa-chart-line me-2"></i> AI Prediction & Forecasting Center</h2>
+                    <p class="text-secondary">Future projections for Sales, Revenue, Demand, and Inventory Requirements.</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary px-3 py-2">Model: Multi-Model Ensemble (Prophet/XGBoost)</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
     <div class="col-md-8">
-        <div class="glass-card">
-            <h5 class="text-info mb-4">6-Month Revenue Projection</h5>
+        <div class="glass-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-info m-0">Supply vs. Demand Forecast</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-info active">6 Months</button>
+                    <button class="btn btn-outline-info">Yearly</button>
+                </div>
+            </div>
             <canvas id="forecastChart" height="150"></canvas>
         </div>
     </div>
     <div class="col-md-4">
         <div class="glass-card h-100">
-            <h5 class="text-info mb-4">Seasonal Trends</h5>
+            <h5 class="text-info mb-4">Forecasting Intelligence</h5>
+            <div class="mb-4">
+                <label class="text-secondary small d-block mb-1">Growth Confidence Score</label>
+                <div class="progress bg-dark border border-secondary" style="height: 10px;">
+                    <div class="progress-bar bg-info" style="width: 88%;"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <span class="small text-secondary">Conservative</span>
+                    <span class="small text-info">88% (Optimistic)</span>
+                </div>
+            </div>
+
             <div class="list-group list-group-flush bg-transparent">
                 <div class="list-group-item bg-transparent text-white border-secondary px-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Spring Growth</span>
-                        <span class="text-success">+15% <i class="fas fa-caret-up"></i></span>
+                        <div>
+                            <p class="mb-0 small text-secondary">Projected Revenue Spike</p>
+                            <h6 class="mb-0">Q3 - August</h6>
+                        </div>
+                        <span class="text-success fw-bold">+22.5%</span>
                     </div>
                 </div>
                 <div class="list-group-item bg-transparent text-white border-secondary px-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Summer Peak</span>
-                        <span class="text-success">+25% <i class="fas fa-caret-up"></i></span>
+                        <div>
+                            <p class="mb-0 small text-secondary">Demand Volatility</p>
+                            <h6 class="mb-0">Low (Stable)</h6>
+                        </div>
+                        <span class="text-info fw-bold">±4.2%</span>
                     </div>
                 </div>
                 <div class="list-group-item bg-transparent text-white border-secondary px-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Autumn Dip</span>
-                        <span class="text-warning">-10% <i class="fas fa-caret-down"></i></span>
-                    </div>
-                </div>
-                <div class="list-group-item bg-transparent text-white border-secondary px-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Holiday Spike</span>
-                        <span class="text-success">+40% <i class="fas fa-caret-up"></i></span>
+                        <div>
+                            <p class="mb-0 small text-secondary">Inventory Risk</p>
+                            <h6 class="mb-0">Medium (Understock)</h6>
+                        </div>
+                        <span class="text-warning fw-bold">Action Req.</span>
                     </div>
                 </div>
             </div>
+
             <div class="mt-4 p-3 bg-dark rounded border border-info">
-                <small class="text-info"><i class="fas fa-robot me-1"></i> AI Note:</small>
-                <p class="small mb-0 text-secondary">Strong upward trend detected for next quarter. Recommend increasing inventory for high-demand categories.</p>
+                <small class="text-info"><i class="fas fa-microchip me-1"></i> AI Strategic Insight:</small>
+                <p class="small mb-0 text-secondary">Predictive models indicate a supply-demand gap in Month 4. Recommend increasing safety stock levels by 18% to mitigate potential revenue loss.</p>
             </div>
         </div>
     </div>
@@ -59,24 +87,35 @@
 <div class="row mt-4">
     <div class="col-12">
         <div class="glass-card">
-            <h5 class="text-info mb-4">Detailed Forecast Data</h5>
+            <h5 class="text-info mb-4">Detailed Predictive Analytics Table</h5>
             <div class="table-responsive">
-                <table class="table table-dark table-hover">
-                    <thead>
+                <table class="table table-dark table-hover align-middle">
+                    <thead class="text-secondary small text-uppercase">
                         <tr>
                             <th>Period</th>
-                            <th>Predicted Sales</th>
-                            <th>Predicted Revenue</th>
-                            <th>Predicted Profit</th>
+                            <th>Avg. Demand</th>
+                            <th>Inventory Req.</th>
+                            <th>Proj. Revenue</th>
+                            <th>Proj. Profit</th>
+                            <th>Model Confidence</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for f in forecasts %}
                         <tr>
-                            <td>{{ f.period }}</td>
-                            <td>{{ f.sales|int }} units</td>
+                            <td class="fw-bold">{{ f.period }}</td>
+                            <td>{{ f.demand|int }} <span class="text-secondary small">units</span></td>
+                            <td><span class="badge bg-{{ 'danger' if loop.index > 3 else 'success' }}-subtle text-{{ 'danger' if loop.index > 3 else 'success' }} px-3">{{ f.inventory_req|int }} units</span></td>
                             <td>₹{{ "{:,.2f}".format(f.revenue) }}</td>
                             <td class="text-success">₹{{ "{:,.2f}".format(f.profit) }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="small me-2">94%</span>
+                                    <div class="progress flex-grow-1 bg-secondary" style="height: 4px; max-width: 50px;">
+                                        <div class="progress-bar bg-success" style="width: 94%;"></div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -88,7 +127,7 @@
 
 <div class="row mt-4">
     <div class="col-12 text-end">
-        <a href="{{ url_for('user.reports') }}" class="btn btn-neon">Proceed to Reports <i class="fas fa-arrow-right ms-2"></i></a>
+        <a href="{{ url_for('user.reports') }}" class="btn btn-neon px-5">Proceed to Reports <i class="fas fa-arrow-right ms-2"></i></a>
     </div>
 </div>
 {% endblock %}
@@ -100,34 +139,77 @@
         type: 'line',
         data: {
             labels: [{% for f in forecasts %}'{{ f.period }}',{% endfor %}],
-            datasets: [{
-                label: 'Revenue Forecast',
-                data: [{% for f in forecasts %}{{ f.revenue }},{% endfor %}],
-                borderColor: '#00d2ff',
-                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+            datasets: [
+            {
+                label: 'Projected Demand',
+                data: [{% for f in forecasts %}{{ f.demand }},{% endfor %}],
+                borderColor: '#e94560',
+                backgroundColor: 'rgba(233, 69, 96, 0.1)',
                 borderWidth: 3,
+                pointRadius: 4,
                 fill: true,
                 tension: 0.4
-            }, {
-                label: 'Profit Forecast',
-                data: [{% for f in forecasts %}{{ f.profit }},{% endfor %}],
+            },
+            {
+                label: 'Inventory Requirement',
+                data: [{% for f in forecasts %}{{ f.inventory_req }},{% endfor %}],
                 borderColor: '#2ecc71',
                 backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                borderWidth: 3,
-                fill: true,
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false,
+                tension: 0.4
+            },
+            {
+                label: 'Revenue Projection (Scaled)',
+                data: [{% for f in forecasts %}{{ f.revenue / 10 }},{% endfor %}],
+                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
                 tension: 0.4
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#fff' } }
+                legend: {
+                    position: 'top',
+                    labels: { color: '#fff', padding: 20, font: { size: 12 } }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15, 52, 96, 0.9)',
+                    titleColor: '#00d2ff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
             },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#888', font: { size: 10 } },
+                    title: { display: true, text: 'Units / Value (Scaled)', color: '#888' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#888', font: { size: 10 } }
+                }
             }
         }
     });
 </script>
+<style>
+    .forecast-card-detail {
+        transition: transform 0.3s;
+    }
+    .forecast-card-detail:hover {
+        transform: translateY(-5px);
+    }
+</style>
 {% endblock %}

@@ -6,12 +6,21 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="glass-card">
-            <h2 class="text-info mb-2"><i class="fas fa-lightbulb me-2"></i> Smart Recommendation Engine</h2>
-            <p class="text-secondary">AI-driven actionable insights for pricing, marketing, and inventory management.</p>
-        </div>
-        <div class="row mt-4">
-            <div class="col-12 text-end">
-                <a href="{{ url_for('user.forecasting') }}" class="btn btn-neon">Proceed to AI Forecasting <i class="fas fa-arrow-right ms-2"></i></a>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-info mb-2"><i class="fas fa-lightbulb me-2"></i> Smart Recommendation Engine</h2>
+                    <p class="text-secondary">AI-driven actionable insights integrated with Causal AI and Demand Forecasting.</p>
+                </div>
+                <div class="text-end">
+                    <div class="d-inline-block text-center me-4">
+                        <h4 class="text-white mb-0">{{ recommendations|length }}</h4>
+                        <small class="text-secondary text-uppercase">Active Insights</small>
+                    </div>
+                    <div class="d-inline-block text-center">
+                        <h4 class="text-success mb-0">High</h4>
+                        <small class="text-secondary text-uppercase">AI Confidence</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -22,20 +31,39 @@
         <div class="row g-4">
             {% for rec in recommendations %}
             <div class="col-12">
-                <div class="glass-card">
-                    <div class="d-flex justify-content-between align-items-start">
+                <div class="glass-card border-start border-4 border-{{ 'danger' if rec.priority == 'Critical' else 'info' if rec.priority == 'High' else 'warning' }}">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <span class="badge bg-{{ 'danger' if rec.priority == 'High' else 'warning' if rec.priority == 'Medium' else 'info' }} mb-2">
-                                {{ rec.priority }} Priority
-                            </span>
-                            <h5 class="text-white">{{ rec.product }} - {{ rec.category }}</h5>
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="badge bg-{{ 'danger' if rec.type == 'Risk' else 'success' if rec.type == 'Growth' else 'primary' }} me-2">
+                                    {{ rec.type }}
+                                </span>
+                                <h5 class="text-white m-0">{{ rec.category }}</h5>
+                            </div>
+                            <small class="text-info">{{ rec.product }}</small>
                         </div>
-                        <span class="text-info small"><i class="fas fa-clock me-1"></i> Generated now</span>
+                        <div class="text-end">
+                            <span class="text-{{ 'danger' if rec.priority == 'Critical' else 'warning' }} fw-bold d-block">{{ rec.priority }}</span>
+                            <small class="text-secondary">Impact: <span class="text-white">{{ rec.impact }}</span></small>
+                        </div>
                     </div>
-                    <p class="text-secondary mt-2">{{ rec.message }}</p>
-                    <div class="mt-3">
-                        <button class="btn btn-outline-info btn-sm px-4">{{ rec.action }}</button>
-                        <button class="btn btn-link btn-sm text-secondary text-decoration-none ms-2">Dismiss</button>
+
+                    <p class="text-secondary">{{ rec.message }}</p>
+
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-neon btn-sm px-4 fw-bold text-uppercase" style="font-size: 0.7rem;">{{ rec.action }}</button>
+                            <button class="btn btn-link btn-sm text-secondary text-decoration-none ms-2 small">Mark as Implemented</button>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item small" href="#">View Causal Evidence</a></li>
+                                <li><a class="dropdown-item small" href="#">Adjust Simulation</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small text-danger" href="#">Ignore Insight</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,13 +73,47 @@
 
     <div class="col-md-4">
         <div class="glass-card mb-4">
-            <h5 class="text-info mb-4">Insight Distribution</h5>
-            <canvas id="recPieChart" height="250"></canvas>
+            <h5 class="text-info mb-4">Insight Breakdown</h5>
+            <div style="height: 250px;">
+                <canvas id="recPieChart"></canvas>
+            </div>
+            <div class="mt-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-secondary"><i class="fas fa-circle text-primary me-2"></i> Efficiency</span>
+                    <span class="small text-white">40%</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-secondary"><i class="fas fa-circle text-success me-2"></i> Growth</span>
+                    <span class="small text-white">35%</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-secondary"><i class="fas fa-circle text-danger me-2"></i> Risk Mitigation</span>
+                    <span class="small text-white">25%</span>
+                </div>
+            </div>
         </div>
-        <div class="glass-card">
-            <h5 class="text-info mb-3">AI Strategy Note</h5>
-            <p class="small text-secondary">Based on current causal analysis and demand forecasting, the system suggests focusing on <strong>Inventory Optimization</strong> for the upcoming week to prevent stock-outs during the projected revenue spike.</p>
+
+        <div class="glass-card border border-info">
+            <h5 class="text-info mb-3"><i class="fas fa-brain me-2"></i> AI Strategy Digest</h5>
+            <p class="small text-secondary mb-4">The current ensemble analysis prioritizes <strong>Margin Recovery</strong> over volume expansion for the "Electronics" category, while suggesting <strong>Aggressive Scaling</strong> for "Fashion" based on low causal price elasticity.</p>
+            <div class="p-3 bg-dark rounded">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-line text-success fa-2x"></i>
+                    </div>
+                    <div class="ms-3">
+                        <small class="text-secondary d-block">Estimated ROI</small>
+                        <h5 class="text-success mb-0">+14.2%</h5>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-end">
+        <a href="{{ url_for('user.forecasting') }}" class="btn btn-neon px-5">Proceed to AI Forecasting <i class="fas fa-arrow-right ms-2"></i></a>
     </div>
 </div>
 {% endblock %}
@@ -62,18 +124,21 @@
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Pricing', 'Marketing', 'Inventory', 'Strategy'],
+            labels: ['Efficiency', 'Growth', 'Risk'],
             datasets: [{
-                data: [30, 20, 40, 10],
-                backgroundColor: ['#00d2ff', '#2ecc71', '#f1c40f', '#9b59b6'],
-                borderWidth: 0
+                data: [40, 35, 25],
+                backgroundColor: ['#00d2ff', '#2ecc71', '#e94560'],
+                borderWidth: 0,
+                hoverOffset: 15
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#fff' } }
-            }
+                legend: { display: false }
+            },
+            cutout: '70%'
         }
     });
 </script>

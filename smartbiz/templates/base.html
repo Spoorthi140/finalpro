@@ -146,12 +146,6 @@
         </div>
 
         <ul class="list-unstyled components">
-            {% if current_user.role in ['Super Admin', 'Business Admin'] %}
-            <li class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
-                <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-user-shield me-3"></i> Admin Panel</a>
-            </li>
-            {% endif %}
-
             <li class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
                 <a href="{{ url_for('user.dashboard') }}"><i class="fas fa-th-large me-3"></i> Dashboard</a>
             </li>

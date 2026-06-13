@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Upload
+from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Upload, Forecast, Report
 from .auth_utils import admin_required
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -36,12 +36,18 @@ def dashboard():
     products = Product.query.all()
     inventory_logs = InventoryLog.query.order_by(InventoryLog.timestamp.desc()).limit(10).all()
     uploads = Upload.query.order_by(Upload.upload_date.desc()).limit(10).all()
+    audit_logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(10).all()
+    forecasts = Forecast.query.order_by(Forecast.created_at.desc()).limit(10).all()
+    reports = Report.query.order_by(Report.created_at.desc()).limit(10).all()
 
     return render_template('admin/dashboard.html',
                            users=users,
                            products=products,
                            inventory_logs=inventory_logs,
-                           uploads=uploads)
+                           uploads=uploads,
+                           audit_logs=audit_logs,
+                           forecasts=forecasts,
+                           reports=reports)
 
 @admin_bp.route('/user/create', methods=['POST'])
 @login_required

@@ -43,7 +43,7 @@ SmartBiz Enterprise is a modern enterprise-level business intelligence platform 
 
 ### Running the Application
 ```bash
-python app.py
+python run.py
 ```
 The application will be available at `http://localhost:5000`.
 
