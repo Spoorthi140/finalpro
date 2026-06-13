@@ -16,7 +16,7 @@
     <div class="col-md-3">
         <div class="glass-card text-center">
             <h6 class="text-secondary">Avg. CLV</h6>
-            <h3 class="text-info">${{ clv }}</h3>
+            <h3 class="text-info">₹{{ clv }}</h3>
             <p class="small text-secondary mb-0">Lifetime Value per Customer</p>
         </div>
     </div>
@@ -30,7 +30,7 @@
     <div class="col-md-3">
         <div class="glass-card text-center">
             <h6 class="text-secondary">Acquisition Cost</h6>
-            <h3 class="text-warning">$24.50</h3>
+            <h3 class="text-warning">₹24.50</h3>
             <p class="small text-secondary mb-0">Per Customer</p>
         </div>
     </div>
@@ -56,7 +56,7 @@
                 <div class="progress bg-dark" style="height: 10px;">
                     <div class="progress-bar bg-{{ s.color }}" role="progressbar" style="width: {{ (s.count / 300 * 100)|int }}%"></div>
                 </div>
-                <small class="text-secondary">Value: ${{ "{:,.0f}".format(s.monetary) }}</small>
+                <small class="text-secondary">Value: ₹{{ "{:,.0f}".format(s.monetary) }}</small>
             </div>
             {% endfor %}
         </div>

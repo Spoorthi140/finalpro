@@ -38,7 +38,7 @@ def generate_recommendations(products):
                 'product': p.product_name,
                 'category': 'Marketing',
                 'priority': 'Low',
-                'message': f"Under-exposed: {p.product_name} has low marketing visibility. Increase budget by $50.",
+                'message': f"Under-exposed: {p.product_name} has low marketing visibility. Increase budget by ₹500.",
                 'action': 'Boost Marketing'
             })
 

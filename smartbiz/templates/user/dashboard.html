@@ -7,21 +7,21 @@
     <div class="col-md-3">
         <div class="glass-card text-center">
             <h6 class="text-secondary">Total Revenue</h6>
-            <h3 class="text-info">${{ "{:,.2f}".format(total_revenue) }}</h3>
+            <h3 class="text-info">₹{{ "{:,.2f}".format(total_revenue) }}</h3>
             <small class="text-success"><i class="fas fa-arrow-up"></i> 5.2%</small>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
             <h6 class="text-secondary">Total Profit</h6>
-            <h3 class="text-success">${{ "{:,.2f}".format(total_profit) }}</h3>
+            <h3 class="text-success">₹{{ "{:,.2f}".format(total_profit) }}</h3>
             <small class="text-success"><i class="fas fa-arrow-up"></i> 3.8%</small>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
             <h6 class="text-secondary">Inventory Value</h6>
-            <h3 class="text-warning">${{ "{:,.2f}".format(inventory_value) }}</h3>
+            <h3 class="text-warning">₹{{ "{:,.2f}".format(inventory_value) }}</h3>
             <small class="text-danger"><i class="fas fa-arrow-down"></i> 1.2%</small>
         </div>
     </div>
@@ -44,17 +44,24 @@
     <div class="col-md-4">
         <div class="glass-card">
             <h5 class="text-info mb-4">Alert Center</h5>
-            {% if low_stock_count > 0 %}
-            <div class="alert alert-warning py-2 mb-2">
-                <i class="fas fa-exclamation-triangle me-2"></i> {{ low_stock_count }} items are low on stock!
-            </div>
+            {% if products %}
+                {% if low_stock_count > 0 %}
+                <div class="alert alert-warning py-2 mb-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i> {{ low_stock_count }} items are low on stock!
+                </div>
+                {% endif %}
+                <div class="alert alert-info py-2 mb-2">
+                    <i class="fas fa-chart-pie me-2"></i> Causal AI ready for {{ products|length }} products.
+                </div>
+                <div class="alert alert-success py-2 mb-2">
+                    <i class="fas fa-check-circle me-2"></i> Smart recommendations updated.
+                </div>
+            {% else %}
+                <div class="alert alert-danger py-2 mb-2">
+                    <i class="fas fa-exclamation-circle me-2"></i> No data found. Please go to Data Hub.
+                </div>
+                <a href="{{ url_for('user.upload') }}" class="btn btn-outline-info btn-sm w-100 mt-2">Go to Data Hub</a>
             {% endif %}
-            <div class="alert alert-info py-2 mb-2">
-                <i class="fas fa-info-circle me-2"></i> New dataset uploaded successfully.
-            </div>
-            <div class="alert alert-success py-2 mb-2">
-                <i class="fas fa-check-circle me-2"></i> Forecast for Q4 is ready.
-            </div>
         </div>
     </div>
 </div>
@@ -80,10 +87,10 @@
                         <tr>
                             <td>{{ p.product_name }}</td>
                             <td>{{ p.category }}</td>
-                            <td>${{ p.price }}</td>
+                            <td>₹{{ p.price }}</td>
                             <td>{{ p.stock_quantity }}</td>
                             <td>{{ p.sales }}</td>
-                            <td class="text-success">${{ p.profit }}</td>
+                            <td class="text-success">₹{{ p.profit }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -100,17 +107,17 @@
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: {{ chart_labels|tojson }},
             datasets: [{
                 label: 'Revenue',
-                data: [12000, 19000, 15000, 25000, 22000, 30000],
+                data: {{ chart_revenue|tojson }},
                 borderColor: '#00d2ff',
                 tension: 0.4,
                 fill: true,
                 backgroundColor: 'rgba(0, 210, 255, 0.1)'
             }, {
                 label: 'Profit',
-                data: [5000, 8000, 6000, 11000, 9000, 14000],
+                data: {{ chart_profit|tojson }},
                 borderColor: '#2ecc71',
                 tension: 0.4,
                 fill: true,

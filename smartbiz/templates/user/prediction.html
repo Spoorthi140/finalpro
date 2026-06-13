@@ -10,11 +10,11 @@
             <p class="text-light-50 small mb-4">Input simulation parameters to forecast future business outcomes using Scikit-learn regression models.</p>
             <form method="POST">
                 <div class="mb-3">
-                    <label class="form-label">Product Unit Price ($)</label>
+                    <label class="form-label">Product Unit Price (₹)</label>
                     <input type="number" step="0.01" name="price" class="form-control" required placeholder="e.g. 45.00">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Marketing Budget ($)</label>
+                    <label class="form-label">Marketing Budget (₹)</label>
                     <input type="number" step="10" name="marketing" class="form-control" required placeholder="e.g. 1000">
                 </div>
                 <div class="mb-3">
@@ -52,7 +52,7 @@
             <div class="col-md-4">
                 <div class="glass-card text-center border-top border-success border-4">
                     <h6 class="text-success small text-uppercase">Predicted Profit</h6>
-                    <h2 class="fw-bold">${{ prediction.predicted_profit }}</h2>
+                    <h2 class="fw-bold">₹{{ prediction.predicted_profit }}</h2>
                     <p class="small text-light-50 mb-0">Estimated total</p>
                 </div>
             </div>
@@ -96,6 +96,11 @@
             </div>
         </div>
         {% endif %}
+        <div class="row mt-4">
+            <div class="col-12 text-end">
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-neon">Proceed to Smart Inventory <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

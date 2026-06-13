@@ -70,66 +70,6 @@ def logout():
     logout_user()
     return redirect(url_for('user.home'))
 
-@user_bp.route('/company/profile', methods=['GET', 'POST'])
-@login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager'])
-def company_profile():
-    company = Company.query.first()
-    if request.method == 'POST':
-        name = request.form.get('name')
-        industry = request.form.get('industry')
-        business_type = request.form.get('business_type')
-        address = request.form.get('address')
-        contact_number = request.form.get('contact_number')
-        branch_count = int(request.form.get('branch_count', 1))
-
-        if company:
-            company.name = name
-            company.industry = industry
-            company.business_type = business_type
-            company.address = address
-            company.contact_number = contact_number
-            company.branch_count = branch_count
-        else:
-            company = Company(
-                name=name,
-                industry=industry,
-                business_type=business_type,
-                address=address,
-                contact_number=contact_number,
-                branch_count=branch_count
-            )
-            db.session.add(company)
-
-        db.session.commit()
-        flash('Company profile updated successfully.', 'success')
-        return redirect(url_for('user.company_profile'))
-
-    return render_template('user/company_profile.html', company=company)
-
-@user_bp.route('/executive')
-@login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager'])
-def executive_dashboard():
-    products = Product.query.all()
-    total_revenue = sum([p.revenue for p in products])
-    total_profit = sum([p.profit for p in products])
-
-    # Mock Risk Analysis
-    health_score = 78
-    risks = [
-        {'name': 'Revenue Risk', 'level': 'Low', 'color': 'success'},
-        {'name': 'Inventory Risk', 'level': 'Medium', 'color': 'warning'},
-        {'name': 'Demand Risk', 'level': 'Low', 'color': 'success'},
-        {'name': 'Churn Risk', 'level': 'High', 'color': 'danger'}
-    ]
-
-    return render_template('user/executive_dashboard.html',
-                           total_revenue=total_revenue,
-                           total_profit=total_profit,
-                           health_score=health_score,
-                           risks=risks)
-
 @user_bp.route('/dashboard')
 @login_required
 def dashboard():
@@ -142,9 +82,25 @@ def dashboard():
 
     low_stock_products = Product.query.filter(Product.stock_quantity < 10).all()
 
-    # Growth Rate Mock Calculation (comparing latest to average)
-    avg_sales = total_sales / len(products) if products else 0
-    growth_rate = 12.5 # Mock value
+    # Simple dynamic trends for Chart.js
+    if products:
+        df = pd.DataFrame([{
+            'Date': p.date,
+            'Revenue': p.revenue,
+            'Profit': p.profit
+        } for p in products])
+        df['Date'] = pd.to_datetime(df['Date'])
+        # Sort and group by month for the chart
+        monthly = df.set_index('Date').resample('ME').sum().tail(6)
+        chart_labels = [d.strftime('%b') for d in monthly.index]
+        chart_revenue = monthly['Revenue'].tolist()
+        chart_profit = monthly['Profit'].tolist()
+    else:
+        chart_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        chart_revenue = [0, 0, 0, 0, 0, 0]
+        chart_profit = [0, 0, 0, 0, 0, 0]
+
+    growth_rate = 12.5 if products else 0
 
     return render_template('user/dashboard.html',
                            products=products,
@@ -154,7 +110,10 @@ def dashboard():
                            total_inventory=total_inventory,
                            inventory_value=inventory_value,
                            growth_rate=growth_rate,
-                           low_stock_count=len(low_stock_products))
+                           low_stock_count=len(low_stock_products),
+                           chart_labels=chart_labels,
+                           chart_revenue=chart_revenue,
+                           chart_profit=chart_profit)
 
 @user_bp.route('/upload', methods=['GET', 'POST'])
 @login_required

@@ -75,14 +75,20 @@
                         <tr>
                             <td>{{ f.period }}</td>
                             <td>{{ f.sales|int }} units</td>
-                            <td>${{ "{:,.2f}".format(f.revenue) }}</td>
-                            <td class="text-success">${{ "{:,.2f}".format(f.profit) }}</td>
+                            <td>₹{{ "{:,.2f}".format(f.revenue) }}</td>
+                            <td class="text-success">₹{{ "{:,.2f}".format(f.profit) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-end">
+        <a href="{{ url_for('user.reports') }}" class="btn btn-neon">Proceed to Reports <i class="fas fa-arrow-right ms-2"></i></a>
     </div>
 </div>
 {% endblock %}

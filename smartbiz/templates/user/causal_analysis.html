@@ -41,5 +41,11 @@
 <div class="alert alert-info mt-4">
     <i class="fas fa-info-circle me-2"></i> Not enough data to run causal analysis. Please upload a dataset with at least 5 records.
 </div>
+{% else %}
+<div class="row mt-4">
+    <div class="col-12 text-end">
+        <a href="{{ url_for('user.simulator') }}" class="btn btn-neon">Go to Strategy Simulator <i class="fas fa-arrow-right ms-2"></i></a>
+    </div>
+</div>
 {% endif %}
 {% endblock %}

@@ -9,7 +9,6 @@ SmartBiz Enterprise is a modern enterprise-level business intelligence platform 
 - **AI Forecasting & Prediction**: Predict sales, revenue, and profit trends using XGBoost, Prophet, and Random Forest.
 - **Smart Strategy Simulator**: Test business scenarios (price changes, marketing spend) before implementation.
 - **Computer Vision Inventory**: Real-time shelf monitoring and quantity estimation using OpenCV.
-- **Executive Dashboard**: High-level business health scores and risk assessment for decision-makers.
 - **Role-Based Access Control**: Secure access for Super Admins, Managers, Analysts, and Viewers.
 - **Advanced Reporting**: Automated PDF and Excel reports for sales and inventory.
 

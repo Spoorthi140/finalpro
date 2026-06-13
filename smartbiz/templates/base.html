@@ -157,20 +157,8 @@
             </li>
 
             {% if current_user.role in ['Super Admin', 'Business Admin', 'Manager'] %}
-            <li class="{{ 'active' if request.endpoint == 'user.executive_dashboard' }}">
-                <a href="{{ url_for('user.executive_dashboard') }}"><i class="fas fa-user-tie me-3"></i> Executive Center</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.company_profile' }}">
-                <a href="{{ url_for('user.company_profile') }}"><i class="fas fa-building me-3"></i> Company Profile</a>
-            </li>
             <li class="{{ 'active' if request.endpoint == 'user.upload' }}">
                 <a href="{{ url_for('user.upload') }}"><i class="fas fa-cloud-upload-alt me-3"></i> Data Hub</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.inventory' }}">
-                <a href="{{ url_for('user.inventory') }}"><i class="fas fa-boxes me-3"></i> Smart Inventory</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.simulator' }}">
-                <a href="{{ url_for('user.simulator') }}"><i class="fas fa-vial me-3"></i> Strategy Simulator</a>
             </li>
             {% endif %}
 
@@ -178,14 +166,32 @@
             <li class="{{ 'active' if request.endpoint == 'user.causal_analysis' }}">
                 <a href="{{ url_for('user.causal_analysis') }}"><i class="fas fa-project-diagram me-3"></i> Causal AI</a>
             </li>
+            {% endif %}
+
+            {% if current_user.role in ['Super Admin', 'Business Admin', 'Manager'] %}
+            <li class="{{ 'active' if request.endpoint == 'user.simulator' }}">
+                <a href="{{ url_for('user.simulator') }}"><i class="fas fa-vial me-3"></i> Strategy Simulator</a>
+            </li>
+            {% endif %}
+
+            {% if current_user.role != 'Viewer' %}
+            <li class="{{ 'active' if request.endpoint == 'user.prediction' }}">
+                <a href="{{ url_for('user.prediction') }}"><i class="fas fa-brain me-3"></i> Prediction</a>
+            </li>
+            {% endif %}
+
+            {% if current_user.role in ['Super Admin', 'Business Admin', 'Manager'] %}
+            <li class="{{ 'active' if request.endpoint == 'user.inventory' }}">
+                <a href="{{ url_for('user.inventory') }}"><i class="fas fa-boxes me-3"></i> Smart Inventory</a>
+            </li>
+            {% endif %}
+
+            {% if current_user.role != 'Viewer' %}
+            <li class="{{ 'active' if request.endpoint == 'user.recommendations' }}">
+                <a href="{{ url_for('user.recommendations') }}"><i class="fas fa-lightbulb me-3"></i> AI Recommendations</a>
+            </li>
             <li class="{{ 'active' if request.endpoint == 'user.forecasting' }}">
                 <a href="{{ url_for('user.forecasting') }}"><i class="fas fa-chart-line me-3"></i> AI Forecasting</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.customer_intelligence' }}">
-                <a href="{{ url_for('user.customer_intelligence') }}"><i class="fas fa-users me-3"></i> Customer Intel</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.recommendations' }}">
-                <a href="{{ url_for('user.recommendations') }}"><i class="fas fa-lightbulb me-3"></i> AI Insights</a>
             </li>
             <li class="{{ 'active' if request.endpoint == 'user.reports' }}">
                 <a href="{{ url_for('user.reports') }}"><i class="fas fa-file-alt me-3"></i> Reports</a>
