@@ -3,22 +3,23 @@
 {% block title %}AI Recommendations - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="glass-card">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="text-info mb-2"><i class="fas fa-lightbulb me-2"></i> Smart Recommendation Engine</h2>
-                    <p class="text-secondary">AI-driven actionable insights integrated with Causal AI and Demand Forecasting.</p>
+                    <p class="text-secondary">Providing actionable business recommendations generated from Causal Analysis and Forecast results.</p>
                 </div>
                 <div class="text-end">
                     <div class="d-inline-block text-center me-4">
                         <h4 class="text-white mb-0">{{ recommendations|length }}</h4>
-                        <small class="text-secondary text-uppercase">Active Insights</small>
+                        <small class="text-secondary text-uppercase">Total Recommendations</small>
                     </div>
                     <div class="d-inline-block text-center">
-                        <h4 class="text-success mb-0">High</h4>
-                        <small class="text-secondary text-uppercase">AI Confidence</small>
+                        <h4 class="text-danger mb-0">{{ recommendations|selectattr('priority', 'equalto', 'Critical')|list|length }}</h4>
+                        <small class="text-secondary text-uppercase">Critical Issues</small>
                     </div>
                 </div>
             </div>
@@ -26,43 +27,64 @@
     </div>
 </div>
 
-<div class="row g-4">
+<!-- SECTION 1 – RECOMMENDATION OVERVIEW -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <p class="text-secondary small text-uppercase mb-1">Revenue Opportunity</p>
+            <h3 class="text-info mb-0">₹{{ "{:,.0f}".format(recommendations|selectattr('type', 'equalto', 'Growth')|sum(attribute='impact_score') * 100) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <p class="text-secondary small text-uppercase mb-1">Cost Saving Opportunity</p>
+            <h3 class="text-success mb-0">₹{{ "{:,.0f}".format(recommendations|selectattr('type', 'equalto', 'Efficiency')|sum(attribute='impact_score') * 50) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card p-3">
+            <div class="d-flex align-items-center justify-content-around h-100">
+                <div style="height: 80px; width: 80px;">
+                    <canvas id="recDistChart"></canvas>
+                </div>
+                <div class="small">
+                    <span class="d-block text-secondary"><i class="fas fa-circle text-info me-1"></i> Pricing: {{ rec_dist.Pricing }}</span>
+                    <span class="d-block text-secondary"><i class="fas fa-circle text-success me-1"></i> Marketing: {{ rec_dist.Marketing }}</span>
+                    <span class="d-block text-secondary"><i class="fas fa-circle text-warning me-1"></i> Inventory: {{ rec_dist.Inventory }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 4 – PRIORITY ACTION CENTER -->
+<div class="row g-4 mb-4">
     <div class="col-md-8">
-        <div class="row g-4">
+        <h5 class="text-info mb-4">Priority Action Center</h5>
+        <div class="row g-3">
             {% for rec in recommendations %}
             <div class="col-12">
                 <div class="glass-card border-start border-4 border-{{ 'danger' if rec.priority == 'Critical' else 'info' if rec.priority == 'High' else 'warning' }}">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <div class="d-flex align-items-center mb-1">
-                                <span class="badge bg-{{ 'danger' if rec.type == 'Risk' else 'success' if rec.type == 'Growth' else 'primary' }} me-2">
-                                    {{ rec.type }}
-                                </span>
-                                <h5 class="text-white m-0">{{ rec.category }}</h5>
-                            </div>
-                            <small class="text-info">{{ rec.product }}</small>
+                            <span class="badge bg-{{ 'danger' if rec.type == 'Risk Mitigation' else 'success' if rec.type == 'Growth' else 'primary' }} mb-2">
+                                {{ rec.type }}
+                            </span>
+                            <h6 class="text-white mb-1">{{ rec.category }}: {{ rec.product }}</h6>
                         </div>
                         <div class="text-end">
-                            <span class="text-{{ 'danger' if rec.priority == 'Critical' else 'warning' }} fw-bold d-block">{{ rec.priority }}</span>
-                            <small class="text-secondary">Impact: <span class="text-white">{{ rec.impact }}</span></small>
+                            <span class="text-{{ 'danger' if rec.priority == 'Critical' else 'info' }} fw-bold d-block small">{{ rec.priority }}</span>
+                            <small class="text-secondary">Impact Score: <span class="text-white">{{ rec.impact_score }}</span></small>
                         </div>
                     </div>
-
-                    <p class="text-secondary">{{ rec.message }}</p>
-
-                    <div class="mt-4 d-flex justify-content-between align-items-center">
-                        <div>
-                            <button class="btn btn-neon btn-sm px-4 fw-bold text-uppercase" style="font-size: 0.7rem;">{{ rec.action }}</button>
-                            <button class="btn btn-link btn-sm text-secondary text-decoration-none ms-2 small">Mark as Implemented</button>
+                    <p class="text-secondary small mb-3">{{ rec.message }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-neon btn-sm px-3 fw-bold">{{ rec.action }}</button>
+                            <span class="text-secondary small align-self-center">Effort: <span class="text-info">{{ rec.effort }}</span></span>
                         </div>
-                        <div class="dropdown">
-                            <button class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item small" href="#">View Causal Evidence</a></li>
-                                <li><a class="dropdown-item small" href="#">Adjust Simulation</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item small text-danger" href="#">Ignore Insight</a></li>
-                            </ul>
+                        <div class="text-end">
+                            <small class="text-success fw-bold">{{ rec.impact }}</small>
                         </div>
                     </div>
                 </div>
@@ -71,75 +93,120 @@
         </div>
     </div>
 
+    <!-- SECTION 2 & 5 – VISUALIZATIONS -->
     <div class="col-md-4">
         <div class="glass-card mb-4">
-            <h5 class="text-info mb-4">Insight Breakdown</h5>
+            <h5 class="text-info mb-4">Price vs. Sales Performance</h5>
             <div style="height: 250px;">
-                <canvas id="recPieChart"></canvas>
+                <canvas id="priceSalesScatter"></canvas>
             </div>
-            <div class="mt-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="small text-secondary"><i class="fas fa-circle text-primary me-2"></i> Efficiency</span>
-                    <span class="small text-white">40%</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="small text-secondary"><i class="fas fa-circle text-success me-2"></i> Growth</span>
-                    <span class="small text-white">35%</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="small text-secondary"><i class="fas fa-circle text-danger me-2"></i> Risk Mitigation</span>
-                    <span class="small text-white">25%</span>
-                </div>
+            <p class="small text-secondary mt-3 mb-0">Causal Impact of Price on Volume: <strong class="text-white">
+                {% if causal_results %}{{ causal_results[0].effect|round(2) }}{% else %}N/A{% endif %}
+            </strong></p>
+        </div>
+
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-4">Marketing vs. Revenue ROI</h5>
+            <div style="height: 250px;">
+                <canvas id="mktRevScatter"></canvas>
             </div>
         </div>
 
-        <div class="glass-card border border-info">
-            <h5 class="text-info mb-3"><i class="fas fa-brain me-2"></i> AI Strategy Digest</h5>
-            <p class="small text-secondary mb-4">The current ensemble analysis prioritizes <strong>Margin Recovery</strong> over volume expansion for the "Electronics" category, while suggesting <strong>Aggressive Scaling</strong> for "Fashion" based on low causal price elasticity.</p>
-            <div class="p-3 bg-dark rounded">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line text-success fa-2x"></i>
-                    </div>
-                    <div class="ms-3">
-                        <small class="text-secondary d-block">Estimated ROI</small>
-                        <h5 class="text-success mb-0">+14.2%</h5>
-                    </div>
+        <div class="glass-card">
+            <h5 class="text-info mb-4">Strategic Impact vs. Effort</h5>
+            <div class="matrix-container" style="height: 300px; position: relative;">
+                <div class="matrix-axis-y text-secondary small">IMPACT →</div>
+                <div class="matrix-axis-x text-secondary small">EFFORT →</div>
+                <div class="matrix-quadrant q1">High Impact / Low Effort</div>
+                <div class="matrix-quadrant q2">High Impact / High Effort</div>
+                <div class="matrix-quadrant q3">Low Impact / Low Effort</div>
+                <div class="matrix-quadrant q4">Low Impact / High Effort</div>
+                {% for rec in recommendations[:5] %}
+                <div class="matrix-dot"
+                     style="bottom: {{ rec.impact_score }}%; left: {{ 20 if rec.effort == 'Low' else 50 if rec.effort == 'Medium' else 80 }}%;"
+                     title="{{ rec.product }}: {{ rec.category }}">
                 </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-12 text-end">
-        <a href="{{ url_for('user.forecasting') }}" class="btn btn-neon px-5">Proceed to AI Forecasting <i class="fas fa-arrow-right ms-2"></i></a>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const ctx = document.getElementById('recPieChart').getContext('2d');
-    new Chart(ctx, {
+    const recDist = {{ rec_dist|tojson }};
+    const products = {{ products|tojson if products else '[]' }};
+
+    // Recommendation Distribution Donut
+    new Chart(document.getElementById('recDistChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Efficiency', 'Growth', 'Risk'],
+            labels: Object.keys(recDist),
             datasets: [{
-                data: [40, 35, 25],
-                backgroundColor: ['#00d2ff', '#2ecc71', '#e94560'],
-                borderWidth: 0,
-                hoverOffset: 15
+                data: Object.values(recDist),
+                backgroundColor: ['#00d2ff', '#2ecc71', '#f1c40f', '#e94560', '#9b59b6'],
+                borderWidth: 0
             }]
         },
         options: {
+            plugins: { legend: { display: false } },
+            cutout: '70%',
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            cutout: '70%'
+            maintainAspectRatio: false
+        }
+    });
+
+    // Price vs Sales Scatter
+    new Chart(document.getElementById('priceSalesScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Products',
+                data: products.map(p => ({x: p.price, y: p.sales})),
+                backgroundColor: 'rgba(0, 210, 255, 0.6)',
+                borderColor: '#00d2ff'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { title: { display: true, text: 'Price (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                y: { title: { display: true, text: 'Sales (Units)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // Marketing vs Revenue Scatter
+    new Chart(document.getElementById('mktRevScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Products',
+                data: products.map(p => ({x: p.marketing_spend, y: p.revenue})),
+                backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                borderColor: '#2ecc71'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { title: { display: true, text: 'Marketing Spend (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                y: { title: { display: true, text: 'Revenue (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }
+            }
         }
     });
 </script>
+<style>
+    .matrix-container { border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); overflow: hidden; }
+    .matrix-axis-y { position: absolute; left: -30px; top: 50%; transform: rotate(-90deg); }
+    .matrix-axis-x { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
+    .matrix-quadrant { position: absolute; font-size: 0.5rem; color: rgba(255,255,255,0.2); text-transform: uppercase; padding: 10px; }
+    .q1 { top: 0; left: 0; }
+    .q2 { top: 0; right: 0; }
+    .q3 { bottom: 20px; left: 0; }
+    .q4 { bottom: 20px; right: 0; }
+    .matrix-dot { width: 10px; height: 10px; background: var(--neon-blue); border-radius: 50%; position: absolute; box-shadow: 0 0 10px var(--neon-blue); cursor: pointer; }
+</style>
 {% endblock %}

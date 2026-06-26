@@ -52,6 +52,8 @@ class Product(db.Model):
     sales = db.Column(db.Integer, default=0)
     revenue = db.Column(db.Float, default=0.0)
     profit = db.Column(db.Float, default=0.0)
+    minimum_threshold = db.Column(db.Integer, default=10)
+    maximum_threshold = db.Column(db.Integer, default=1000)
     date = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -73,6 +75,8 @@ class InventoryLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     detected_quantity = db.Column(db.Integer)
+    difference = db.Column(db.Integer)
+    status = db.Column(db.String(50))
     image_path = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -99,6 +103,7 @@ class Recommendation(db.Model):
     message = db.Column(db.Text)
     priority = db.Column(db.String(20)) # High, Medium, Low
     action = db.Column(db.String(100))
+    expected_impact = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Report(db.Model):

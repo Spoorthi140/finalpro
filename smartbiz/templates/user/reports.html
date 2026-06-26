@@ -55,20 +55,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for report in recent_reports %}
                         <tr>
-                            <td>Business_Summary_Q3.pdf</td>
-                            <td>Executive</td>
-                            <td>Oct 24, 2023</td>
-                            <td>1.2 MB</td>
-                            <td><i class="fas fa-download text-info"></i></td>
+                            <td>{{ report.report_name }}</td>
+                            <td>{{ report.report_type }}</td>
+                            <td>{{ report.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                            <td>Auto-calculated</td>
+                            <td><i class="fas fa-check text-success"></i> Generated</td>
                         </tr>
+                        {% else %}
                         <tr>
-                            <td>Inventory_Log_Oct.xlsx</td>
-                            <td>Inventory</td>
-                            <td>Oct 20, 2023</td>
-                            <td>450 KB</td>
-                            <td><i class="fas fa-download text-info"></i></td>
+                            <td colspan="5" class="text-center text-secondary">No reports generated yet. Click above to create one.</td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

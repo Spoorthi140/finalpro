@@ -1,67 +1,70 @@
 # SmartBiz Enterprise
-AI-Powered Business Intelligence, Causal Decision Intelligence & Smart Inventory Management Platform
+### AI-Powered Business Intelligence, Causal Decision Intelligence & Smart Inventory Management Platform
 
-## Overview
-SmartBiz Enterprise is a modern enterprise-level business intelligence platform that combines Causal AI, Machine Learning forecasting, and Computer Vision to help organizations make data-driven decisions.
+SmartBiz Enterprise is a modern business decision support system that combines Causal AI, machine learning forecasting, and computer vision to help organizations optimize their operations.
 
-### Key Features
-- **Causal Decision Intelligence**: Understand "why" business outcomes occur using DoWhy-powered causal inference.
-- **AI Forecasting & Prediction**: Predict sales, revenue, and profit trends using XGBoost, Prophet, and Random Forest.
-- **Smart Strategy Simulator**: Test business scenarios (price changes, marketing spend) before implementation.
-- **Computer Vision Inventory**: Real-time shelf monitoring and quantity estimation using OpenCV.
-- **Role-Based Access Control**: Secure access for Super Admins, Managers, Analysts, and Viewers.
-- **Advanced Reporting**: Automated PDF and Excel reports for sales and inventory.
+## Key Features
+- **AI Business Strategy Simulator:** Test price and marketing changes before implementation.
+- **Causal Decision Intelligence:** Understand *why* business outcomes occur using DoWhy.
+- **Weighted Ensemble Forecasting:** Advanced predictions using Prophet, ARIMA, XGBoost, and Random Forest.
+- **Smart Inventory Monitoring:** Camera-based object counting and stock-out risk assessment.
+- **Executive Decision Support:** Health scores and risk alerts for business leaders.
+- **Role-Based Access Control:** 5 distinct user roles (Super Admin to Viewer).
 
-## Technology Stack
-- **Frontend**: HTML5, CSS3, Bootstrap 5, Chart.js
-- **Backend**: Python Flask
-- **Database**: MySQL (via SQLAlchemy & PyMySQL)
-- **AI/ML**: Scikit-Learn, XGBoost, Prophet, DoWhy
-- **Computer Vision**: OpenCV
-- **Reporting**: ReportLab, OpenPyXL
+---
 
-## Setup Instructions
+## 🛠 Setup Instructions
 
-### Prerequisites
-- Python 3.8+
-- MySQL Server
+### 1. Prerequisites
+- Python 3.9+
+- MySQL Server (Optional, defaults to SQLite if not configured)
+- Webcam (For Smart Inventory features)
 
-### Installation
-1. Clone the repository.
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Set up the MySQL database:
-   - Create a database named `smartbiz_db`.
-   - Update the `SQLALCHEMY_DATABASE_URI` in `app.py` if necessary.
+### 2. Installation
+Clone the repository and install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### Running the Application
+### 3. Database Configuration
+By default, the application uses **SQLite** for easy setup. To use **MySQL**:
+
+1. Create a database named `smartbiz_db` in MySQL Workbench.
+2. Set the environment variable `USE_MYSQL=1`.
+3. (Optional) Customize the connection string in `smartbiz/app.py`:
+   `mysql+pymysql://root:YOUR_PASSWORD@localhost/smartbiz_db`
+
+### 4. Running the Application
 ```bash
 python run.py
 ```
-The application will be available at `http://localhost:5000`.
+- Access the platform: `http://127.0.0.1:5000`
+- Admin Login: `http://127.0.0.1:5000/admin/login`
 
-### Administrative Access
-- **Admin Portal**: `http://localhost:5000/admin/login`
-- **Default Logic**: The first user to register is automatically assigned the `Super Admin` role.
+### 🔑 Default Admin Credentials
+- **Email:** `admin@smartbiz.com`
+- **Password:** `admin123`
+*(Note: These are initialized on first run or via `setup_admin.py`)*
 
-## Folder Structure
-- `smartbiz/`: Main application package.
-  - `static/`: CSS, JS, and image assets.
-  - `templates/`: HTML templates (organized by user/admin).
-  - `models.py`: SQLAlchemy database models.
-  - `user_routes.py`: Customer-facing logic and analytics.
-  - `admin_routes.py`: Administrative management and CRUD.
-  - `causal_analysis.py`: Causal AI implementation.
-  - `prediction.py`: ML forecasting and prediction.
-  - `inventory_monitor.py`: OpenCV object detection.
-  - `report_generator.py`: PDF and Excel report generation.
+---
 
-## License
-MIT License
+## 📊 Modules
+- **Module 1-2:** Home & Company Profile
+- **Module 3:** Intelligent Data Hub (CSV/Excel Upload & Validation)
+- **Module 4:** BI Dashboard (Interactive KPI tracking)
+- **Module 5:** Causal Engine (DoWhy-powered impact analysis)
+- **Module 6:** Strategy Simulator (Scenario testing)
+- **Module 7:** AI Prediction (Multi-model forecasting)
+- **Module 8:** Customer Intelligence (RFM & Segmentation)
+- **Module 9:** Smart Inventory (OpenCV Camera processing)
+- **Module 10-11:** AI Recommendations & Advanced Reporting (PDF/Excel)
+- **Module 12:** Executive Support Center
+
+## 🎨 UI Theme: "Midnight Modern"
+- **Background:** Dark-mode glassmorphism.
+- **Highlights:** Neon Blue and Cyber Red accents.
+- **Framework:** Bootstrap 5 + Chart.js.
+
+---
+**Author:** SmartBiz Development Team
+**Version:** 1.0.0 (Production-Ready)

@@ -22,26 +22,37 @@ def detect_objects(image_data):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 
-        # Adaptive Thresholding for robust detection under varying light
+        # 1. Grayscale (already done above)
+        # 2. Adaptive Thresholding for robust detection under varying light
         thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
-        # Morphological operations to remove noise
-        kernel = np.ones((3,3), np.uint8)
+        # 3. Morphological operations to remove noise (Opening)
+        kernel = np.ones((5,5), np.uint8)
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
 
-        # Find contours
+        # 4. Object Detection (Contour Detection)
         contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Filter contours based on area (tuned for generic products)
+        # 5. Filter & Count
         valid_contours = []
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if area > 500: # Minimum area threshold
-                valid_contours.append(cnt)
-                # Draw bounding box and label
+            # Filter by area to avoid noise
+            if area > 1500:
+                # Shape analysis: Boxes/Rectangles usually have high extent and rectangularity
+                peri = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.04 * peri, True)
+
+                # Bounding box
                 x, y, w, h = cv2.boundingRect(cnt)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 210, 255), 2)
-                cv2.putText(img, f"Item {len(valid_contours)}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 210, 255), 2)
+                aspect_ratio = float(w)/h
+
+                # Refined box filter: Most boxes have 4-8 vertices in approxPoly and reasonable aspect ratios
+                if 4 <= len(approx) <= 8 and (0.3 < aspect_ratio < 3.0):
+                    valid_contours.append(cnt)
+                    # Visual enhancement: Bounding box and Indexing
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 210, 255), 2)
+                    cv2.putText(img, f"BOX:{len(valid_contours)}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 210, 255), 2)
 
         # Encode processed image back to base64
         _, buffer = cv2.imencode('.jpg', img)

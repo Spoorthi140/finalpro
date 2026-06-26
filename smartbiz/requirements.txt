@@ -13,3 +13,7 @@ email-validator
 Werkzeug
 PyMySQL
 cryptography
+xgboost
+prophet
+statsmodels
+openpyxl

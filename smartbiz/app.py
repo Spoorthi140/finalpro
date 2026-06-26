@@ -8,7 +8,9 @@ from .admin_routes import admin_bp
 def create_app(config=None):
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-smartbiz')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///smartbiz.db')
+    # Default to MySQL as requested, with SQLite as local fallback
+    default_db = 'mysql+pymysql://root:password@localhost/smartbiz_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', default_db if os.environ.get('USE_MYSQL') else 'sqlite:///smartbiz.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/uploads')
 
@@ -32,14 +34,15 @@ def create_app(config=None):
     app.register_blueprint(admin_bp)
 
     with app.app_context():
-        if app.config.get('SQLALCHEMY_DATABASE_URI') != 'sqlite:///:memory:':
-            try:
-                db.create_all()
-            except Exception as e:
-                print(f"Database table creation skipped or failed: {e}")
+        # Auto-create tables for SQLite; for MySQL, user usually runs a script or we attempt creation
+        try:
+            db.create_all()
+        except Exception as e:
+            # Skip if DB is not reachable yet
+            app.logger.warning(f"Initial DB connection/table creation skipped: {e}")
 
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=int(os.environ.get('PORT', 5000)))
