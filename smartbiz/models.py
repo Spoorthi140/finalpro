@@ -47,7 +47,11 @@ class Product(db.Model):
     profit = db.Column(db.Float, default=0.0)
     minimum_threshold = db.Column(db.Integer, default=10)
     maximum_threshold = db.Column(db.Integer, default=1000)
+    supplier = db.Column(db.String(150))
+    description = db.Column(db.Text)
+    image_path = db.Column(db.String(255))
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     inventory_logs = db.relationship('InventoryLog', backref='product', lazy=True, cascade="all, delete-orphan")
@@ -70,7 +74,11 @@ class InventoryDetection(db.Model):
     annotated_path = db.Column(db.String(255))
     box_count = db.Column(db.Integer)
     average_confidence = db.Column(db.Float)
+    processing_time = db.Column(db.Float) # in ms
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('detections', lazy=True))
 
 class Prediction(db.Model):
     id = db.Column(db.Integer, primary_key=True)

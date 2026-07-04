@@ -3,25 +3,111 @@
 {% block title %}Enterprise Reporting Center - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="glass-card h-100">
-            <h2 class="text-info mb-1"><i class="fas fa-file-invoice me-2"></i> Strategic Reporting Center</h2>
-            <p class="text-secondary mb-0">Generate, archive, and analyze business performance reports with live data synchronization.</p>
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Total Reports</h6>
+            <h4 class="text-white mb-0">{{ stats.total }}</h4>
         </div>
     </div>
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">This Month</h6>
+            <h4 class="text-info mb-0">{{ stats.this_month }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Inventory</h6>
+            <h4 class="text-white mb-0">{{ stats.inventory }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Prediction</h6>
+            <h4 class="text-white mb-0">{{ stats.prediction }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">AI Detection</h6>
+            <h4 class="text-white mb-0">{{ stats.detection }}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- GENERATE & SEARCH -->
     <div class="col-md-4">
-        <div class="glass-card h-100 d-flex flex-column justify-content-center">
-            <div class="row g-2">
-                <div class="col-6">
-                    <a href="{{ url_for('user.download_report', format='pdf') }}" class="btn btn-neon w-100 btn-sm">
-                        <i class="fas fa-file-pdf me-1"></i> New PDF
-                    </a>
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-plus-circle me-2"></i> Generate New Report</h5>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('user.download_report', format='pdf', type='Executive') }}" class="btn btn-neon btn-sm text-start">
+                    <i class="fas fa-file-pdf me-2"></i> Executive Overview (PDF)
+                </a>
+                <a href="{{ url_for('user.download_report', format='excel', type='Stock') }}" class="btn btn-outline-info btn-sm text-start">
+                    <i class="fas fa-file-excel me-2"></i> Full Stock Ledger (XLSX)
+                </a>
+                <a href="{{ url_for('user.download_report', format='csv', type='Low Stock') }}" class="btn btn-outline-warning btn-sm text-start">
+                    <i class="fas fa-file-csv me-2"></i> Low Stock Export (CSV)
+                </a>
+                <a href="{{ url_for('user.download_report', format='pdf', type='Activity') }}" class="btn btn-outline-secondary btn-sm text-start">
+                    <i class="fas fa-history me-2"></i> User Activity Log
+                </a>
+            </div>
+
+            <hr class="my-4 border-secondary">
+
+            <h5 class="text-info mb-3">Filter Archive</h5>
+            <form>
+                <div class="mb-3">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search by name..." value="{{ request.args.get('search', '') }}">
                 </div>
-                <div class="col-6">
-                    <a href="{{ url_for('user.download_report', format='excel') }}" class="btn btn-outline-info w-100 btn-sm">
-                        <i class="fas fa-file-excel me-1"></i> New Excel
-                    </a>
+                <div class="mb-3">
+                    <select name="type" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <option {{ 'selected' if request.args.get('type') == 'Inventory' }}>Inventory</option>
+                        <option {{ 'selected' if request.args.get('type') == 'Prediction' }}>Prediction</option>
+                        <option {{ 'selected' if request.args.get('type') == 'AI Detection' }}>AI Detection</option>
+                        <option {{ 'selected' if request.args.get('type') == 'Executive' }}>Executive</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <select name="date_filter" class="form-select form-select-sm">
+                        <option value="">Any Time</option>
+                        <option {{ 'selected' if request.args.get('date_filter') == 'Today' }}>Today</option>
+                        <option {{ 'selected' if request.args.get('date_filter') == 'Last 7 Days' }}>Last 7 Days</option>
+                        <option {{ 'selected' if request.args.get('date_filter') == 'Last Month' }}>Last Month</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-info btn-sm w-100">Apply Filters</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="col-md-8">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-chart-bar me-2"></i> Report Distribution Analytics</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Generated per Month</h6>
+                    <div style="height: 200px;">
+                        <canvas id="monthlyReportsChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Type Distribution</h6>
+                    <div style="height: 200px;">
+                        <canvas id="typeDistChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Reports by User</h6>
+                    <div style="height: 200px;">
+                        <canvas id="userDistChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -29,42 +115,37 @@
 </div>
 
 <div class="row g-4">
-    <!-- Report Archive -->
-    <div class="col-md-12">
+    <!-- REPORT TABLE -->
+    <div class="col-12">
         <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="text-info mb-0">Strategic Archive</h5>
-                <div class="input-group input-group-sm" style="width: 250px;">
-                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fas fa-search"></i></span>
-                    <input type="text" id="reportSearch" class="form-control bg-dark border-secondary text-white" placeholder="Search archive...">
-                </div>
-            </div>
-
+            <h5 class="text-info mb-4"><i class="fas fa-archive me-2"></i> Strategic Report Archive</h5>
             <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle">
+                <table class="table table-dark table-hover align-middle small">
                     <thead>
                         <tr>
-                            <th>Report Identity</th>
-                            <th>Category</th>
+                            <th>Report Name</th>
+                            <th>Type</th>
                             <th>Author</th>
-                            <th>Generated Date</th>
-                            <th>Size</th>
-                            <th class="text-end">Management</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="reportTable">
+                    <tbody>
                         {% for r in recent_reports %}
-                        <tr class="report-row">
+                        <tr>
                             <td class="fw-bold">{{ r.report_name }}</td>
-                            <td><span class="badge bg-info">{{ r.report_type }}</span></td>
+                            <td><span class="badge bg-outline-info">{{ r.report_type }}</span></td>
                             <td>{{ r.author.username if r.author else 'System' }}</td>
                             <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ r.file_size or '24 KB' }}</td>
+                            <td><span class="text-success"><i class="fas fa-check-circle me-1"></i> Generated</span></td>
                             <td class="text-end">
-                                <a href="#" class="btn btn-sm btn-outline-info me-2"><i class="fas fa-download"></i></a>
-                                <form action="{{ url_for('admin.delete_report', report_id=r.id) }}" method="POST" class="d-inline">
-                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
-                                </form>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ url_for('user.download_existing_report', report_id=r.id) }}" class="btn btn-sm btn-outline-info"><i class="fas fa-download"></i></a>
+                                    <form action="{{ url_for('user.delete_report_user', report_id=r.id) }}" method="POST" class="d-inline">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% else %}
@@ -73,32 +154,77 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination Placeholder -->
-            <nav class="mt-4">
-                <ul class="pagination pagination-sm justify-content-center">
-                    <li class="page-item disabled"><a class="page-link bg-dark border-secondary text-secondary" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link bg-info border-info text-dark" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link bg-dark border-secondary text-info" href="#">Next</a></li>
-                </ul>
-            </nav>
         </div>
     </div>
 </div>
 
 <style>
-    .pagination .page-link:hover { background: var(--neon-blue); color: black; }
+    .xx-small { font-size: 0.65rem; }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.getElementById('reportSearch').addEventListener('keyup', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('.report-row').forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(val) ? '' : 'none';
-        });
+    const monthlyCtx = document.getElementById('monthlyReportsChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ analytics.labels|tojson }},
+            datasets: [{
+                label: 'Reports Generated',
+                data: {{ analytics.counts|tojson }},
+                backgroundColor: '#00d2ff',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    const typeCtx = document.getElementById('typeDistChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ analytics.types.keys()|list|tojson }},
+            datasets: [{
+                data: {{ analytics.types.values()|list|tojson }},
+                backgroundColor: ['#00d2ff', '#e94560', '#00ff88', '#f39c12'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '70%'
+        }
+    });
+
+    const userCtx = document.getElementById('userDistChart').getContext('2d');
+    new Chart(userCtx, {
+        type: 'polarArea',
+        data: {
+            labels: {{ analytics.users.keys()|list|tojson }},
+            datasets: [{
+                data: {{ analytics.users.values()|list|tojson }},
+                backgroundColor: ['rgba(0, 210, 255, 0.5)', 'rgba(233, 69, 96, 0.5)', 'rgba(0, 255, 136, 0.5)'],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } }
+        }
     });
 </script>
 {% endblock %}

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+import os
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from .models import db, User, Product, InventoryLog, AuditLog, Upload, Forecast, Report, InventoryDetection, Prediction
 from .auth_utils import admin_required
@@ -65,8 +66,10 @@ def toggle_status(user_id):
 @admin_required
 def delete_report(report_id):
     report = Report.query.get_or_404(report_id)
-    if report.file_path and os.path.exists(report.file_path):
-        os.remove(report.file_path)
+    if report.file_path:
+        filepath = os.path.join(current_app.config['REPORTS_FOLDER'], report.file_path)
+        if os.path.exists(filepath):
+            os.remove(filepath)
     db.session.delete(report)
     db.session.commit()
     flash("Report deleted successfully.", "success")
