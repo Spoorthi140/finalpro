@@ -25,7 +25,7 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
-        username = request.form.get('username')
+        name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
 
@@ -35,9 +35,9 @@ def register():
             return redirect(url_for('user.register'))
 
         new_user = User(
-            username=username, email=email,
+            name=name, email=email,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
-            role='USER' # Force USER role for all registrations
+            role='User' # Force User role for all registrations
         )
         db.session.add(new_user)
         db.session.commit()
@@ -48,15 +48,22 @@ def register():
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        if current_user.role == 'Admin':
+            return redirect(url_for('admin.dashboard'))
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
+            if user.status != 'Active':
+                flash('Your account is inactive. Please contact admin.', 'warning')
+                return redirect(url_for('user.login'))
             login_user(user)
             db.session.add(AuditLog(user_id=user.id, action="User Login", module="Authentication"))
             db.session.commit()
+            if user.role == 'Admin':
+                return redirect(url_for('admin.dashboard'))
             return redirect(url_for('user.dashboard'))
         else:
             flash('Login failed. Check email and password.', 'danger')
@@ -161,7 +168,7 @@ def dashboard():
 
 @user_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def upload():
     upload_results = None; preview_data = []
     if request.method == 'POST':
@@ -219,7 +226,7 @@ def upload():
 
 @user_bp.route('/inventory')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def inventory():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search')
@@ -325,7 +332,7 @@ def add_product():
 
 @user_bp.route('/simulator', methods=['GET', 'POST'])
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def simulator():
     products = Product.query.all()
     simulation_result = None
@@ -347,7 +354,7 @@ def simulator():
 
 @user_bp.route('/forecasting')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def forecasting():
     products = Product.query.all()
     if not products:
@@ -369,14 +376,14 @@ def forecasting():
 
 @user_bp.route('/customer_intelligence')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def customer_intelligence():
     segments = perform_rfm_analysis(); clv = calculate_customer_lifetime_value(); retention = retention_analysis()
     return render_template('user/customer_intelligence.html', segments=segments, clv=clv, retention=retention)
 
 @user_bp.route('/company_profile', methods=['GET', 'POST'])
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def company_profile():
     company = Company.query.first()
     if request.method == 'POST':
@@ -399,7 +406,7 @@ def company_profile():
 
 @user_bp.route('/executive_dashboard')
 @login_required
-@role_required(['ADMIN', 'USER', 'MANAGER'])
+@role_required(['Admin', 'User', 'Admin'])
 def executive_dashboard():
     products = Product.query.all()
     # Logic for Executive Insights
@@ -419,7 +426,7 @@ def executive_dashboard():
 
 @user_bp.route('/prediction', methods=['GET', 'POST'])
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def prediction():
     prediction_result = None
     if request.method == 'POST':
@@ -434,7 +441,7 @@ def prediction():
 
 @user_bp.route('/causal_analysis')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def causal_analysis():
     products = Product.query.all()
     if not products: flash("No data available for analysis.", "warning"); return redirect(url_for('user.upload'))
@@ -444,7 +451,7 @@ def causal_analysis():
 
 @user_bp.route('/recommendations')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def recommendations():
     products = Product.query.all()
     if not products: flash("No data available. Please upload a dataset.", "warning"); return redirect(url_for('user.upload'))
@@ -475,7 +482,7 @@ def recommendations():
 
 @user_bp.route('/reports')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def reports():
     from datetime import datetime, timedelta
     page = request.args.get('page', 1, type=int)
@@ -513,7 +520,7 @@ def reports():
     # Analytics Data
     monthly_data = db.session.query(db.func.strftime('%Y-%m', Report.created_at), db.func.count(Report.id)).group_by(db.func.strftime('%Y-%m', Report.created_at)).all()
     type_data = db.session.query(Report.report_type, db.func.count(Report.id)).group_by(Report.report_type).all()
-    user_data = db.session.query(User.username, db.func.count(Report.id)).join(Report).group_by(User.username).all()
+    user_data = db.session.query(User.name, db.func.count(Report.id)).join(Report).group_by(User.name).all()
 
     analytics = {
         'labels': [m[0] for m in monthly_data],
@@ -531,7 +538,7 @@ def reports():
 
 @user_bp.route('/download_report/<format>')
 @login_required
-@role_required(['ADMIN', 'USER'])
+@role_required(['Admin', 'User'])
 def download_report(format):
     rep_type = request.args.get('type', 'Executive')
     products = Product.query.all()
@@ -597,7 +604,7 @@ def download_existing_report(report_id):
 def delete_report_user(report_id):
     report = Report.query.get_or_404(report_id)
     # Only allow owners or admins to delete
-    if report.user_id != current_user.id and current_user.role != 'ADMIN':
+    if report.user_id != current_user.id and current_user.role != 'Admin':
         flash("Unauthorized deletion attempt.", "danger")
         return redirect(url_for('user.reports'))
 

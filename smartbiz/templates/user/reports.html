@@ -136,7 +136,7 @@
                         <tr>
                             <td class="fw-bold">{{ r.report_name }}</td>
                             <td><span class="badge bg-outline-info">{{ r.report_type }}</span></td>
-                            <td>{{ r.author.username if r.author else 'System' }}</td>
+                            <td>{{ r.author.name if r.author else 'System' }}</td>
                             <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td><span class="text-success"><i class="fas fa-check-circle me-1"></i> Generated</span></td>
                             <td class="text-end">

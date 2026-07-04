@@ -6,12 +6,21 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
+    name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='USER') # 'ADMIN' or 'USER'
-    is_active = db.Column(db.Boolean, default=True)
+    role = db.Column(db.String(20), default='User') # 'Admin' or 'User'
+    status = db.Column(db.String(20), default='Active') # 'Active' or 'Inactive'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @property
+    def is_active(self):
+        return self.status == 'Active'
+
+    @is_active.setter
+    def is_active(self, value):
+        self.status = 'Active' if value else 'Inactive'
 
     uploads = db.relationship('Upload', backref='uploader', lazy=True, cascade="all, delete-orphan")
     reports = db.relationship('Report', backref='author', lazy=True, cascade="all, delete-orphan")

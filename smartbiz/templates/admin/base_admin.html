@@ -46,8 +46,29 @@
             <h4 class="text-white fw-bold"><i class="fas fa-shield-alt text-danger me-2"></i> ENTERPRISE<br><span class="ps-4">ADMIN</span></h4>
         </div>
         <nav>
-            <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link active">
+            <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.users' }}">
+                <i class="fas fa-users"></i> User Management
+            </a>
+            <a href="{{ url_for('admin.inventory') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.inventory' }}">
+                <i class="fas fa-boxes"></i> Inventory
+            </a>
+            <a href="{{ url_for('admin.predictions') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.predictions' }}">
+                <i class="fas fa-brain"></i> Predictions
+            </a>
+            <a href="{{ url_for('admin.recommendations') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.recommendations' }}">
+                <i class="fas fa-lightbulb"></i> Recommendations
+            </a>
+            <a href="{{ url_for('admin.reports') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.reports' }}">
+                <i class="fas fa-file-invoice"></i> Reports
+            </a>
+            <a href="{{ url_for('admin.analytics') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.analytics' }}">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.settings' }}">
+                <i class="fas fa-cog"></i> Settings
             </a>
             <a href="{{ url_for('user.dashboard') }}" class="admin-nav-link">
                 <i class="fas fa-external-link-alt"></i> View Site

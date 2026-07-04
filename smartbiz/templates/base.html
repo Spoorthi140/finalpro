@@ -60,7 +60,7 @@
             <a class="nav-link {{ 'active' if request.endpoint == 'user.company_profile' }}" href="{{ url_for('user.company_profile') }}">
                 <i class="fas fa-building"></i> Company
             </a>
-            {% if current_user.role == 'ADMIN' %}
+            {% if current_user.role == 'Admin' %}
             <hr class="mx-3 border-secondary">
             <a class="nav-link text-warning" href="{{ url_for('admin.dashboard') }}">
                 <i class="fas fa-user-shield"></i> Admin Portal

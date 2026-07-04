@@ -5,15 +5,17 @@ from flask_login import current_user
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != 'ADMIN':
-            flash("Unauthorized access. Admin privileges required.", "danger")
+        if not current_user.is_authenticated:
             return redirect(url_for('user.login'))
+        if current_user.role != 'Admin':
+            flash("You do not have permission to access this page.", "danger")
+            return redirect(url_for('user.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 
 def role_required(roles):
     """
-    roles: list of allowed roles, e.g., ['ADMIN', 'USER']
+    roles: list of allowed roles, e.g., ['Admin', 'User']
     """
     def decorator(f):
         @wraps(f)

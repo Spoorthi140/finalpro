@@ -61,14 +61,14 @@ def create_app(config=None):
     with app.app_context():
         try:
             db.create_all()
-            # Auto-initialize default ADMIN if not exists
+            # Auto-initialize default Admin if not exists
             admin_email = os.environ.get('ADMIN_EMAIL', 'admin@smartbiz.com')
             if not User.query.filter_by(email=admin_email).first():
                 admin = User(
-                    username='SystemAdmin',
+                    name='SystemAdmin',
                     email=admin_email,
-                    password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123'), method='pbkdf2:sha256'),
-                    role='ADMIN'
+                    password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'Admin@123'), method='pbkdf2:sha256'),
+                    role='Admin'
                 )
                 db.session.add(admin)
                 db.session.commit()

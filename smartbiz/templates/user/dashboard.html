@@ -8,7 +8,7 @@
     <div class="col-12">
         <div class="glass-card d-flex justify-content-between align-items-center">
             <div>
-                <h2 class="text-white mb-0">Welcome Back, <span class="text-info">{{ current_user.username }}</span></h2>
+                <h2 class="text-white mb-0">Welcome Back, <span class="text-info">{{ current_user.name }}</span></h2>
                 <p class="text-secondary mb-0"><i class="fas fa-user-tag me-2"></i> Role: <span class="badge bg-outline-info">{{ current_user.role }}</span> | <i class="fas fa-calendar-alt ms-3 me-2"></i> {{ now.strftime('%A, %d %B %Y') }}</p>
             </div>
             <div class="text-end">
@@ -146,7 +146,7 @@
                         {% for act in activities %}
                         <tr>
                             <td>{{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ act.user.username if act.user else 'System' }}</td>
+                            <td>{{ act.user.name if act.user else 'System' }}</td>
                             <td>{{ act.action }}</td>
                         </tr>
                         {% else %}
