@@ -1,137 +1,189 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - SmartBiz Enterprise{% endblock %}
+{% block title %}Enterprise Dashboard - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
+<!-- KPI CARDS -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-secondary">Total Revenue</h6>
-            <h3 class="text-info">₹{{ "{:,.2f}".format(total_revenue) }}</h3>
-            <small class="text-success"><i class="fas fa-arrow-up"></i> 5.2%</small>
+            <h6 class="text-secondary small text-uppercase mb-2">Total Revenue</h6>
+            <h3 class="text-white mb-0">₹{{ total_revenue|round(0) }}</h3>
+            <span class="text-success small"><i class="fas fa-arrow-up"></i> Live Sync</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-secondary">Total Profit</h6>
-            <h3 class="text-success">₹{{ "{:,.2f}".format(total_profit) }}</h3>
-            <small class="text-success"><i class="fas fa-arrow-up"></i> 3.8%</small>
+            <h6 class="text-secondary small text-uppercase mb-2">Net Profit</h6>
+            <h3 class="text-white mb-0">₹{{ total_profit|round(0) }}</h3>
+            <span class="text-info small">ROI Optimized</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-secondary">Inventory Value</h6>
-            <h3 class="text-warning">₹{{ "{:,.2f}".format(inventory_value) }}</h3>
-            <small class="text-danger"><i class="fas fa-arrow-down"></i> 1.2%</small>
+            <h6 class="text-secondary small text-uppercase mb-2">Total Inventory</h6>
+            <h3 class="text-white mb-0">{{ total_inventory }}</h3>
+            <span class="text-secondary small">Across {{ total_categories }} Categories</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center">
-            <h6 class="text-secondary">Growth Rate</h6>
-            <h3 class="text-info">{{ growth_rate }}%</h3>
-            <small class="text-success"><i class="fas fa-arrow-up"></i> 0.5%</small>
+            <h6 class="text-secondary small text-uppercase mb-2">Low Stock Alerts</h6>
+            <h3 class="{{ 'text-danger' if low_stock_count > 0 else 'text-success' }} mb-0">{{ low_stock_count }}</h3>
+            <span class="text-secondary small">Immediate Action Needed</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Main Performance Chart -->
+    <div class="col-md-8">
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-info mb-0"><i class="fas fa-chart-line me-2"></i> Revenue & Profit Trends</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active">6 Months</button>
+                    <button class="btn btn-outline-secondary">Yearly</button>
+                </div>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribution / Quick Info -->
+    <div class="col-md-4">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-database me-2"></i> System Snapshot</h5>
+            <div class="list-group list-group-flush bg-transparent">
+                <div class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between align-items-center px-0">
+                    <span>Total Registered Users</span>
+                    <span class="badge bg-info rounded-pill">{{ total_users }}</span>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between align-items-center px-0">
+                    <span>Active Products</span>
+                    <span class="badge bg-info rounded-pill">{{ total_products }}</span>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between align-items-center px-0">
+                    <span>Generated Reports</span>
+                    <span class="badge bg-info rounded-pill">{{ total_reports }}</span>
+                </div>
+                <div class="list-group-item bg-transparent text-white border-transparent d-flex justify-content-between align-items-center px-0">
+                    <span>Data Hub Clusters</span>
+                    <span class="badge bg-info rounded-pill">{{ total_categories }}</span>
+                </div>
+            </div>
+
+            <div class="mt-4 p-3 rounded bg-dark border border-secondary">
+                <h6 class="text-info small text-uppercase mb-2">Inventory Sync Status</h6>
+                <div class="d-flex align-items-center">
+                    <div class="spinner-grow spinner-grow-sm text-success me-2" role="status"></div>
+                    <span class="text-secondary small">Real-time object detection active</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-8">
+    <!-- Low Stock Table -->
+    <div class="col-md-6">
         <div class="glass-card">
-            <h5 class="text-info mb-4">Revenue & Profit Trends</h5>
-            <canvas id="businessChart" height="150"></canvas>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="glass-card">
-            <h5 class="text-info mb-4">Alert Center</h5>
-            {% if products %}
-                {% if low_stock_count > 0 %}
-                <div class="alert alert-warning py-2 mb-2">
-                    <i class="fas fa-exclamation-triangle me-2"></i> {{ low_stock_count }} items are low on stock!
-                </div>
-                {% endif %}
-                <div class="alert alert-info py-2 mb-2">
-                    <i class="fas fa-chart-pie me-2"></i> Causal AI ready for {{ products|length }} products.
-                </div>
-                <div class="alert alert-success py-2 mb-2">
-                    <i class="fas fa-check-circle me-2"></i> Smart recommendations updated.
-                </div>
-            {% else %}
-                <div class="alert alert-danger py-2 mb-2">
-                    <i class="fas fa-exclamation-circle me-2"></i> No data found. Please go to Data Hub.
-                </div>
-                <a href="{{ url_for('user.upload') }}" class="btn btn-outline-info btn-sm w-100 mt-2">Go to Data Hub</a>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="glass-card">
-            <h5 class="text-info mb-4">Recent Product Performance</h5>
+            <h5 class="text-danger mb-4"><i class="fas fa-exclamation-triangle me-2"></i> Low Stock Intelligence</h5>
             <div class="table-responsive">
-                <table class="table table-dark table-hover">
+                <table class="table table-dark table-hover small">
                     <thead>
                         <tr>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Sales</th>
-                            <th>Profit</th>
+                            <th>Product</th>
+                            <th>Current</th>
+                            <th>Min Required</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for p in products[:5] %}
+                        {% for item in low_stock_items %}
                         <tr>
-                            <td>{{ p.product_name }}</td>
-                            <td>{{ p.category }}</td>
-                            <td>₹{{ p.price }}</td>
-                            <td>{{ p.stock_quantity }}</td>
-                            <td>{{ p.sales }}</td>
-                            <td class="text-success">₹{{ p.profit }}</td>
+                            <td>{{ item.product_name }}</td>
+                            <td class="text-danger fw-bold">{{ item.stock_quantity }}</td>
+                            <td>{{ item.minimum_threshold }}</td>
+                            <td><span class="badge bg-danger">Critical</span></td>
                         </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center text-secondary py-4">All inventory levels are optimal.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="text-info mb-4"><i class="fas fa-history me-2"></i> Strategic Activity Feed</h5>
+            <div class="activity-feed">
+                {% for act in activities %}
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="rounded-circle bg-info p-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-bolt text-dark small"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-white mb-0 small fw-bold">{{ act.action }}</p>
+                        <span class="text-secondary xx-small">{{ act.timestamp.strftime('%Y-%m-%d %H:%M') }} | {{ act.module }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-secondary text-center py-4">No recent strategic activities detected.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .xx-small { font-size: 0.7rem; }
+    .activity-feed { max-height: 250px; overflow-y: auto; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const ctx = document.getElementById('businessChart').getContext('2d');
+    const ctx = document.getElementById('performanceChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: {{ chart_labels|tojson }},
-            datasets: [{
-                label: 'Revenue',
-                data: {{ chart_revenue|tojson }},
-                borderColor: '#00d2ff',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(0, 210, 255, 0.1)'
-            }, {
-                label: 'Profit',
-                data: {{ chart_profit|tojson }},
-                borderColor: '#2ecc71',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(46, 204, 113, 0.1)'
-            }]
+            datasets: [
+                {
+                    label: 'Revenue (₹)',
+                    data: {{ chart_revenue|tojson }},
+                    borderColor: '#00d2ff',
+                    backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Profit (₹)',
+                    data: {{ chart_profit|tojson }},
+                    borderColor: '#e94560',
+                    backgroundColor: 'rgba(233, 69, 96, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#fff' } }
+                legend: { labels: { color: '#888' } }
             },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
             }
         }
     });

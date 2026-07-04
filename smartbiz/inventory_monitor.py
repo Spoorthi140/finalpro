@@ -1,64 +1,74 @@
 import cv2
 import numpy as np
+import os
+from flask import current_app
 import base64
+import uuid
 
-def detect_objects(image_data):
+def detect_objects(image_source, is_path=False):
     """
-    Enhanced object detection using OpenCV.
-    - Decodes base64 image.
-    - Applies thresholding and contour detection.
-    - Filters by area to estimate object count.
+    Refined OpenCV logic for box detection.
+    image_source: Base64 string or file path
     """
     try:
-        # Decode base64 image
-        img_bytes = base64.b64decode(image_data.split(',')[1])
-        nparr = np.frombuffer(img_bytes, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if is_path:
+            img = cv2.imread(image_source)
+        else:
+            # Handle base64
+            header, encoded = image_source.split(",", 1)
+            nparr = np.frombuffer(base64.b64decode(encoded), np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         if img is None:
-            return 0, None
+            return 0, None, 0.0
 
-        # Image Processing for object detection
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        # 1. Grayscale (already done above)
-        # 2. Adaptive Thresholding for robust detection under varying light
+        # Adaptive thresholding for better box edge detection
         thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
-        # 3. Morphological operations to remove noise (Opening)
-        kernel = np.ones((5,5), np.uint8)
-        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+        # Morphological operations to close gaps in box edges
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 
-        # 4. Object Detection (Contour Detection)
-        contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # 5. Filter & Count
-        valid_contours = []
+        count = 0
+        confidences = []
+
+        output_img = img.copy()
+
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            # Filter by area to avoid noise
-            if area > 1500:
-                # Shape analysis: Boxes/Rectangles usually have high extent and rectangularity
+            # Refined area filtering
+            if area > 2000:
+                # Shape approximation to verify box-like structures
                 peri = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, 0.04 * peri, True)
+                approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
 
-                # Bounding box
-                x, y, w, h = cv2.boundingRect(cnt)
-                aspect_ratio = float(w)/h
+                # Check for quadrilaterals or rectangular shapes
+                x, y, w, h = cv2.boundingRect(approx)
+                aspect_ratio = float(w) / h
 
-                # Refined box filter: Most boxes have 4-8 vertices in approxPoly and reasonable aspect ratios
-                if 4 <= len(approx) <= 8 and (0.3 < aspect_ratio < 3.0):
-                    valid_contours.append(cnt)
-                    # Visual enhancement: Bounding box and Indexing
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 210, 255), 2)
-                    cv2.putText(img, f"BOX:{len(valid_contours)}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 210, 255), 2)
+                if 0.5 < aspect_ratio < 2.0: # Most boxes fall in this range
+                    count += 1
+                    cv2.rectangle(output_img, (x, y), (x + w, y + h), (0, 210, 255), 2)
+                    cv2.putText(output_img, f"BOX {count}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 210, 255), 2)
 
-        # Encode processed image back to base64
-        _, buffer = cv2.imencode('.jpg', img)
-        processed_image_data = base64.b64encode(buffer).decode('utf-8')
+                    # Simulated confidence score based on area/shape proximity
+                    conf = 0.85 + (min(area, 10000) / 100000)
+                    confidences.append(min(conf, 0.99))
 
-        return len(valid_contours), f"data:image/jpeg;base64,{processed_image_data}"
+        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+
+        # Save annotated image
+        filename = f"detection_{uuid.uuid4().hex}.jpg"
+        filepath = os.path.join(current_app.config['DETECTIONS_FOLDER'], filename)
+        cv2.imwrite(filepath, output_img)
+
+        return count, filename, avg_conf
+
     except Exception as e:
-        print(f"Inventory Monitoring Error: {e}")
-        return 0, None
+        print(f"Refined Detection Error: {e}")
+        return 0, None, 0.0

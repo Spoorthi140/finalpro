@@ -4,19 +4,18 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-class Role(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False) # Super Admin, Business Admin, Manager, Analyst, Viewer
-    description = db.Column(db.String(200))
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='Viewer')
+    role = db.Column(db.String(20), default='USER') # 'ADMIN' or 'USER'
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    uploads = db.relationship('Upload', backref='uploader', lazy=True, cascade="all, delete-orphan")
+    reports = db.relationship('Report', backref='author', lazy=True, cascade="all, delete-orphan")
+    audit_logs = db.relationship('AuditLog', backref='user', lazy=True, cascade="all, delete-orphan")
 
 class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,19 +26,13 @@ class Company(db.Model):
     contact_number = db.Column(db.String(20))
     branch_count = db.Column(db.Integer, default=1)
 
-class Branch(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-    name = db.Column(db.String(200), nullable=False)
-    location = db.Column(db.String(200))
-
 class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(200), nullable=False)
-    file_type = db.Column(db.String(10)) # CSV or XLSX
+    file_type = db.Column(db.String(10)) # CSV, XLSX, IMG
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    status = db.Column(db.String(50)) # Validated, Error
+    status = db.Column(db.String(50))
     quality_score = db.Column(db.Float)
 
 class Product(db.Model):
@@ -57,19 +50,8 @@ class Product(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class Sale(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Inventory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    current_stock = db.Column(db.Integer, default=0)
-    min_stock_level = db.Column(db.Integer, default=10)
-    last_restocked = db.Column(db.DateTime)
+    inventory_logs = db.relationship('InventoryLog', backref='product', lazy=True, cascade="all, delete-orphan")
+    predictions = db.relationship('Prediction', backref='product', lazy=True, cascade="all, delete-orphan")
 
 class InventoryLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,6 +60,16 @@ class InventoryLog(db.Model):
     difference = db.Column(db.Integer)
     status = db.Column(db.String(50))
     image_path = db.Column(db.String(255))
+    confidence_score = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class InventoryDetection(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_name = db.Column(db.String(255))
+    original_path = db.Column(db.String(255))
+    annotated_path = db.Column(db.String(255))
+    box_count = db.Column(db.Integer)
+    average_confidence = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Prediction(db.Model):
@@ -90,18 +82,18 @@ class Prediction(db.Model):
 
 class Forecast(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    target_metric = db.Column(db.String(50)) # Sales, Revenue, Profit
+    target_metric = db.Column(db.String(50))
     forecast_date = db.Column(db.DateTime)
     forecast_value = db.Column(db.Float)
-    model_used = db.Column(db.String(50)) # XGBoost, ARIMA, Prophet
+    model_used = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Recommendation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    category = db.Column(db.String(50)) # Pricing, Marketing, Inventory
+    category = db.Column(db.String(50))
     message = db.Column(db.Text)
-    priority = db.Column(db.String(20)) # High, Medium, Low
+    priority = db.Column(db.String(20))
     action = db.Column(db.String(100))
     expected_impact = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -109,24 +101,11 @@ class Recommendation(db.Model):
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     report_name = db.Column(db.String(200))
-    report_type = db.Column(db.String(50)) # Sales, Inventory, Executive
+    report_type = db.Column(db.String(50)) # Sales, Inventory, Executive, AI Detection
     file_path = db.Column(db.String(255))
+    file_size = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class CustomerSegment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    segment_name = db.Column(db.String(100)) # Loyal, At Risk, New, VIP
-    customer_count = db.Column(db.Integer)
-    avg_clv = db.Column(db.Float) # Average Customer Lifetime Value
-    analysis_date = db.Column(db.DateTime, default=datetime.utcnow)
-
-class BusinessMetric(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    metric_name = db.Column(db.String(100)) # Business Health Score, Revenue Risk
-    metric_value = db.Column(db.Float)
-    category = db.Column(db.String(50))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class AuditLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)

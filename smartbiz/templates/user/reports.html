@@ -1,77 +1,104 @@
 {% extends "base.html" %}
 
-{% block title %}Reports - SmartBiz Enterprise{% endblock %}
+{% block title %}Enterprise Reporting Center - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-12">
-        <div class="glass-card">
-            <h2 class="text-info mb-2"><i class="fas fa-file-invoice me-2"></i> Advanced Reporting System</h2>
-            <p class="text-secondary">Generate and export professional business intelligence reports.</p>
+    <div class="col-md-8">
+        <div class="glass-card h-100">
+            <h2 class="text-info mb-1"><i class="fas fa-file-invoice me-2"></i> Strategic Reporting Center</h2>
+            <p class="text-secondary mb-0">Generate, archive, and analyze business performance reports with live data synchronization.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card h-100 d-flex flex-column justify-content-center">
+            <div class="row g-2">
+                <div class="col-6">
+                    <a href="{{ url_for('user.download_report', format='pdf') }}" class="btn btn-neon w-100 btn-sm">
+                        <i class="fas fa-file-pdf me-1"></i> New PDF
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{{ url_for('user.download_report', format='excel') }}" class="btn btn-outline-info w-100 btn-sm">
+                        <i class="fas fa-file-excel me-1"></i> New Excel
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-4">
-        <div class="glass-card text-center h-100">
-            <i class="fas fa-file-pdf fa-4x text-danger mb-4"></i>
-            <h4>Executive PDF Report</h4>
-            <p class="text-secondary small">Comprehensive PDF report including charts, executive summary, and AI strategic insights.</p>
-            <a href="{{ url_for('user.download_report', format='pdf') }}" class="btn btn-neon mt-auto w-100">Download PDF</a>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="glass-card text-center h-100">
-            <i class="fas fa-file-excel fa-4x text-success mb-4"></i>
-            <h4>Raw Data Export</h4>
-            <p class="text-secondary small">Complete dataset export in Excel format for external analysis and record-keeping.</p>
-            <a href="{{ url_for('user.download_report', format='excel') }}" class="btn btn-neon mt-auto w-100">Download XLSX</a>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="glass-card text-center h-100">
-            <i class="fas fa-envelope fa-4x text-info mb-4"></i>
-            <h4>Schedule Report</h4>
-            <p class="text-secondary small">Automate report delivery to your email address on a daily, weekly, or monthly basis.</p>
-            <button class="btn btn-outline-info mt-auto w-100" disabled>Coming Soon</button>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-12">
+    <!-- Report Archive -->
+    <div class="col-md-12">
         <div class="glass-card">
-            <h5 class="text-info mb-4">Recent Reports</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-info mb-0">Strategic Archive</h5>
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fas fa-search"></i></span>
+                    <input type="text" id="reportSearch" class="form-control bg-dark border-secondary text-white" placeholder="Search archive...">
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table table-dark table-hover table-sm">
+                <table class="table table-dark table-hover align-middle">
                     <thead>
                         <tr>
-                            <th>Report Name</th>
-                            <th>Type</th>
-                            <th>Date Generated</th>
+                            <th>Report Identity</th>
+                            <th>Category</th>
+                            <th>Author</th>
+                            <th>Generated Date</th>
                             <th>Size</th>
-                            <th>Action</th>
+                            <th class="text-end">Management</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for report in recent_reports %}
-                        <tr>
-                            <td>{{ report.report_name }}</td>
-                            <td>{{ report.report_type }}</td>
-                            <td>{{ report.created_at.strftime('%b %d, %Y %H:%M') }}</td>
-                            <td>Auto-calculated</td>
-                            <td><i class="fas fa-check text-success"></i> Generated</td>
+                    <tbody id="reportTable">
+                        {% for r in recent_reports %}
+                        <tr class="report-row">
+                            <td class="fw-bold">{{ r.report_name }}</td>
+                            <td><span class="badge bg-info">{{ r.report_type }}</span></td>
+                            <td>{{ r.author.username if r.author else 'System' }}</td>
+                            <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ r.file_size or '24 KB' }}</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-sm btn-outline-info me-2"><i class="fas fa-download"></i></a>
+                                <form action="{{ url_for('admin.delete_report', report_id=r.id) }}" method="POST" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                                </form>
+                            </td>
                         </tr>
                         {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center text-secondary">No reports generated yet. Click above to create one.</td>
-                        </tr>
+                        <tr><td colspan="6" class="text-center text-secondary py-5">No reports found in the strategic archive.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Placeholder -->
+            <nav class="mt-4">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <li class="page-item disabled"><a class="page-link bg-dark border-secondary text-secondary" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link bg-info border-info text-dark" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link bg-dark border-secondary text-info" href="#">Next</a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+<style>
+    .pagination .page-link:hover { background: var(--neon-blue); color: black; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('reportSearch').addEventListener('keyup', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('.report-row').forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(val) ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}

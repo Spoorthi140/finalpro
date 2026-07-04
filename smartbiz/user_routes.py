@@ -27,16 +27,16 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        user_count = User.query.count()
-        role = 'Super Admin' if user_count == 0 else 'Viewer'
+
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
             flash('Email already exists.', 'danger')
             return redirect(url_for('user.register'))
+
         new_user = User(
             username=username, email=email,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
-            role=role
+            role='USER' # Force USER role for all registrations
         )
         db.session.add(new_user)
         db.session.commit()
@@ -69,35 +69,56 @@ def logout():
 @login_required
 def dashboard():
     products = Product.query.all()
+    total_products = len(products)
     total_sales = sum([p.sales for p in products])
     total_profit = sum([p.profit for p in products])
     total_revenue = sum([p.revenue for p in products])
     total_inventory = sum([p.stock_quantity for p in products])
-    inventory_value = sum([p.stock_quantity * p.price for p in products])
-    low_stock_products = Product.query.filter(Product.stock_quantity < 10).all()
+    total_reports = Report.query.count()
+    total_users = User.query.count()
+
+    low_stock_products = [p for p in products if p.stock_quantity < p.minimum_threshold]
+    categories = list(set([p.category for p in products if p.category]))
+
+    recent_activities = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(5).all()
+    recent_predictions = Prediction.query.order_by(Prediction.timestamp.desc()).limit(5).all()
+    recent_detections = InventoryDetection.query.order_by(InventoryDetection.timestamp.desc()).limit(5).all()
 
     if products:
-        df = pd.DataFrame([{'Date': p.date, 'Revenue': p.revenue, 'Profit': p.profit} for p in products])
+        df = pd.DataFrame([{'Date': p.date, 'Revenue': p.revenue, 'Profit': p.profit, 'Sales': p.sales} for p in products])
         df['Date'] = pd.to_datetime(df['Date'])
+        # Dynamic Trends
         monthly = df.set_index('Date').resample('ME').sum().tail(6)
         chart_labels = [d.strftime('%b') for d in monthly.index]
         chart_revenue = monthly['Revenue'].tolist()
         chart_profit = monthly['Profit'].tolist()
+        chart_sales = monthly['Sales'].tolist()
     else:
-        chart_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-        chart_revenue = [0] * 6; chart_profit = [0] * 6
+        chart_labels = ['N/A']
+        chart_revenue = [0]; chart_profit = [0]; chart_sales = [0]
 
     return render_template('user/dashboard.html',
-                           products=products, total_sales=total_sales,
-                           total_profit=total_profit, total_revenue=total_revenue,
-                           total_inventory=total_inventory, inventory_value=inventory_value,
-                           growth_rate=12.5, low_stock_count=len(low_stock_products),
-                           chart_labels=chart_labels, chart_revenue=chart_revenue,
-                           chart_profit=chart_profit)
+                           total_products=total_products,
+                           total_sales=total_sales,
+                           total_profit=total_profit,
+                           total_revenue=total_revenue,
+                           total_inventory=total_inventory,
+                           total_reports=total_reports,
+                           total_users=total_users,
+                           total_categories=len(categories),
+                           low_stock_count=len(low_stock_products),
+                           low_stock_items=low_stock_products[:5],
+                           activities=recent_activities,
+                           predictions=recent_predictions,
+                           detections=recent_detections,
+                           chart_labels=chart_labels,
+                           chart_revenue=chart_revenue,
+                           chart_profit=chart_profit,
+                           chart_sales=chart_sales)
 
 @user_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager'])
+@role_required(['ADMIN', 'USER'])
 def upload():
     upload_results = None; preview_data = []
     if request.method == 'POST':
@@ -155,14 +176,14 @@ def upload():
 
 @user_bp.route('/inventory')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager'])
+@role_required(['ADMIN', 'USER'])
 def inventory():
     products = Product.query.all()
     return render_template('user/inventory.html', products=products)
 
 @user_bp.route('/simulator', methods=['GET', 'POST'])
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager'])
+@role_required(['ADMIN', 'USER'])
 def simulator():
     products = Product.query.all()
     simulation_result = None
@@ -184,7 +205,7 @@ def simulator():
 
 @user_bp.route('/forecasting')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def forecasting():
     products = Product.query.all()
     if not products:
@@ -206,14 +227,14 @@ def forecasting():
 
 @user_bp.route('/customer_intelligence')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def customer_intelligence():
     segments = perform_rfm_analysis(); clv = calculate_customer_lifetime_value(); retention = retention_analysis()
     return render_template('user/customer_intelligence.html', segments=segments, clv=clv, retention=retention)
 
 @user_bp.route('/prediction', methods=['GET', 'POST'])
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def prediction():
     prediction_result = None
     if request.method == 'POST':
@@ -227,7 +248,7 @@ def prediction():
 
 @user_bp.route('/causal_analysis')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def causal_analysis():
     products = Product.query.all()
     if not products: flash("No data available for analysis.", "warning"); return redirect(url_for('user.upload'))
@@ -237,7 +258,7 @@ def causal_analysis():
 
 @user_bp.route('/recommendations')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def recommendations():
     products = Product.query.all()
     if not products: flash("No data available. Please upload a dataset.", "warning"); return redirect(url_for('user.upload'))
@@ -268,14 +289,18 @@ def recommendations():
 
 @user_bp.route('/reports')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def reports():
-    recent_reports = Report.query.order_by(Report.created_at.desc()).limit(10).all()
+    search = request.args.get('q')
+    query = Report.query
+    if search:
+        query = query.filter(Report.report_name.contains(search))
+    recent_reports = query.order_by(Report.created_at.desc()).all()
     return render_template('user/reports.html', recent_reports=recent_reports)
 
 @user_bp.route('/download_report/<format>')
 @login_required
-@role_required(['Super Admin', 'Business Admin', 'Manager', 'Analyst'])
+@role_required(['ADMIN', 'USER'])
 def download_report(format):
     products = Product.query.all()
     ts, tp, tr = sum([p.sales for p in products]), sum([p.profit for p in products]), sum([p.revenue for p in products])
@@ -305,86 +330,65 @@ def download_report(format):
         return send_file(buffer, as_attachment=True, download_name=new_report.report_name, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     return redirect(url_for('user.reports'))
 
-@user_bp.route('/process_inventory', methods=['POST'])
+@user_bp.route('/inventory/detect', methods=['POST'])
 @login_required
-def process_inventory():
-    data = request.get_json()
-    image_data = data.get('image')
-    product_id = data.get('product_id')
+def inventory_detect():
+    if 'file' not in request.files:
+        return {'error': 'No file'}, 400
+    file = request.files['file']
+    if file.filename == '':
+        return {'error': 'No selected file'}, 400
 
-    count, _ = detect_objects(image_data)
-    product = Product.query.get(product_id)
+    # Read file content into memory for OpenCV
+    file_bytes = file.read()
+    import base64
+    encoded = base64.b64encode(file_bytes).decode('utf-8')
+    image_data = f"data:image/jpeg;base64,{encoded}"
 
-    if not product:
-        return {'error': 'Product not found'}, 404
+    count, annotated_filename, confidence = detect_objects(image_data)
 
-    db_stock = product.stock_quantity
-    diff = count - db_stock
-    status = "Stock Stable" if diff == 0 else ("Stock Reduced" if diff < 0 else "Stock Increased")
-
-    # Store Log
-    log = InventoryLog(
-        product_id=product_id,
-        detected_quantity=count,
-        difference=diff,
-        status=status
+    # Store in DB
+    detection = InventoryDetection(
+        image_name=file.filename,
+        annotated_path=annotated_filename,
+        box_count=count,
+        average_confidence=confidence
     )
-    db.session.add(log)
+    db.session.add(detection)
+    db.session.add(AuditLog(user_id=current_user.id, action=f"AI Detection: Found {count} boxes in {file.filename}", module="Inventory"))
     db.session.commit()
-
-    # Intelligence Calculations
-    # 1. Forecasting Integration
-    all_products = Product.query.all()
-    forecasts = generate_forecasts(all_products)
-
-    prod_forecast = next((f for f in forecasts.get('product_forecasts', []) if f['product_name'] == product.product_name), None)
-
-    days_left = prod_forecast['days_until_stockout'] if prod_forecast else 15
-    forecast_demand = prod_forecast['forecasted_demand'] if prod_forecast else 100
-
-    # 2. Risk Assessment
-    risk = "LOW"
-    if days_left < 7 or count < product.minimum_threshold: risk = "HIGH"
-    elif days_left < 14 or count < product.minimum_threshold * 1.5: risk = "MEDIUM"
-
-    # 3. Recommendations Generation
-    recommendations = []
-    if risk == "HIGH":
-        gap = max(0, int(forecast_demand * 1.2 - count))
-        recommendations.append({
-            'priority': 'Critical',
-            'message': f"Immediate restock required for {product.product_name}. Inventory is below threshold.",
-            'action': f"Order {gap} Units",
-            'impact': f"₹{gap * product.price * 0.2:,.0f} Rev. Protected"
-        })
-    elif diff < 0:
-        recommendations.append({
-            'priority': 'High',
-            'message': f"Inventory discrepancy detected (-{abs(diff)} units). Audit logs recommended.",
-            'action': "Verify Shipments",
-            'impact': "Audit Compliance"
-        })
-
-    # History
-    history_logs = InventoryLog.query.filter_by(product_id=product_id).order_by(InventoryLog.timestamp.desc()).limit(5).all()
-    history = [{
-        'date': l.timestamp.strftime('%Y-%m-%d %H:%M'),
-        'db_stock': db_stock, # Simplified for demo
-        'detected': l.detected_quantity,
-        'diff': l.difference,
-        'status': l.status
-    } for l in history_logs]
 
     return {
         'count': count,
-        'db_stock': db_stock,
-        'diff': diff,
-        'status': status,
-        'risk': risk,
-        'days_left': days_left,
-        'forecast_demand': forecast_demand,
-        'recommendations': recommendations,
-        'history': history
+        'annotated': annotated_filename,
+        'confidence': confidence
+    }
+
+@user_bp.route('/inventory/detect_sample', methods=['POST'])
+@login_required
+def detect_sample():
+    data = request.get_json()
+    filename = data.get('filename')
+    sample_path = os.path.join(current_app.config['SAMPLE_IMAGES_FOLDER'], filename)
+
+    if not os.path.exists(sample_path):
+        return {'error': 'Sample image not found'}, 404
+
+    count, annotated_filename, confidence = detect_objects(sample_path, is_path=True)
+
+    detection = InventoryDetection(
+        image_name=f"Sample: {filename}",
+        annotated_path=annotated_filename,
+        box_count=count,
+        average_confidence=confidence
+    )
+    db.session.add(detection)
+    db.session.commit()
+
+    return {
+        'count': count,
+        'annotated': annotated_filename,
+        'confidence': confidence
     }
 
 @user_bp.route('/update_inventory', methods=['POST'])

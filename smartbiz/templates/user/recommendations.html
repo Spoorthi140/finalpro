@@ -1,212 +1,106 @@
 {% extends "base.html" %}
 
-{% block title %}AI Recommendations - SmartBiz Enterprise{% endblock %}
+{% block title %}AI Business Recommendations - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center">
+            <h2 class="text-info mb-1"><i class="fas fa-lightbulb me-2"></i> AI-Powered Business Recommendations</h2>
+            <p class="text-secondary">Strategic insights derived from causal inference, forecasting models, and inventory health metrics.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- RECS FEED -->
+    <div class="col-md-8">
+        {% for rec in recommendations %}
+        <div class="glass-card mb-4 border-start border-4 {{ 'border-danger' if rec.priority == 'High' else ('border-warning' if rec.priority == 'Medium' else 'border-info') }}">
+            <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
-                    <h2 class="text-info mb-2"><i class="fas fa-lightbulb me-2"></i> Smart Recommendation Engine</h2>
-                    <p class="text-secondary">Providing actionable business recommendations generated from Causal Analysis and Forecast results.</p>
+                    <span class="badge {{ 'bg-danger' if rec.priority == 'High' else ('bg-warning' if rec.priority == 'Medium' else 'bg-info') }} mb-2">
+                        {{ rec.priority }} Priority
+                    </span>
+                    <h4 class="text-white">{{ rec.category }} Optimization</h4>
                 </div>
                 <div class="text-end">
-                    <div class="d-inline-block text-center me-4">
-                        <h4 class="text-white mb-0">{{ recommendations|length }}</h4>
-                        <small class="text-secondary text-uppercase">Total Recommendations</small>
+                    <small class="text-secondary d-block">Expected Impact</small>
+                    <span class="text-success fw-bold">{{ rec.impact }}</span>
+                </div>
+            </div>
+
+            <p class="text-light-50 mb-4">{{ rec.message }}</p>
+
+            <div class="p-3 bg-dark rounded border border-secondary mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-info text-uppercase fw-bold d-block mb-1">Recommended Action</small>
+                        <span class="text-white">{{ rec.action }}</span>
                     </div>
-                    <div class="d-inline-block text-center">
-                        <h4 class="text-danger mb-0">{{ recommendations|selectattr('priority', 'equalto', 'Critical')|list|length }}</h4>
-                        <small class="text-secondary text-uppercase">Critical Issues</small>
-                    </div>
+                    <button class="btn btn-sm btn-neon">EXECUTE STRATEGY</button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- SECTION 1 – RECOMMENDATION OVERVIEW -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="glass-card text-center">
-            <p class="text-secondary small text-uppercase mb-1">Revenue Opportunity</p>
-            <h3 class="text-info mb-0">₹{{ "{:,.0f}".format(recommendations|selectattr('type', 'equalto', 'Growth')|sum(attribute='impact_score') * 100) }}</h3>
+        {% else %}
+        <div class="glass-card text-center py-5">
+            <i class="fas fa-robot fa-4x text-secondary mb-4"></i>
+            <h4 class="text-secondary">Awaiting Sufficient Data for AI Inference</h4>
+            <p class="text-secondary px-5">Upload datasets and perform predictions to generate strategic recommendations.</p>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="glass-card text-center">
-            <p class="text-secondary small text-uppercase mb-1">Cost Saving Opportunity</p>
-            <h3 class="text-success mb-0">₹{{ "{:,.0f}".format(recommendations|selectattr('type', 'equalto', 'Efficiency')|sum(attribute='impact_score') * 50) }}</h3>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="glass-card p-3">
-            <div class="d-flex align-items-center justify-content-around h-100">
-                <div style="height: 80px; width: 80px;">
-                    <canvas id="recDistChart"></canvas>
-                </div>
-                <div class="small">
-                    <span class="d-block text-secondary"><i class="fas fa-circle text-info me-1"></i> Pricing: {{ rec_dist.Pricing }}</span>
-                    <span class="d-block text-secondary"><i class="fas fa-circle text-success me-1"></i> Marketing: {{ rec_dist.Marketing }}</span>
-                    <span class="d-block text-secondary"><i class="fas fa-circle text-warning me-1"></i> Inventory: {{ rec_dist.Inventory }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SECTION 4 – PRIORITY ACTION CENTER -->
-<div class="row g-4 mb-4">
-    <div class="col-md-8">
-        <h5 class="text-info mb-4">Priority Action Center</h5>
-        <div class="row g-3">
-            {% for rec in recommendations %}
-            <div class="col-12">
-                <div class="glass-card border-start border-4 border-{{ 'danger' if rec.priority == 'Critical' else 'info' if rec.priority == 'High' else 'warning' }}">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <span class="badge bg-{{ 'danger' if rec.type == 'Risk Mitigation' else 'success' if rec.type == 'Growth' else 'primary' }} mb-2">
-                                {{ rec.type }}
-                            </span>
-                            <h6 class="text-white mb-1">{{ rec.category }}: {{ rec.product }}</h6>
-                        </div>
-                        <div class="text-end">
-                            <span class="text-{{ 'danger' if rec.priority == 'Critical' else 'info' }} fw-bold d-block small">{{ rec.priority }}</span>
-                            <small class="text-secondary">Impact Score: <span class="text-white">{{ rec.impact_score }}</span></small>
-                        </div>
-                    </div>
-                    <p class="text-secondary small mb-3">{{ rec.message }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-neon btn-sm px-3 fw-bold">{{ rec.action }}</button>
-                            <span class="text-secondary small align-self-center">Effort: <span class="text-info">{{ rec.effort }}</span></span>
-                        </div>
-                        <div class="text-end">
-                            <small class="text-success fw-bold">{{ rec.impact }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     </div>
 
-    <!-- SECTION 2 & 5 – VISUALIZATIONS -->
+    <!-- STATS & INFO -->
     <div class="col-md-4">
         <div class="glass-card mb-4">
-            <h5 class="text-info mb-4">Price vs. Sales Performance</h5>
+            <h5 class="text-info mb-4">Strategic Distribution</h5>
             <div style="height: 250px;">
-                <canvas id="priceSalesScatter"></canvas>
-            </div>
-            <p class="small text-secondary mt-3 mb-0">Causal Impact of Price on Volume: <strong class="text-white">
-                {% if causal_results %}{{ causal_results[0].effect|round(2) }}{% else %}N/A{% endif %}
-            </strong></p>
-        </div>
-
-        <div class="glass-card mb-4">
-            <h5 class="text-info mb-4">Marketing vs. Revenue ROI</h5>
-            <div style="height: 250px;">
-                <canvas id="mktRevScatter"></canvas>
+                <canvas id="recChart"></canvas>
             </div>
         </div>
 
         <div class="glass-card">
-            <h5 class="text-info mb-4">Strategic Impact vs. Effort</h5>
-            <div class="matrix-container" style="height: 300px; position: relative;">
-                <div class="matrix-axis-y text-secondary small">IMPACT →</div>
-                <div class="matrix-axis-x text-secondary small">EFFORT →</div>
-                <div class="matrix-quadrant q1">High Impact / Low Effort</div>
-                <div class="matrix-quadrant q2">High Impact / High Effort</div>
-                <div class="matrix-quadrant q3">Low Impact / Low Effort</div>
-                <div class="matrix-quadrant q4">Low Impact / High Effort</div>
-                {% for rec in recommendations[:5] %}
-                <div class="matrix-dot"
-                     style="bottom: {{ rec.impact_score }}%; left: {{ 20 if rec.effort == 'Low' else 50 if rec.effort == 'Medium' else 80 }}%;"
-                     title="{{ rec.product }}: {{ rec.category }}">
+            <h5 class="text-info mb-4">Recommendation Logic</h5>
+            <div class="small text-secondary">
+                <div class="mb-3 d-flex align-items-start">
+                    <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                    <span><strong>Causal AI:</strong> Evaluates how price and marketing changes impact bottom-line profit.</span>
                 </div>
-                {% endfor %}
+                <div class="mb-3 d-flex align-items-start">
+                    <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                    <span><strong>Forecast Gap:</strong> Identifies potential stock-outs by mapping supply against demand trends.</span>
+                </div>
+                <div class="mb-0 d-flex align-items-start">
+                    <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                    <span><strong>ML Predictors:</strong> Uses Random Forest & XGBoost to simulate outcome probabilities.</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const recDist = {{ rec_dist|tojson }};
-    const products = {{ products|tojson if products else '[]' }};
-
-    // Recommendation Distribution Donut
-    new Chart(document.getElementById('recDistChart'), {
+    const ctx = document.getElementById('recChart').getContext('2d');
+    new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: Object.keys(recDist),
+            labels: {{ rec_dist.keys()|list|tojson }},
             datasets: [{
-                data: Object.values(recDist),
-                backgroundColor: ['#00d2ff', '#2ecc71', '#f1c40f', '#e94560', '#9b59b6'],
+                data: {{ rec_dist.values()|list|tojson }},
+                backgroundColor: ['#00d2ff', '#e94560', '#00ff88', '#f39c12', '#9b59b6'],
                 borderWidth: 0
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
-            cutout: '70%',
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
-    // Price vs Sales Scatter
-    new Chart(document.getElementById('priceSalesScatter'), {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Products',
-                data: products.map(p => ({x: p.price, y: p.sales})),
-                backgroundColor: 'rgba(0, 210, 255, 0.6)',
-                borderColor: '#00d2ff'
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { title: { display: true, text: 'Price (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
-                y: { title: { display: true, text: 'Sales (Units)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }
-            }
-        }
-    });
-
-    // Marketing vs Revenue Scatter
-    new Chart(document.getElementById('mktRevScatter'), {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Products',
-                data: products.map(p => ({x: p.marketing_spend, y: p.revenue})),
-                backgroundColor: 'rgba(46, 204, 113, 0.6)',
-                borderColor: '#2ecc71'
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { title: { display: true, text: 'Marketing Spend (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
-                y: { title: { display: true, text: 'Revenue (₹)', color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }
-            }
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#888', padding: 20 } }
+            },
+            cutout: '70%'
         }
     });
 </script>
-<style>
-    .matrix-container { border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); overflow: hidden; }
-    .matrix-axis-y { position: absolute; left: -30px; top: 50%; transform: rotate(-90deg); }
-    .matrix-axis-x { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
-    .matrix-quadrant { position: absolute; font-size: 0.5rem; color: rgba(255,255,255,0.2); text-transform: uppercase; padding: 10px; }
-    .q1 { top: 0; left: 0; }
-    .q2 { top: 0; right: 0; }
-    .q3 { bottom: 20px; left: 0; }
-    .q4 { bottom: 20px; right: 0; }
-    .matrix-dot { width: 10px; height: 10px; background: var(--neon-blue); border-radius: 50%; position: absolute; box-shadow: 0 0 10px var(--neon-blue); cursor: pointer; }
-</style>
 {% endblock %}
