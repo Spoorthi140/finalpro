@@ -17,3 +17,6 @@ xgboost
 prophet
 statsmodels
 openpyxl
+ultralytics
+torch
+torchvision
