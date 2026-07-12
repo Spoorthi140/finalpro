@@ -62,8 +62,8 @@ def detect_objects(image_source, is_path=False):
                 cls = int(box.cls[0])
                 conf = float(box.conf[0])
 
-                # REQ: Show confidence only if > 80%
-                if conf > 0.80:
+                # REQ: Show confidence only if > 30% for demo/general models
+                if conf > 0.30:
                     # REQ: Detect only boxes.
                     # Note: If using custom model, this class filter might change.
                     # For pretrained yolov8n: 24 (backpack), 26 (handbag), 28 (suitcase) are often boxy.
