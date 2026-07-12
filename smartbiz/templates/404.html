@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold text-info">404</h1>
+    <h2 class="text-white mb-4">Strategic Path Not Found</h2>
+    <p class="text-secondary mb-5">The requested business module or data node does not exist in the current enterprise architecture.</p>
+    <a href="{{ url_for('user.dashboard') }}" class="btn btn-neon">Return to Dashboard</a>
+</div>
+{% endblock %}

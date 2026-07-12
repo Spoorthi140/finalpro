@@ -1,0 +1,25 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<h2 class="text-white mb-4">System Analytics</h2>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center">
+            <h1 class="display-4 text-info">{{ users }}</h1>
+            <p class="text-secondary">Total Users</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center">
+            <h1 class="display-4 text-success">{{ products }}</h1>
+            <p class="text-secondary">Total Products</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center">
+            <h1 class="display-4 text-warning">{{ reports }}</h1>
+            <p class="text-secondary">Total Reports</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
