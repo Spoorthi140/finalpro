@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold text-danger">500</h1>
+    <h2 class="text-white mb-4">Enterprise Engine Failure</h2>
+    <p class="text-secondary mb-5">A critical exception occurred within the AI processing core. System architects have been notified.</p>
+    <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-info">Try Refreshing Session</a>
+</div>
+{% endblock %}

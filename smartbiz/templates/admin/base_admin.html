@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartBiz Admin Portal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --admin-neon: #e94560;
+        }
+        .admin-sidebar {
+            background: rgba(10, 10, 25, 0.95);
+            border-right: 1px solid var(--admin-neon);
+            height: 100vh;
+            position: fixed;
+            width: 260px;
+            z-index: 1000;
+        }
+        .admin-main {
+            margin-left: 260px;
+            padding: 30px;
+        }
+        .admin-nav-link {
+            color: #888;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .admin-nav-link:hover, .admin-nav-link.active {
+            color: white;
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 3px solid var(--admin-neon);
+        }
+        .admin-nav-link i { margin-right: 15px; width: 20px; }
+    </style>
+</head>
+<body class="midnight-theme">
+    <div class="admin-sidebar">
+        <div class="p-4 mb-4">
+            <h4 class="text-white fw-bold"><i class="fas fa-shield-alt text-danger me-2"></i> ENTERPRISE<br><span class="ps-4">ADMIN</span></h4>
+        </div>
+        <nav>
+            <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.users' }}">
+                <i class="fas fa-users"></i> User Management
+            </a>
+            <a href="{{ url_for('admin.inventory') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.inventory' }}">
+                <i class="fas fa-boxes"></i> Inventory
+            </a>
+            <a href="{{ url_for('admin.predictions') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.predictions' }}">
+                <i class="fas fa-brain"></i> Predictions
+            </a>
+            <a href="{{ url_for('admin.recommendations') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.recommendations' }}">
+                <i class="fas fa-lightbulb"></i> Recommendations
+            </a>
+            <a href="{{ url_for('admin.reports') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.reports' }}">
+                <i class="fas fa-file-invoice"></i> Reports
+            </a>
+            <a href="{{ url_for('admin.analytics') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.analytics' }}">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.settings' }}">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="{{ url_for('user.dashboard') }}" class="admin-nav-link">
+                <i class="fas fa-external-link-alt"></i> View Site
+            </a>
+            <hr class="mx-3 border-secondary">
+            <a href="{{ url_for('user.logout') }}" class="admin-nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+
+    <main class="admin-main">
+        <div class="container-fluid">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block admin_content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
