@@ -3,103 +3,83 @@
 {% block title %}Enterprise Dashboard - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<!-- WELCOME SECTION -->
+<!-- WELCOME HEADER SECTION -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="glass-card d-flex justify-content-between align-items-center">
+        <div class="glass-card d-flex flex-column flex-md-row justify-content-between align-items-md-center border-0 py-3 px-4">
             <div>
-                <h2 class="text-white mb-0">Welcome Back, <span class="text-info">{{ current_user.name }}</span></h2>
-                <p class="text-secondary mb-0"><i class="fas fa-user-tag me-2"></i> Role: <span class="badge bg-outline-info">{{ current_user.role }}</span> | <i class="fas fa-calendar-alt ms-3 me-2"></i> {{ now.strftime('%A, %d %B %Y') }}</p>
+                <h3 class="fw-bold text-primary mb-1">Enterprise Command Dashboard</h3>
+                <p class="text-secondary mb-0"><i class="fas fa-calendar-alt me-2"></i> {{ now.strftime('%A, %d %B %Y') }}</p>
             </div>
-            <div class="text-end">
-                <div id="digitalClock" class="h4 text-info fw-bold mb-0">00:00:00</div>
-                <small class="text-secondary">System Time (UTC)</small>
+            <div class="text-md-end mt-3 mt-md-0">
+                <div id="digitalClock" class="h4 text-primary fw-bold mb-0">00:00:00</div>
+                <small class="text-secondary">Universal Coordinate Time (UTC)</small>
             </div>
         </div>
     </div>
 </div>
 
-<!-- SUMMARY CARDS -->
+<!-- TOP KPI METRICS SUMMARY -->
 <div class="row g-3 mb-4">
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-box-open text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Total Products</h6>
-            <h3 class="text-white mb-0">{{ total_products }}</h3>
+        <div class="glass-card text-center border-0 py-3">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-1">
+                <div class="bg-primary bg-opacity-10 text-primary rounded px-2.5 py-1.5"><i class="fas fa-box-open"></i></div>
+                <h3 class="fw-bold mb-0 text-primary">{{ total_products }}</h3>
+            </div>
+            <span class="text-secondary fs-7 text-uppercase fw-semibold tracking-wide">Total Products</span>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-tags text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Categories</h6>
-            <h3 class="text-white mb-0">{{ total_categories }}</h3>
+        <div class="glass-card text-center border-0 py-3">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-1">
+                <div class="bg-info bg-opacity-10 text-info rounded px-2.5 py-1.5"><i class="fas fa-tags"></i></div>
+                <h3 class="fw-bold mb-0 text-info">{{ total_categories }}</h3>
+            </div>
+            <span class="text-secondary fs-7 text-uppercase fw-semibold tracking-wide">Categories</span>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-users text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Users</h6>
-            <h3 class="text-white mb-0">{{ total_users }}</h3>
+        <div class="glass-card text-center border-0 py-3">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-1">
+                <div class="bg-success bg-opacity-10 text-success rounded px-2.5 py-1.5"><i class="fas fa-warehouse"></i></div>
+                <h3 class="fw-bold mb-0 text-success">{{ total_inventory_items }}</h3>
+            </div>
+            <span class="text-secondary fs-7 text-uppercase fw-semibold tracking-wide">Stock Quantity</span>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-warehouse text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Inventory Items</h6>
-            <h3 class="text-white mb-0">{{ total_inventory_items }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-file-alt text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Reports</h6>
-            <h3 class="text-white mb-0">{{ total_reports }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-brain text-info mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">AI Predictions</h6>
-            <h3 class="text-white mb-0">{{ total_predictions }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-exclamation-circle text-warning mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Low Stock</h6>
-            <h3 class="text-warning mb-0">{{ low_stock_count }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="glass-card text-center p-3">
-            <i class="fas fa-times-circle text-danger mb-2 fa-lg"></i>
-            <h6 class="text-secondary small text-uppercase">Out of Stock</h6>
-            <h3 class="text-danger mb-0">{{ out_of_stock_count }}</h3>
+        <div class="glass-card text-center border-0 py-3">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-1">
+                <div class="bg-warning bg-opacity-10 text-warning rounded px-2.5 py-1.5"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3 class="fw-bold mb-0 text-warning">{{ low_stock_count }}</h3>
+            </div>
+            <span class="text-secondary fs-7 text-uppercase fw-semibold tracking-wide">Low Stock Warnings</span>
         </div>
     </div>
 </div>
 
+<!-- CHARTS GRID -->
 <div class="row g-4 mb-4">
-    <!-- Charts Section -->
     <div class="col-md-8">
-        <div class="glass-card mb-4">
-            <h5 class="text-info mb-4"><i class="fas fa-chart-line me-2"></i> Monthly Revenue & Profit Trend</h5>
+        <div class="glass-card border-0 mb-4">
+            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-chart-line me-2"></i> Monthly Revenue & Profit Trend</h5>
             <div style="height: 300px;">
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-md-6">
-                <div class="glass-card">
-                    <h5 class="text-info mb-4 small text-uppercase">Products by Category</h5>
+                <div class="glass-card border-0">
+                    <h5 class="fw-bold text-primary mb-4 text-uppercase fs-7"><i class="fas fa-list-ul me-2"></i> Products by Category</h5>
                     <div style="height: 200px;">
                         <canvas id="catChart"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="glass-card">
-                    <h5 class="text-info mb-4 small text-uppercase">Reports per Month</h5>
+                <div class="glass-card border-0">
+                    <h5 class="fw-bold text-primary mb-4 text-uppercase fs-7"><i class="fas fa-file-invoice-dollar me-2"></i> Reports generated monthly</h5>
                     <div style="height: 200px;">
                         <canvas id="reportChart"></canvas>
                     </div>
@@ -108,49 +88,50 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="glass-card h-100">
-            <h5 class="text-info mb-4"><i class="fas fa-chart-pie me-2"></i> Inventory Distribution</h5>
-            <div style="height: 250px;">
+        <div class="glass-card border-0 h-100 d-flex flex-column">
+            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-chart-pie me-2"></i> Inventory Status Distribution</h5>
+            <div style="height: 250px;" class="mb-4">
                 <canvas id="statusChart"></canvas>
             </div>
-            <div class="mt-4">
-                <h6 class="text-info small text-uppercase mb-3">AI Prediction Overview</h6>
+            <div class="mt-auto pt-3 border-top border-secondary border-opacity-10">
+                <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="fas fa-brain me-2"></i> AI Insights Command Overview</h6>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-secondary small">Today's Predictions:</span>
-                    <span class="text-white small fw-bold">{{ todays_predictions }}</span>
+                    <span class="text-secondary small">Today's Prediction Audits:</span>
+                    <span class="text-primary small fw-bold">{{ todays_predictions }}</span>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <span class="text-secondary small">Top Predicted Cat:</span>
-                    <span class="text-white small fw-bold">{{ frequent_category }}</span>
+                    <span class="text-secondary small">Top Predictive Category:</span>
+                    <span class="text-success small fw-bold">{{ frequent_category }}</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-4">
+<!-- ACTIVITY FEEDS & DATA TABLES -->
+<div class="row g-4 mb-4">
     <!-- Recent Activities -->
     <div class="col-md-6">
-        <div class="glass-card">
-            <h5 class="text-info mb-4"><i class="fas fa-stream me-2"></i> Recent Strategic Activities</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover small">
+        <div class="glass-card border-0 h-100">
+            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-stream me-2"></i> Recent Strategic Audit Log</h5>
+            <div class="table-responsive-custom">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>User</th>
-                            <th>Activity</th>
+                            <th>Timestamp</th>
+                            <th>Identity</th>
+                            <th>Action Taken</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for act in activities %}
                         <tr>
-                            <td>{{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ act.user.name if act.user else 'System' }}</td>
-                            <td>{{ act.action }}</td>
+                            <td class="text-nowrap small">{{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td><span class="badge bg-secondary rounded-pill px-2.5 py-1.5">{{ act.user.name if act.user else 'System' }}</span></td>
+                            <td class="fw-medium text-primary">{{ act.action }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="3" class="text-center text-secondary py-4">No recent activities logged.</td></tr>
+                        <tr><td colspan="3" class="text-center text-secondary py-4">No recent strategic actions discovered.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -160,30 +141,30 @@
 
     <!-- Recent Reports -->
     <div class="col-md-6">
-        <div class="glass-card">
-            <h5 class="text-info mb-4"><i class="fas fa-file-signature me-2"></i> Latest Generated Reports</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover small">
+        <div class="glass-card border-0 h-100">
+            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-file-contract me-2"></i> Secure Generated Reports</h5>
+            <div class="table-responsive-custom">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th>Report Name</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th class="text-end">Action</th>
+                            <th>Report Category</th>
+                            <th>Date Generated</th>
+                            <th class="text-end">Download</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for r in recent_reports %}
                         <tr>
-                            <td class="text-truncate" style="max-width: 150px;">{{ r.report_name }}</td>
-                            <td>{{ r.report_type }}</td>
-                            <td>{{ r.created_at.strftime('%m-%d %H:%M') }}</td>
+                            <td class="text-truncate fw-semibold text-primary" style="max-width: 150px;">{{ r.report_name }}</td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ r.report_type }}</span></td>
+                            <td class="small text-nowrap">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td class="text-end">
-                                <a href="#" class="btn btn-sm btn-link text-info p-0"><i class="fas fa-download"></i></a>
+                                <a href="{{ url_for('user.download_existing_report', report_id=r.id) }}" class="btn btn-sm btn-outline-premium py-1 px-2.5"><i class="fas fa-download"></i></a>
                             </td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="4" class="text-center text-secondary py-4">No reports generated yet.</td></tr>
+                        <tr><td colspan="4" class="text-center text-secondary py-4">No strategic reports in system.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -192,38 +173,37 @@
     </div>
 </div>
 
-<!-- QUICK ACTIONS -->
+<!-- INVENTORY CRITICAL ALERTS -->
 <div class="row g-4 mb-4">
-    <!-- Inventory Alerts Center -->
     <div class="col-md-12">
-        <div class="glass-card">
-            <h5 class="text-info mb-4"><i class="fas fa-bell me-2"></i> Strategic Inventory Alerts</h5>
+        <div class="glass-card border-0">
+            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-bell me-2"></i> Strategic Shelf Stock Alerts</h5>
             <div class="row g-3">
                 <!-- Out of Stock -->
                 <div class="col-md-4">
-                    <div class="alert alert-danger bg-dark border-danger mb-0 h-100">
-                        <h6 class="alert-heading fw-bold"><i class="fas fa-times-circle me-2"></i> Out of Stock ({{ out_of_stock|length }})</h6>
-                        <div class="small mt-2" style="max-height: 100px; overflow-y: auto;">
+                    <div class="alert alert-danger bg-danger bg-opacity-5 border border-danger border-opacity-20 mb-0 h-100" style="border-radius: 12px;">
+                        <h6 class="alert-heading fw-bold text-danger mb-3"><i class="fas fa-times-circle me-2"></i> Out of Stock ({{ out_of_stock|length }})</h6>
+                        <div class="small" style="max-height: 120px; overflow-y: auto;">
                             {% for p in out_of_stock %}
-                            <div class="d-flex justify-content-between border-bottom border-secondary py-1">
-                                <span>{{ p.product_name }}</span>
-                                <span class="badge bg-danger">Critical</span>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-10 py-1.5">
+                                <span class="fw-semibold text-secondary">{{ p.product_name }}</span>
+                                <span class="badge bg-danger">Critical Out</span>
                             </div>
                             {% else %}
-                            <p class="text-secondary mb-0">No items currently out of stock.</p>
+                            <p class="text-secondary mb-0">All products have standard stocking levels.</p>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
                 <!-- Low Stock -->
                 <div class="col-md-4">
-                    <div class="alert alert-warning bg-dark border-warning mb-0 h-100">
-                        <h6 class="alert-heading fw-bold text-warning"><i class="fas fa-exclamation-triangle me-2"></i> Low Stock ({{ low_stock|length }})</h6>
-                        <div class="small mt-2" style="max-height: 100px; overflow-y: auto;">
+                    <div class="alert alert-warning bg-warning bg-opacity-5 border border-warning border-opacity-20 mb-0 h-100" style="border-radius: 12px;">
+                        <h6 class="alert-heading fw-bold text-warning mb-3"><i class="fas fa-exclamation-triangle me-2"></i> Low Stock warnings ({{ low_stock|length }})</h6>
+                        <div class="small" style="max-height: 120px; overflow-y: auto;">
                             {% for p in low_stock %}
-                            <div class="d-flex justify-content-between border-bottom border-secondary py-1">
-                                <span class="text-light">{{ p.product_name }}</span>
-                                <span class="text-warning fw-bold">{{ p.stock_quantity }} left</span>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-10 py-1.5">
+                                <span class="fw-semibold text-secondary">{{ p.product_name }}</span>
+                                <span class="text-warning fw-bold">{{ p.stock_quantity }} items</span>
                             </div>
                             {% else %}
                             <p class="text-secondary mb-0">All stock levels are optimal.</p>
@@ -233,16 +213,16 @@
                 </div>
                 <!-- Newly Added -->
                 <div class="col-md-4">
-                    <div class="alert alert-info bg-dark border-info mb-0 h-100">
-                        <h6 class="alert-heading fw-bold text-info"><i class="fas fa-plus-circle me-2"></i> Newly Added ({{ newly_added|length }})</h6>
-                        <div class="small mt-2" style="max-height: 100px; overflow-y: auto;">
+                    <div class="alert alert-info bg-info bg-opacity-5 border border-info border-opacity-20 mb-0 h-100" style="border-radius: 12px;">
+                        <h6 class="alert-heading fw-bold text-info mb-3"><i class="fas fa-plus-circle me-2"></i> Newly Cataloged Products ({{ newly_added|length }})</h6>
+                        <div class="small" style="max-height: 120px; overflow-y: auto;">
                             {% for p in newly_added %}
-                            <div class="d-flex justify-content-between border-bottom border-secondary py-1">
-                                <span class="text-light">{{ p.product_name }}</span>
-                                <span class="text-info">{{ p.created_at.strftime('%m-%d') }}</span>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-10 py-1.5">
+                                <span class="fw-semibold text-secondary">{{ p.product_name }}</span>
+                                <span class="text-info">{{ p.created_at.strftime('%Y-%m-%d') }}</span>
                             </div>
                             {% else %}
-                            <p class="text-secondary mb-0">No new products added recently.</p>
+                            <p class="text-secondary mb-0">No new items logged during last week.</p>
                             {% endfor %}
                         </div>
                     </div>
@@ -252,17 +232,16 @@
     </div>
 </div>
 
+<!-- QUICK COMMAND ACTIONS -->
 <div class="row g-4">
     <div class="col-12">
-        <div class="glass-card">
-            <h5 class="text-info mb-4">Enterprise Quick Actions</h5>
+        <div class="glass-card border-0">
+            <h5 class="fw-bold text-primary mb-3">Enterprise Command Shortcuts</h5>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-neon btn-sm"><i class="fas fa-plus me-1"></i> Add Product</a>
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-neon btn-sm"><i class="fas fa-camera me-1"></i> Upload Image</a>
-                <a href="{{ url_for('user.prediction') }}" class="btn btn-neon btn-sm"><i class="fas fa-brain me-1"></i> Run Prediction</a>
-                <a href="{{ url_for('user.reports') }}" class="btn btn-neon btn-sm"><i class="fas fa-file-export me-1"></i> Generate Report</a>
-                <a href="{{ url_for('user.reports') }}" class="btn btn-outline-info btn-sm">View Reports</a>
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-outline-info btn-sm">View Inventory</a>
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-premium btn-sm"><i class="fas fa-plus me-1"></i> Add Product</a>
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-outline-premium btn-sm"><i class="fas fa-camera me-1"></i> Audit Camera</a>
+                <a href="{{ url_for('user.prediction') }}" class="btn btn-outline-premium btn-sm"><i class="fas fa-brain me-1"></i> AI Prediction</a>
+                <a href="{{ url_for('user.reports') }}" class="btn btn-outline-premium btn-sm"><i class="fas fa-file-export me-1"></i> Reports Center</a>
             </div>
         </div>
     </div>
@@ -275,10 +254,17 @@
     function updateClock() {
         const now = new Date();
         const time = now.toISOString().split('T')[1].split('.')[0];
-        document.getElementById('digitalClock').innerText = time;
+        const clockEl = document.getElementById('digitalClock');
+        if (clockEl) {
+            clockEl.innerText = time;
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();
+
+    const isDarkMode = () => document.documentElement.getAttribute('data-theme') === 'dark';
+    const getGridColor = () => isDarkMode() ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+    const getTextColor = () => isDarkMode() ? '#94A3B8' : '#4B5563';
 
     const mainCtx = document.getElementById('mainChart').getContext('2d');
     new Chart(mainCtx, {
@@ -289,16 +275,16 @@
                 {
                     label: 'Revenue (₹)',
                     data: {{ chart_revenue|tojson }},
-                    borderColor: '#00d2ff',
-                    backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
                     fill: true,
                     tension: 0.4
                 },
                 {
                     label: 'Profit (₹)',
                     data: {{ chart_profit|tojson }},
-                    borderColor: '#e94560',
-                    backgroundColor: 'rgba(233, 69, 96, 0.1)',
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     fill: true,
                     tension: 0.4
                 }
@@ -307,10 +293,10 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#888' } } },
+            plugins: { legend: { labels: { color: getTextColor() } } },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
-                x: { grid: { display: false }, ticks: { color: '#888' } }
+                y: { grid: { color: getGridColor() }, ticks: { color: getTextColor() } },
+                x: { grid: { display: false }, ticks: { color: getTextColor() } }
             }
         }
     });
@@ -322,15 +308,15 @@
             labels: {{ status_dist.keys()|list|tojson }},
             datasets: [{
                 data: {{ status_dist.values()|list|tojson }},
-                backgroundColor: ['#00ff88', '#f39c12', '#e94560'],
+                backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#888' } } },
-            cutout: '70%'
+            plugins: { legend: { position: 'bottom', labels: { color: getTextColor() } } },
+            cutout: '72%'
         }
     });
 
@@ -342,8 +328,8 @@
             datasets: [{
                 label: 'Products',
                 data: {{ cat_dist.values()|list|tojson }},
-                backgroundColor: 'rgba(0, 210, 255, 0.5)',
-                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                borderColor: '#2563EB',
                 borderWidth: 1
             }]
         },
@@ -353,8 +339,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#888' } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }
+                x: { grid: { display: false }, ticks: { color: getTextColor() } },
+                y: { grid: { color: getGridColor() }, ticks: { color: getTextColor() } }
             }
         }
     });
@@ -365,10 +351,10 @@
         data: {
             labels: {{ report_chart_labels|tojson }},
             datasets: [{
-                label: 'Reports',
+                label: 'Reports Generated',
                 data: {{ report_chart_data|tojson }},
-                borderColor: '#e94560',
-                backgroundColor: 'rgba(233, 69, 96, 0.1)',
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 fill: true,
                 tension: 0.3
             }]
@@ -378,8 +364,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', precision: 0 } },
-                x: { grid: { display: false }, ticks: { color: '#888' } }
+                y: { grid: { color: getGridColor() }, ticks: { color: getTextColor(), precision: 0 } },
+                x: { grid: { display: false }, ticks: { color: getTextColor() } }
             }
         }
     });
