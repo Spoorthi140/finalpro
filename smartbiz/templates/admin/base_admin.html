@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        (function initTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
     <style>
         :root {
             --admin-neon: #EF4444; /* Cyber red admin highlight */
@@ -57,9 +63,9 @@
 <body>
     <div class="admin-sidebar" id="adminSidebar">
         <div class="p-4 mb-4 text-center border-bottom border-secondary border-opacity-10">
-            <h4 class="text-white fw-bold mb-0">
-                <i class="fas fa-shield-alt text-danger me-2"></i> ENTERPRISE<br>
-                <span class="fs-6 text-secondary tracking-wider">ADMIN PANEL</span>
+            <h4 class="text-white fw-bold mb-0" style="letter-spacing: 1px;">
+                <i class="fas fa-shield-alt text-danger me-2"></i> SMARTBIZ<br>
+                <span class="fs-7 text-secondary tracking-wider fw-semibold">ADMIN CENTER</span>
             </h4>
         </div>
         <nav class="py-2">
@@ -105,20 +111,18 @@
                 <button class="btn d-lg-none btn-outline-secondary btn-sm" onclick="toggleAdminSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h5 class="mb-0 fw-semibold text-secondary">Admin Mode: <span class="text-danger">{{ current_user.name }}</span></h5>
+                <h4 class="mb-0 fw-bold text-danger tracking-tight">SMARTBIZ</h4>
             </div>
 
             <div class="d-flex align-items-center gap-3">
-                <!-- Theme switch container -->
-                <div class="theme-switch-wrapper">
-                    <span class="me-2 text-secondary fs-7"><i class="fas fa-sun"></i></span>
-                    <label class="theme-switch" for="checkboxThemeAdmin">
-                        <input type="checkbox" id="checkboxThemeAdmin" onchange="toggleAdminTheme(this)">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="ms-2 text-secondary fs-7"><i class="fas fa-moon"></i></span>
+                <!-- Textual Theme Toggle -->
+                <div class="d-flex align-items-center">
+                    <button id="themeToggleBtnAdmin" onclick="toggleAdminTheme()" class="btn btn-sm btn-outline-premium d-flex align-items-center gap-2">
+                        <span id="themeToggleIconAdmin"><i class="fas fa-sun"></i></span>
+                        <span id="themeToggleTextAdmin">Light Mode</span>
+                    </button>
                 </div>
-                <div class="vr bg-secondary opacity-25"></div>
+                <div class="vr bg-secondary opacity-25" style="height: 24px;"></div>
                 <span class="badge bg-danger px-3 py-2 rounded-pill">SUPER ADMIN</span>
             </div>
         </header>
@@ -148,23 +152,30 @@
             }
         }
 
-        function toggleAdminTheme(checkbox) {
-            if (checkbox.checked) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
+        function updateAdminToggleButton(theme) {
+            const btnText = document.getElementById('themeToggleTextAdmin');
+            const btnIcon = document.getElementById('themeToggleIconAdmin');
+            if (theme === 'dark') {
+                if (btnText) btnText.innerText = "🌙 Dark Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-moon"></i>';
             } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
+                if (btnText) btnText.innerText = "☀️ Light Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-sun"></i>';
             }
         }
 
-        (function initAdminTheme() {
+        function toggleAdminTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateAdminToggleButton(newTheme);
+        }
+
+        (function initAdminToggleButton() {
             const currentTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            const checkbox = document.getElementById('checkboxThemeAdmin');
-            if (checkbox) {
-                checkbox.checked = (currentTheme === 'dark');
-            }
+            updateAdminToggleButton(currentTheme);
         })();
     </script>
 </body>

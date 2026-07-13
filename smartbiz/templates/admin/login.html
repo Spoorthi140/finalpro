@@ -1,100 +1,79 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartBiz Enterprise - Admin Authenticate</title>
-    <!-- Bootstrap 5 -->
+    <title>SmartBiz Enterprise - Admin Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
-            background-color: #0F172A;
-            color: #F8FAFC;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .btn-neon {
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+            transition: 0.3s;
+        }
+        .btn-neon:hover {
+            background: #e94560;
+            color: white;
+            box-shadow: 0 0 15px #e94560;
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: none;
+            border: 1px solid #e94560;
         }
     </style>
 </head>
-<body class="bg-dark">
-    <div class="auth-split-container">
-        <!-- Illustration Panel -->
-        <div class="auth-split-illustration bg-gradient" style="background: linear-gradient(135deg, #7F1D1D, #EF4444) !important;">
-            <div class="text-center max-w-sm animate-fade-in">
-                <i class="fas fa-shield-halved fa-5x mb-4 text-white"></i>
-                <h2 class="fw-bold text-white mb-3">Admin Portal</h2>
-                <p class="text-white-50">Authorized Personnel Only. Log in to manage configurations, user status, logs, inventory audits, and system reports.</p>
+<body>
+    <div class="glass-card">
+        <h2 class="text-center mb-4 text-uppercase fw-bold" style="letter-spacing: 2px; color: #e94560;">Admin Portal</h2>
+        <p class="text-center small text-light-50 mb-4">Secure access for authorized personnel only</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} py-2 small">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label small">Admin Email</label>
+                <input type="email" name="email" class="form-control" required>
             </div>
-        </div>
-
-        <!-- Form Panel -->
-        <div class="auth-split-form" style="background-color: #1E293B !important;">
-            <div class="mx-auto w-100" style="max-width: 400px;">
-                <div class="mb-4 text-center text-md-start">
-                    <h2 class="fw-bold text-danger mb-1"><i class="fas fa-key text-danger me-2"></i>Authenticate</h2>
-                    <p class="text-secondary">Please enter your administrative credentials.</p>
-                </div>
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-                <form method="POST" class="needs-validation" novalidate>
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Admin Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-secondary border-end-0 text-secondary"><i class="fas fa-user-shield"></i></span>
-                            <input type="email" name="email" class="form-control border-secondary border-start-0 ps-0 text-white" placeholder="admin@smartbiz.com" required style="background-color: #0F172A !important;">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label text-secondary fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-secondary border-end-0 text-secondary"><i class="fas fa-lock"></i></span>
-                            <input type="password" name="password" id="passwordInputAdmin" class="form-control border-secondary border-start-0 border-end-0 ps-0 text-white" placeholder="••••••••" required style="background-color: #0F172A !important;">
-                            <span class="input-group-text bg-transparent border-secondary border-start-0 text-secondary" style="cursor: pointer;" onclick="togglePasswordVisibility('passwordInputAdmin', 'passwordToggleIconAdmin')">
-                                <i class="fas fa-eye" id="passwordToggleIconAdmin"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-danger w-100 py-2.5 mb-4 fw-semibold" style="box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);">Verify Admin Credentials</button>
-
-                    <div class="text-center">
-                        <a href="{{ url_for('user.home') }}" class="text-decoration-none text-secondary fs-7"><i class="fas fa-arrow-left me-2"></i>Back to home</a>
-                    </div>
-                </form>
+            <div class="mb-4">
+                <label class="form-label small">Password</label>
+                <input type="password" name="password" class="form-control" required>
             </div>
+            <button type="submit" class="btn btn-neon w-100 py-2 fw-bold">AUTHENTICATE</button>
+        </form>
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('user.home') }}" class="text-decoration-none text-light-50 small"><i class="fas fa-arrow-left"></i> Back to Site</a>
         </div>
     </div>
-
-    <script>
-        function togglePasswordVisibility(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const toggleIcon = document.getElementById(iconId);
-            if (passwordInput && toggleIcon) {
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggleIcon.classList.remove('fa-eye');
-                    toggleIcon.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    toggleIcon.classList.remove('fa-eye-slash');
-                    toggleIcon.classList.add('fa-eye');
-                }
-            }
-        }
-    </script>
 </body>
 </html>

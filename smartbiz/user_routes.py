@@ -22,12 +22,46 @@ def home():
 
 @user_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    import re
     if current_user.is_authenticated:
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if not full_name or not email or not phone or not password or not confirm_password:
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('user.register'))
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('user.register'))
+
+        # Password validation
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return redirect(url_for('user.register'))
+        if not re.search(r"[A-Z]", password):
+            flash('Password must contain at least one uppercase letter.', 'danger')
+            return redirect(url_for('user.register'))
+        if not re.search(r"[a-z]", password):
+            flash('Password must contain at least one lowercase letter.', 'danger')
+            return redirect(url_for('user.register'))
+        if not re.search(r"[0-9]", password):
+            flash('Password must contain at least one number.', 'danger')
+            return redirect(url_for('user.register'))
+        if not re.search(r"[^A-Za-z0-9]", password):
+            flash('Password must contain at least one special character.', 'danger')
+            return redirect(url_for('user.register'))
+
+        # Phone validation (10 to 15 digits, allowing optional + and common spacing characters)
+        phone_cleaned = re.sub(r"[\s\-\(\)\+]", "", phone)
+        if not phone_cleaned.isdigit() or len(phone_cleaned) < 10 or len(phone_cleaned) > 15:
+            flash('Invalid telephone number. Must contain between 10 and 15 digits.', 'danger')
+            return redirect(url_for('user.register'))
 
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
@@ -35,7 +69,7 @@ def register():
             return redirect(url_for('user.register'))
 
         new_user = User(
-            name=name, email=email,
+            full_name=full_name, email=email, phone=phone,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
             role='User' # Force User role for all registrations
         )
@@ -520,7 +554,7 @@ def reports():
     # Analytics Data
     monthly_data = db.session.query(db.func.strftime('%Y-%m', Report.created_at), db.func.count(Report.id)).group_by(db.func.strftime('%Y-%m', Report.created_at)).all()
     type_data = db.session.query(Report.report_type, db.func.count(Report.id)).group_by(Report.report_type).all()
-    user_data = db.session.query(User.name, db.func.count(Report.id)).join(Report).group_by(User.name).all()
+    user_data = db.session.query(User.full_name, db.func.count(Report.id)).join(Report).group_by(User.full_name).all()
 
     analytics = {
         'labels': [m[0] for m in monthly_data],

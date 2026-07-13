@@ -29,5 +29,5 @@ def test_login_page(client):
 
 def test_admin_redirect(client):
     rv = client.get('/admin/login')
-    assert rv.status_code == 302
-    assert b'href="/login"' in rv.data
+    assert rv.status_code == 200
+    assert b"Admin Portal" in rv.data or b"Authenticate" in rv.data

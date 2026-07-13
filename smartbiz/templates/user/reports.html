@@ -6,33 +6,33 @@
 <!-- SUMMARY CARDS -->
 <div class="row g-3 mb-4">
     <div class="col-md-2 col-4">
-        <div class="glass-card text-center border-0 p-3">
-            <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-1">Total Reports</h6>
-            <h3 class="text-primary fw-bold mb-0">{{ stats.total }}</h3>
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Total Reports</h6>
+            <h4 class="text-white mb-0">{{ stats.total }}</h4>
         </div>
     </div>
     <div class="col-md-2 col-4">
-        <div class="glass-card text-center border-0 p-3">
-            <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-1">This Month</h6>
-            <h3 class="text-info fw-bold mb-0">{{ stats.this_month }}</h3>
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">This Month</h6>
+            <h4 class="text-info mb-0">{{ stats.this_month }}</h4>
         </div>
     </div>
     <div class="col-md-2 col-4">
-        <div class="glass-card text-center border-0 p-3">
-            <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-1">Inventory</h6>
-            <h3 class="text-success fw-bold mb-0">{{ stats.inventory }}</h3>
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Inventory</h6>
+            <h4 class="text-white mb-0">{{ stats.inventory }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center border-0 p-3">
-            <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-1">Prediction</h6>
-            <h3 class="text-primary-light fw-bold mb-0">{{ stats.prediction }}</h3>
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Prediction</h6>
+            <h4 class="text-white mb-0">{{ stats.prediction }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="glass-card text-center border-0 p-3">
-            <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-1">AI Detection</h6>
-            <h3 class="text-warning fw-bold mb-0">{{ stats.detection }}</h3>
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">AI Detection</h6>
+            <h4 class="text-white mb-0">{{ stats.detection }}</h4>
         </div>
     </div>
 </div>
@@ -40,32 +40,32 @@
 <div class="row g-4 mb-4">
     <!-- GENERATE & SEARCH -->
     <div class="col-md-4">
-        <div class="glass-card border-0 h-100">
-            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-plus-circle me-2"></i> Generate New Report</h5>
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-plus-circle me-2"></i> Generate New Report</h5>
             <div class="d-grid gap-2">
-                <a href="{{ url_for('user.download_report', format='pdf', type='Executive') }}" class="btn btn-premium btn-sm text-start py-2.5">
+                <a href="{{ url_for('user.download_report', format='pdf', type='Executive') }}" class="btn btn-neon btn-sm text-start">
                     <i class="fas fa-file-pdf me-2"></i> Executive Overview (PDF)
                 </a>
-                <a href="{{ url_for('user.download_report', format='excel', type='Stock') }}" class="btn btn-outline-premium btn-sm text-start py-2.5">
+                <a href="{{ url_for('user.download_report', format='excel', type='Stock') }}" class="btn btn-outline-info btn-sm text-start">
                     <i class="fas fa-file-excel me-2"></i> Full Stock Ledger (XLSX)
                 </a>
-                <a href="{{ url_for('user.download_report', format='csv', type='Low Stock') }}" class="btn btn-outline-premium btn-sm text-start py-2.5">
+                <a href="{{ url_for('user.download_report', format='csv', type='Low Stock') }}" class="btn btn-outline-warning btn-sm text-start">
                     <i class="fas fa-file-csv me-2"></i> Low Stock Export (CSV)
                 </a>
-                <a href="{{ url_for('user.download_report', format='pdf', type='Activity') }}" class="btn btn-outline-premium btn-sm text-start py-2.5">
-                    <i class="fas fa-history me-2"></i> User Activity Log (PDF)
+                <a href="{{ url_for('user.download_report', format='pdf', type='Activity') }}" class="btn btn-outline-secondary btn-sm text-start">
+                    <i class="fas fa-history me-2"></i> User Activity Log
                 </a>
             </div>
 
-            <hr class="my-4 border-secondary border-opacity-10">
+            <hr class="my-4 border-secondary">
 
-            <h5 class="fw-bold text-primary mb-3">Filter Archive</h5>
+            <h5 class="text-info mb-3">Filter Archive</h5>
             <form>
                 <div class="mb-3">
-                    <input type="text" name="search" class="form-control" placeholder="Search by name..." value="{{ request.args.get('search', '') }}">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search by name..." value="{{ request.args.get('search', '') }}">
                 </div>
                 <div class="mb-3">
-                    <select name="type" class="form-select">
+                    <select name="type" class="form-select form-select-sm">
                         <option value="">All Types</option>
                         <option {{ 'selected' if request.args.get('type') == 'Inventory' }}>Inventory</option>
                         <option {{ 'selected' if request.args.get('type') == 'Prediction' }}>Prediction</option>
@@ -74,37 +74,37 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <select name="date_filter" class="form-select">
+                    <select name="date_filter" class="form-select form-select-sm">
                         <option value="">Any Time</option>
                         <option {{ 'selected' if request.args.get('date_filter') == 'Today' }}>Today</option>
                         <option {{ 'selected' if request.args.get('date_filter') == 'Last 7 Days' }}>Last 7 Days</option>
                         <option {{ 'selected' if request.args.get('date_filter') == 'Last Month' }}>Last Month</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-premium w-100">Apply Filters</button>
+                <button type="submit" class="btn btn-info btn-sm w-100">Apply Filters</button>
             </form>
         </div>
     </div>
 
     <!-- ANALYTICS -->
     <div class="col-md-8">
-        <div class="glass-card border-0 h-100">
-            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-chart-bar me-2"></i> Report Distribution Analytics</h5>
-            <div class="row g-4">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-chart-bar me-2"></i> Report Distribution Analytics</h5>
+            <div class="row">
                 <div class="col-md-4">
-                    <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-3">Generated per Month</h6>
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Generated per Month</h6>
                     <div style="height: 200px;">
                         <canvas id="monthlyReportsChart"></canvas>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-3">Type Distribution</h6>
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Type Distribution</h6>
                     <div style="height: 200px;">
                         <canvas id="typeDistChart"></canvas>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <h6 class="text-secondary text-uppercase fs-8 fw-semibold mb-3">Reports by User</h6>
+                    <h6 class="text-secondary xx-small text-uppercase mb-3">Reports by User</h6>
                     <div style="height: 200px;">
                         <canvas id="userDistChart"></canvas>
                     </div>
@@ -117,10 +117,10 @@
 <div class="row g-4">
     <!-- REPORT TABLE -->
     <div class="col-12">
-        <div class="glass-card border-0">
-            <h5 class="fw-bold text-primary mb-4"><i class="fas fa-archive me-2"></i> Strategic Report Archive</h5>
-            <div class="table-responsive-custom">
-                <table class="table table-hover mb-0">
+        <div class="glass-card">
+            <h5 class="text-info mb-4"><i class="fas fa-archive me-2"></i> Strategic Report Archive</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle small">
                     <thead>
                         <tr>
                             <th>Report Name</th>
@@ -134,16 +134,16 @@
                     <tbody>
                         {% for r in recent_reports %}
                         <tr>
-                            <td class="fw-bold text-primary">{{ r.report_name }}</td>
-                            <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ r.report_type }}</span></td>
+                            <td class="fw-bold">{{ r.report_name }}</td>
+                            <td><span class="badge bg-outline-info">{{ r.report_type }}</span></td>
                             <td>{{ r.author.name if r.author else 'System' }}</td>
-                            <td class="small">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td><span class="text-success fw-medium"><i class="fas fa-check-circle me-1"></i> Ready</span></td>
+                            <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td><span class="text-success"><i class="fas fa-check-circle me-1"></i> Generated</span></td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ url_for('user.download_existing_report', report_id=r.id) }}" class="btn btn-sm btn-outline-premium py-1 px-2.5"><i class="fas fa-download"></i></a>
+                                    <a href="{{ url_for('user.download_existing_report', report_id=r.id) }}" class="btn btn-sm btn-outline-info"><i class="fas fa-download"></i></a>
                                     <form action="{{ url_for('user.delete_report_user', report_id=r.id) }}" method="POST" class="d-inline">
-                                        <button class="btn btn-sm btn-outline-danger py-1 px-2.5"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
@@ -157,14 +157,14 @@
         </div>
     </div>
 </div>
+
+<style>
+    .xx-small { font-size: 0.65rem; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const isDarkMode = () => document.documentElement.getAttribute('data-theme') === 'dark';
-    const getGridColor = () => isDarkMode() ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-    const getTextColor = () => isDarkMode() ? '#94A3B8' : '#4B5563';
-
     const monthlyCtx = document.getElementById('monthlyReportsChart').getContext('2d');
     new Chart(monthlyCtx, {
         type: 'bar',
@@ -173,7 +173,7 @@
             datasets: [{
                 label: 'Reports Generated',
                 data: {{ analytics.counts|tojson }},
-                backgroundColor: '#2563EB',
+                backgroundColor: '#00d2ff',
                 borderRadius: 5
             }]
         },
@@ -182,8 +182,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { grid: { color: getGridColor() }, ticks: { color: getTextColor() } },
-                x: { grid: { display: false }, ticks: { color: getTextColor() } }
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
             }
         }
     });
@@ -195,7 +195,7 @@
             labels: {{ analytics.types.keys()|list|tojson }},
             datasets: [{
                 data: {{ analytics.types.values()|list|tojson }},
-                backgroundColor: ['#2563EB', '#10B981', '#F59E0B', '#EF4444'],
+                backgroundColor: ['#00d2ff', '#e94560', '#00ff88', '#f39c12'],
                 borderWidth: 0
             }]
         },
@@ -203,7 +203,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            cutout: '72%'
+            cutout: '70%'
         }
     });
 
@@ -214,7 +214,7 @@
             labels: {{ analytics.users.keys()|list|tojson }},
             datasets: [{
                 data: {{ analytics.users.values()|list|tojson }},
-                backgroundColor: ['rgba(37, 99, 235, 0.5)', 'rgba(16, 185, 129, 0.5)', 'rgba(245, 158, 11, 0.5)'],
+                backgroundColor: ['rgba(0, 210, 255, 0.5)', 'rgba(233, 69, 96, 0.5)', 'rgba(0, 255, 136, 0.5)'],
                 borderColor: '#fff',
                 borderWidth: 1
             }]
@@ -223,7 +223,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { r: { grid: { color: getGridColor() }, ticks: { display: false } } }
+            scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } }
         }
     });
 </script>

@@ -65,8 +65,9 @@ def create_app(config=None):
             admin_email = os.environ.get('ADMIN_EMAIL', 'admin@smartbiz.com')
             if not User.query.filter_by(email=admin_email).first():
                 admin = User(
-                    name='SystemAdmin',
+                    full_name='SystemAdmin',
                     email=admin_email,
+                    phone='9876543210',
                     password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'Admin@123'), method='pbkdf2:sha256'),
                     role='Admin'
                 )

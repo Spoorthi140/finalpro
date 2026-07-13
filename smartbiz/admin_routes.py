@@ -5,11 +5,33 @@ from werkzeug.security import generate_password_hash
 from .models import db, User, Product, InventoryLog, AuditLog, Upload, Forecast, Report, InventoryDetection, Prediction
 from .auth_utils import admin_required
 
+from flask_login import login_user, logout_user
+from werkzeug.security import check_password_hash
+
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@admin_bp.route('/login')
+@admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    return redirect(url_for('user.login'))
+    if current_user.is_authenticated:
+        if current_user.role == 'Admin':
+            return redirect(url_for('admin.dashboard'))
+        else:
+            logout_user() # log out normal user to prevent session contamination
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password) and user.role == 'Admin':
+            if user.status != 'Active':
+                flash('Your account is inactive.', 'warning')
+                return redirect(url_for('admin.login'))
+            login_user(user)
+            db.session.add(AuditLog(user_id=user.id, action="Admin Login", module="Authentication"))
+            db.session.commit()
+            return redirect(url_for('admin.dashboard'))
+        else:
+            flash('Invalid Admin Email or Password', 'danger')
+    return render_template('admin/login.html')
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -48,7 +70,7 @@ def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
-    flash(f"User {user.name} has been deleted.", "success")
+    flash(f"User {user.full_name} has been deleted.", "success")
     return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/user/toggle_status/<int:user_id>', methods=['POST'])
@@ -59,7 +81,7 @@ def toggle_status(user_id):
     user.is_active = not user.is_active
     db.session.commit()
     status = "activated" if user.is_active else "deactivated"
-    flash(f"User {user.name} has been {status}.", "info")
+    flash(f"User {user.full_name} has been {status}.", "info")
     return redirect(url_for('admin.users'))
 
 @admin_bp.route('/users')
@@ -74,8 +96,9 @@ def users():
 @admin_required
 def add_user():
     if request.method == 'POST':
-        name = request.form.get('name')
+        full_name = request.form.get('full_name')
         email = request.form.get('email')
+        phone = request.form.get('phone', '0000000000')
         password = request.form.get('password')
         role = request.form.get('role', 'User')
 
@@ -84,14 +107,15 @@ def add_user():
             return redirect(url_for('admin.add_user'))
 
         new_user = User(
-            name=name,
+            full_name=full_name,
             email=email,
+            phone=phone,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
             role=role
         )
         db.session.add(new_user)
         db.session.commit()
-        flash(f'User {name} added successfully.', 'success')
+        flash(f'User {full_name} added successfully.', 'success')
         return redirect(url_for('admin.users'))
     return render_template('admin/add_user.html')
 
@@ -101,12 +125,13 @@ def add_user():
 def edit_user(user_id):
     user = User.query.get_or_404(user_id)
     if request.method == 'POST':
-        user.name = request.form.get('name')
+        user.full_name = request.form.get('full_name')
         user.email = request.form.get('email')
+        user.phone = request.form.get('phone')
         user.role = request.form.get('role')
         user.status = request.form.get('status')
         db.session.commit()
-        flash(f'User {user.name} updated.', 'success')
+        flash(f'User {user.full_name} updated.', 'success')
         return redirect(url_for('admin.users'))
     return render_template('admin/edit_user.html', user=user)
 
@@ -121,7 +146,7 @@ def reset_password(user_id):
         return redirect(url_for('admin.users'))
     user.password = generate_password_hash(new_pass, method='pbkdf2:sha256')
     db.session.commit()
-    flash(f'Password for {user.name} has been reset.', 'success')
+    flash(f'Password for {user.full_name} has been reset.', 'success')
     return redirect(url_for('admin.users'))
 
 @admin_bp.route('/report/delete/<int:report_id>', methods=['POST'])

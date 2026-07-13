@@ -57,7 +57,7 @@
                     <tbody>
                         {% for user in users %}
                         <tr>
-                            <td>{{ user.name }}</td>
+                            <td>{{ user.full_name }}</td>
                             <td>{{ user.email }}</td>
                             <td><span class="badge bg-{{ 'info' if user.role == 'Admin' else 'secondary' }}">{{ user.role }}</span></td>
                             <td>
@@ -94,7 +94,7 @@
                 {% for log in activities %}
                 <div class="mb-3 pb-3 border-bottom border-secondary">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-info small fw-bold">{{ log.user.name if log.user else 'System' }}</span>
+                        <span class="text-info small fw-bold">{{ log.user.full_name if log.user else 'System' }}</span>
                         <span class="text-secondary xx-small">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
                     </div>
                     <p class="mb-0 small text-light-50">{{ log.action }}</p>

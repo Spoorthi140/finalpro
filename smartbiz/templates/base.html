@@ -14,6 +14,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        // Synchronous theme initialization to prevent flash
+        (function initTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -22,7 +29,8 @@
     <div class="sidebar" id="sidebar">
         <div class="p-4 text-center border-bottom border-secondary border-opacity-10">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SmartBiz" class="img-fluid mb-3" style="max-width: 50px;">
-            <h5 class="text-white fw-bold mb-0">SmartBiz<br><span class="text-primary-light fs-6">Enterprise</span></h5>
+            <h5 class="text-white fw-bold mb-0">SMARTBIZ</h5>
+            <span class="text-primary-light fs-7 fw-semibold tracking-wider">Enterprise Suite</span>
         </div>
         <nav class="nav flex-column py-3">
             <a class="nav-link {{ 'active' if request.endpoint == 'user.dashboard' }}" href="{{ url_for('user.dashboard') }}">
@@ -83,20 +91,18 @@
                 <button class="btn d-lg-none btn-outline-secondary btn-sm" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h5 class="mb-0 fw-semibold text-secondary">Welcome, <span class="text-primary">{{ current_user.name }}</span></h5>
+                <h4 class="mb-0 fw-bold text-primary tracking-tight">SMARTBIZ</h4>
             </div>
 
             <div class="d-flex align-items-center gap-3">
-                <!-- Theme switch container -->
-                <div class="theme-switch-wrapper">
-                    <span class="me-2 text-secondary fs-7"><i class="fas fa-sun"></i></span>
-                    <label class="theme-switch" for="checkboxTheme">
-                        <input type="checkbox" id="checkboxTheme" onchange="toggleTheme(this)">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="ms-2 text-secondary fs-7"><i class="fas fa-moon"></i></span>
+                <!-- Textual Theme Switch Component -->
+                <div class="d-flex align-items-center">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="btn btn-sm btn-outline-premium d-flex align-items-center gap-2">
+                        <span id="themeToggleIcon"><i class="fas fa-sun"></i></span>
+                        <span id="themeToggleText">Light Mode</span>
+                    </button>
                 </div>
-                <div class="vr bg-secondary opacity-25"></div>
+                <div class="vr bg-secondary opacity-25" style="height: 24px;"></div>
                 <span class="badge bg-primary px-3 py-2 rounded-pill">{{ current_user.role }}</span>
             </div>
         </header>
@@ -121,7 +127,6 @@
     <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar Toggle for Mobile View
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar) {
@@ -129,25 +134,34 @@
             }
         }
 
-        // Theme Switch Management
-        function toggleTheme(checkbox) {
-            if (checkbox.checked) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
+        function updateToggleButton(theme) {
+            const btnText = document.getElementById('themeToggleText');
+            const btnIcon = document.getElementById('themeToggleIcon');
+            if (theme === 'dark') {
+                if (btnText) btnText.innerText = "🌙 Dark Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-moon"></i>';
             } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
+                if (btnText) btnText.innerText = "☀️ Light Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-sun"></i>';
             }
         }
 
-        // Initialize Theme from Storage
-        (function initTheme() {
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Dispatch dynamic window event for live Chart updates
+            window.dispatchEvent(new Event('themeChanged'));
+        }
+
+        // Initialize Toggle visual indicator
+        (function initToggleButton() {
             const currentTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            const checkbox = document.getElementById('checkboxTheme');
-            if (checkbox) {
-                checkbox.checked = (currentTheme === 'dark');
-            }
+            updateToggleButton(currentTheme);
         })();
     </script>
     {% block extra_js %}{% endblock %}

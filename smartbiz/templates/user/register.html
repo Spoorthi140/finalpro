@@ -1,168 +1,162 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartBiz Enterprise - Register</title>
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .btn-neon {
+            background: transparent;
+            border: 1px solid #00d2ff;
+            color: #00d2ff;
+            transition: 0.3s;
+        }
+        .btn-neon:hover {
+            background: #00d2ff;
+            color: #0f0c29;
+            box-shadow: 0 0 15px #00d2ff;
+        }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: none;
+            border: 1px solid #00d2ff;
+        }
+        option {
+            background: #24243e;
+            color: white;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="auth-split-container">
-        <!-- Illustration Panel -->
-        <div class="auth-split-illustration">
-            <div class="text-center max-w-sm animate-fade-in">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SmartBiz logo" width="80" class="mb-4">
-                <h2 class="fw-bold text-white mb-3">Enterprise Intelligence</h2>
-                <p class="text-white-50">Create an account to gain high performance analytics, predictions, low-latency reports, and machine learning modules.</p>
+<body>
+    <div class="glass-card">
+        <h2 class="text-center mb-4">SmartBiz Enterprise Register</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" id="register-form">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="full_name" class="form-control" placeholder="Enter Full Name" required>
             </div>
-        </div>
-
-        <!-- Form Panel -->
-        <div class="auth-split-form">
-            <div class="mx-auto w-100" style="max-width: 400px;">
-                <div class="mb-4 text-center text-md-start">
-                    <h2 class="fw-bold text-primary mb-1">Create Account</h2>
-                    <p class="text-secondary">Join us and start optimizing your business today.</p>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" placeholder="Enter Email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" name="phone" class="form-control" placeholder="Enter Phone Number" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter Password" required>
+                <!-- Strength Indicator Checklist -->
+                <div class="mt-2 small text-secondary" id="password-checklist">
+                    <div>Password Requirements:</div>
+                    <div id="req-length" class="text-danger">✗ At least 8 characters</div>
+                    <div id="req-upper" class="text-danger">✗ At least one uppercase letter</div>
+                    <div id="req-lower" class="text-danger">✗ At least one lowercase letter</div>
+                    <div id="req-digit" class="text-danger">✗ At least one number</div>
+                    <div id="req-special" class="text-danger">✗ At least one special character</div>
                 </div>
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-                <form method="POST" id="registerForm" class="needs-validation" novalidate>
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Full Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-secondary"><i class="fas fa-user"></i></span>
-                            <input type="text" name="name" class="form-control border-start-0 ps-0" placeholder="John Doe" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Email address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-secondary"><i class="fas fa-envelope"></i></span>
-                            <input type="email" name="email" class="form-control border-start-0 ps-0" placeholder="name@company.com" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Phone Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-secondary"><i class="fas fa-phone"></i></span>
-                            <input type="tel" name="phone" class="form-control border-start-0 ps-0" placeholder="+1 (555) 000-0000">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-secondary"><i class="fas fa-lock"></i></span>
-                            <input type="password" name="password" id="passwordInput" class="form-control border-start-0 border-end-0 ps-0" placeholder="••••••••" required onkeyup="checkPasswordStrength(this.value)">
-                            <span class="input-group-text bg-transparent border-start-0 text-secondary" style="cursor: pointer;" onclick="togglePasswordVisibility('passwordInput', 'passwordToggleIcon')">
-                                <i class="fas fa-eye" id="passwordToggleIcon"></i>
-                            </span>
-                        </div>
-                        <!-- Password strength meter -->
-                        <div class="progress mt-2" style="height: 5px;">
-                            <div class="progress-bar" role="progressbar" id="passwordBar" style="width: 0%"></div>
-                        </div>
-                        <div class="fs-8 mt-1 text-secondary" id="passwordText">Password strength</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-semibold">Confirm Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-secondary"><i class="fas fa-lock"></i></span>
-                            <input type="password" name="confirm_password" id="confirmPasswordInput" class="form-control border-start-0 border-end-0 ps-0" placeholder="••••••••" required>
-                            <span class="input-group-text bg-transparent border-start-0 text-secondary" style="cursor: pointer;" onclick="togglePasswordVisibility('confirmPasswordInput', 'confirmToggleIcon')">
-                                <i class="fas fa-eye" id="confirmToggleIcon"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-premium w-100 py-2.5 mb-3">Sign Up</button>
-
-                    <p class="text-center text-secondary fs-7 mb-0">
-                        Already have an account? <a href="{{ url_for('user.login') }}" class="text-primary fw-semibold text-decoration-none">Login</a>
-                    </p>
-                </form>
             </div>
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm Password" required>
+                <div id="password-match-error" class="text-danger small mt-1 d-none">Passwords do not match</div>
+            </div>
+            <button type="submit" class="btn btn-neon w-100" id="register-btn" disabled>Register</button>
+        </form>
+        <p class="mt-3 text-center">Already have an account? <a href="{{ url_for('user.login') }}" class="text-info">Login</a></p>
     </div>
 
     <script>
-        function togglePasswordVisibility(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const toggleIcon = document.getElementById(iconId);
-            if (passwordInput && toggleIcon) {
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggleIcon.classList.remove('fa-eye');
-                    toggleIcon.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    toggleIcon.classList.remove('fa-eye-slash');
-                    toggleIcon.classList.add('fa-eye');
-                }
-            }
-        }
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        const registerForm = document.getElementById('register-form');
+        const registerBtn = document.getElementById('register-btn');
+        const matchError = document.getElementById('password-match-error');
+
+        const reqLength = document.getElementById('req-length');
+        const reqUpper = document.getElementById('req-upper');
+        const reqLower = document.getElementById('req-lower');
+        const reqDigit = document.getElementById('req-digit');
+        const reqSpecial = document.getElementById('req-special');
 
         function checkPasswordStrength(password) {
-            let strength = 0;
-            if (password.length >= 6) strength++;
-            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-            if (password.match(/\d/)) strength++;
-            if (password.match(/[^a-zA-Z\d]/)) strength++;
+            const hasLength = password.length >= 8;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasDigit = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
 
-            const bar = document.getElementById('passwordBar');
-            const text = document.getElementById('passwordText');
+            updateRequirement(reqLength, hasLength);
+            updateRequirement(reqUpper, hasUpper);
+            updateRequirement(reqLower, hasLower);
+            updateRequirement(reqDigit, hasDigit);
+            updateRequirement(reqSpecial, hasSpecial);
 
-            if (password.length === 0) {
-                bar.style.width = '0%';
-                bar.className = 'progress-bar';
-                text.innerText = 'Password strength';
-                text.className = 'fs-8 mt-1 text-secondary';
-                return;
-            }
-
-            let width = '25%';
-            let colorClass = 'bg-danger';
-            let label = 'Weak';
-
-            if (strength === 2) {
-                width = '50%';
-                colorClass = 'bg-warning';
-                label = 'Fair';
-            } else if (strength === 3) {
-                width = '75%';
-                colorClass = 'bg-info';
-                label = 'Good';
-            } else if (strength >= 4) {
-                width = '100%';
-                colorClass = 'bg-success';
-                label = 'Strong';
-            }
-
-            bar.style.width = width;
-            bar.className = `progress-bar ${colorClass}`;
-            text.innerText = `Strength: ${label}`;
-            text.className = `fs-8 mt-1 text-${colorClass.replace('bg-', '')}`;
+            return hasLength && hasUpper && hasLower && hasDigit && hasSpecial;
         }
+
+        function updateRequirement(element, isMet) {
+            if (isMet) {
+                element.classList.remove('text-danger');
+                element.classList.add('text-success');
+                element.textContent = element.textContent.replace('✗', '✓');
+            } else {
+                element.classList.remove('text-success');
+                element.classList.add('text-danger');
+                element.textContent = element.textContent.replace('✓', '✗');
+            }
+        }
+
+        function validateForm() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
+
+            const isStrong = checkPasswordStrength(password);
+            const isMatch = password === confirmPassword && password.length > 0;
+
+            if (confirmPassword.length > 0 && !isMatch) {
+                matchError.classList.remove('d-none');
+            } else {
+                matchError.classList.add('d-none');
+            }
+
+            registerBtn.disabled = !(isStrong && isMatch);
+        }
+
+        passwordInput.addEventListener('input', validateForm);
+        confirmInput.addEventListener('input', validateForm);
     </script>
 </body>
 </html>
