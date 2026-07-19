@@ -68,7 +68,7 @@ def create_app(config=None):
                     full_name='SystemAdmin',
                     email=admin_email,
                     phone='9876543210',
-                    password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'Admin@123'), method='pbkdf2:sha256'),
+                    password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123'), method='pbkdf2:sha256'),
                     role='Admin'
                 )
                 db.session.add(admin)

@@ -18,9 +18,9 @@ def login():
         else:
             logout_user() # log out normal user to prevent session contamination
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter(db.func.lower(User.email) == email).first()
         if user and check_password_hash(user.password, password) and user.role == 'Admin':
             if user.status != 'Active':
                 flash('Your account is inactive.', 'warning')

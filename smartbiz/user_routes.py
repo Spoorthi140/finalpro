@@ -63,13 +63,13 @@ def register():
             flash('Invalid telephone number. Must contain between 10 and 15 digits.', 'danger')
             return redirect(url_for('user.register'))
 
-        user_exists = User.query.filter_by(email=email).first()
+        user_exists = User.query.filter(db.func.lower(User.email) == email.lower()).first()
         if user_exists:
             flash('Email already exists.', 'danger')
             return redirect(url_for('user.register'))
 
         new_user = User(
-            full_name=full_name, email=email, phone=phone,
+            full_name=full_name, email=email.lower(), phone=phone,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
             role='User' # Force User role for all registrations
         )
@@ -86,9 +86,9 @@ def login():
             return redirect(url_for('admin.dashboard'))
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter(db.func.lower(User.email) == email).first()
         if user and check_password_hash(user.password, password):
             if user.status != 'Active':
                 flash('Your account is inactive. Please contact admin.', 'warning')
