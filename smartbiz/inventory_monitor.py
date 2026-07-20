@@ -8,18 +8,21 @@ from ultralytics import YOLO
 
 # Global model instance for efficiency (Lazy loading)
 _model = None
+_is_fallback_model = False
 
 def get_model():
-    global _model
+    global _model, _is_fallback_model
     if _model is None:
         # Load the custom trained model if exists, otherwise fallback to pretrained nano for demo
         model_path = os.path.join(current_app.root_path, 'models/best.pt')
         if os.path.exists(model_path):
             _model = YOLO(model_path)
+            _is_fallback_model = False
         else:
             # For development/demo purposes, we use yolov8n which can detect 'suitcase' or 'backpack'
             # but in production, this would be the custom 'cardboard_box' model.
             _model = YOLO('yolov8n.pt')
+            _is_fallback_model = True
     return _model
 
 def detect_objects(image_source, is_path=False):
@@ -69,8 +72,9 @@ def detect_objects(image_source, is_path=False):
                     # For pretrained yolov8n: 24 (backpack), 26 (handbag), 28 (suitcase) are often boxy.
                     # However, the user wants a CUSTOM model where class 0 is box.
 
-                    # For this implementation, we assume the model is the custom box detector.
-                    # Or we just count everything the model finds with >80% confidence as "Boxes" for the demo.
+                    # If we are using the fallback yolov8n.pt model, only allow specific boxy classes
+                    if _is_fallback_model and cls not in [24, 26, 28]:
+                        continue
 
                     count += 1
                     confidences.append(conf)
@@ -79,7 +83,7 @@ def detect_objects(image_source, is_path=False):
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
                     cv2.rectangle(output_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-                    # REQ: Show confidence score (>80%)
+                    # REQ: Show confidence score
                     label = f"BOX {conf:.2f}"
                     cv2.putText(output_img, label, (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)

@@ -683,7 +683,8 @@ def inventory_detect():
     return {
         'count': count,
         'annotated': annotated_filename,
-        'confidence': confidence
+        'confidence': confidence,
+        'proc_time': proc_time
     }
 
 @user_bp.route('/inventory/detect_sample', methods=['POST'])
