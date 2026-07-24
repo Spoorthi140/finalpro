@@ -1,0 +1,100 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white">User Management</h2>
+    <a href="{{ url_for('admin.add_user') }}" class="btn btn-primary btn-premium btn-hover-effect" data-bs-toggle="tooltip" title="Add New User">
+        <i class="fas fa-plus me-1"></i> Add New User
+    </a>
+</div>
+
+<div class="glass-card p-4">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone if user.phone else 'N/A' }}</td>
+                    <td><span class="badge bg-{{ 'info' if user.role == 'Admin' else 'secondary' }}">{{ user.role }}</span></td>
+                    <td><span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">{{ user.status }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <!-- Edit: Yellow -->
+                            <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-sm btn-warning btn-hover-effect text-dark" data-bs-toggle="tooltip" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <!-- Toggle Status: Green if activating, Red if deactivating -->
+                            <form action="{{ url_for('admin.toggle_status', user_id=user.id) }}" method="POST" class="d-inline">
+                                {% if user.is_active %}
+                                <button class="btn btn-sm btn-danger btn-hover-effect" data-bs-toggle="tooltip" title="Deactivate User">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                                {% else %}
+                                <button class="btn btn-sm btn-success btn-hover-effect" data-bs-toggle="tooltip" title="Activate User">
+                                    <i class="fas fa-user-check"></i>
+                                </button>
+                                {% endif %}
+                            </form>
+
+                            <!-- Reset: Yellow -->
+                            <button class="btn btn-sm btn-warning btn-hover-effect text-dark" data-bs-toggle="modal" data-bs-target="#resetPass{{ user.id }}" data-bs-toggle="tooltip" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+
+                            <!-- Delete: Red -->
+                            {% if user.id != current_user.id %}
+                            <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                <button class="btn btn-sm btn-danger btn-hover-effect" onclick="return confirm('Delete this user?')" data-bs-toggle="tooltip" title="Delete User">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Reset Password Modal -->
+                <div class="modal fade" id="resetPass{{ user.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content bg-dark text-white border-secondary">
+                            <div class="modal-header border-secondary">
+                                <h5 class="modal-title">Reset Password for {{ user.full_name }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form action="{{ url_for('admin.reset_password', user_id=user.id) }}" method="POST">
+                                <div class="modal-body">
+                                    <input type="password" name="new_password" class="form-control bg-dark text-white border-secondary" placeholder="New Password" required>
+                                </div>
+                                <div class="modal-footer border-secondary">
+                                    <!-- Cancel: Grey -->
+                                    <button type="button" class="btn btn-secondary btn-hover-effect" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </button>
+                                    <!-- Reset: Yellow -->
+                                    <button type="submit" class="btn btn-warning btn-hover-effect text-dark">
+                                        <i class="fas fa-sync-alt me-1"></i> Reset Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
