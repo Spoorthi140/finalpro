@@ -45,8 +45,34 @@ def dashboard():
         'total_uploads': Upload.query.count()
     }
 
+    from datetime import datetime
+    def relative_time(dt):
+        now = datetime.utcnow()
+        diff = now - dt
+        if diff.days == 0:
+            if diff.seconds < 60:
+                return "Just now"
+            elif diff.seconds < 3600:
+                mins = diff.seconds // 60
+                return f"{mins} minute{'s' if mins > 1 else ''} ago"
+            else:
+                hours = diff.seconds // 3600
+                return f"{hours} hour{'s' if hours > 1 else ''} ago"
+        elif diff.days == 1:
+            return "Yesterday"
+        else:
+            return f"{diff.days} days ago"
+
     users = User.query.order_by(User.created_at.desc()).all()
     recent_activities = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(10).all()
+    activities_list = []
+    for log in recent_activities:
+        activities_list.append({
+            'user_name': log.user.full_name if log.user else 'System',
+            'action': log.action,
+            'relative_time': relative_time(log.timestamp)
+        })
+
     recent_reports = Report.query.order_by(Report.created_at.desc()).limit(10).all()
     recent_detections = InventoryDetection.query.order_by(InventoryDetection.timestamp.desc()).limit(10).all()
     recent_predictions = Prediction.query.order_by(Prediction.timestamp.desc()).limit(10).all()
@@ -54,7 +80,7 @@ def dashboard():
     return render_template('admin/dashboard.html',
                            stats=stats,
                            users=users,
-                           activities=recent_activities,
+                           activities=activities_list,
                            reports=recent_reports,
                            detections=recent_detections,
                            predictions=recent_predictions)

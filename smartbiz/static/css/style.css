@@ -309,6 +309,17 @@ body {
     transform: translateY(0);
 }
 
+.btn-purple {
+    background-color: #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+    color: #ffffff !important;
+}
+.btn-purple:hover {
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+}
+
 /* Theme switch design */
 .theme-switch-wrapper {
     display: flex;

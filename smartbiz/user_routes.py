@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 import io
 import pandas as pd
-from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Company, Report, InventoryDetection
+from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Report, InventoryDetection
 from .causal_analysis import run_causal_analysis
 from .recommendation_engine import generate_recommendations
 from .prediction import train_and_predict, generate_forecasts
@@ -152,8 +152,33 @@ def dashboard():
     low_stock_count = Product.query.filter(Product.stock_quantity > 0, Product.stock_quantity <= Product.minimum_threshold).count()
     out_of_stock_count = Product.query.filter(Product.stock_quantity <= 0).count()
 
+    # Relative time helper
+    def relative_time(dt):
+        now = datetime.utcnow()
+        diff = now - dt
+        if diff.days == 0:
+            if diff.seconds < 60:
+                return "Just now"
+            elif diff.seconds < 3600:
+                mins = diff.seconds // 60
+                return f"{mins} minute{'s' if mins > 1 else ''} ago"
+            else:
+                hours = diff.seconds // 3600
+                return f"{hours} hour{'s' if hours > 1 else ''} ago"
+        elif diff.days == 1:
+            return "Yesterday"
+        else:
+            return f"{diff.days} days ago"
+
     # Activity Feed
     recent_activities = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(8).all()
+    activities_list = []
+    for log in recent_activities:
+        activities_list.append({
+            'user_name': log.user.full_name if log.user else 'System',
+            'action': log.action,
+            'relative_time': relative_time(log.timestamp)
+        })
 
     # Reports
     recent_reports = Report.query.order_by(Report.created_at.desc()).limit(5).all()
@@ -219,7 +244,7 @@ def dashboard():
                            out_of_stock_count=out_of_stock_count,
                            todays_predictions=todays_predictions,
                            frequent_category=frequent_category,
-                           activities=recent_activities,
+                           activities=activities_list,
                            recent_reports=recent_reports,
                            out_of_stock=out_of_stock,
                            low_stock=low_stock,
@@ -315,6 +340,7 @@ def inventory():
 
     pagination = query.order_by(Product.product_name).paginate(page=page, per_page=10)
     products = pagination.items
+    all_products = db.session.query(Product.id, Product.product_name, Product.stock_quantity, Product.minimum_threshold).all()
 
     categories = db.session.query(Product.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
@@ -339,6 +365,7 @@ def inventory():
 
     return render_template('user/inventory.html',
                            products=products,
+                           all_products=all_products,
                            pagination=pagination,
                            categories=categories,
                            stats=stats,
@@ -473,49 +500,6 @@ def forecasting():
 def customer_intelligence():
     segments = perform_rfm_analysis(); clv = calculate_customer_lifetime_value(); retention = retention_analysis()
     return render_template('user/customer_intelligence.html', segments=segments, clv=clv, retention=retention)
-
-@user_bp.route('/company_profile', methods=['GET', 'POST'])
-@login_required
-@role_required(['Admin', 'User'])
-def company_profile():
-    company = Company.query.first()
-    if request.method == 'POST':
-        if not company:
-            company = Company()
-        company.name = request.form.get('name')
-        company.industry = request.form.get('industry')
-        company.business_type = request.form.get('business_type')
-        company.address = request.form.get('address')
-        company.contact_number = request.form.get('contact_number')
-        company.branch_count = int(request.form.get('branch_count', 1))
-
-        db.session.add(company)
-        db.session.add(AuditLog(user_id=current_user.id, action="Updated Company Profile", module="Company"))
-        db.session.commit()
-        flash("Company profile updated successfully.", "success")
-        return redirect(url_for('user.company_profile'))
-
-    return render_template('user/company_profile.html', company=company)
-
-@user_bp.route('/executive_dashboard')
-@login_required
-@role_required(['Admin', 'User', 'Admin'])
-def executive_dashboard():
-    products = Product.query.all()
-    # Logic for Executive Insights
-    health_score = 85 # Mock logic for demo
-    if not products:
-        health_score = 0
-
-    # Risk Assessment
-    risks = {
-        'revenue': 'Low' if sum([p.revenue for p in products]) > 10000 else 'Medium',
-        'inventory': 'High' if Product.query.filter(Product.stock_quantity <= Product.minimum_threshold).count() > 5 else 'Low',
-        'demand': 'Stable',
-        'churn': 'Low'
-    }
-
-    return render_template('user/executive_dashboard.html', health_score=health_score, risks=risks)
 
 @user_bp.route('/prediction', methods=['GET', 'POST'])
 @login_required
