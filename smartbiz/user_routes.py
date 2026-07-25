@@ -596,89 +596,270 @@ def recommendations():
 @login_required
 @role_required(['Admin', 'User'])
 def reports():
-    from datetime import datetime, timedelta
+    from datetime import datetime
     page = request.args.get('page', 1, type=int)
-    search = request.args.get('search')
-    rep_type = request.args.get('type')
-    date_filter = request.args.get('date_filter')
+    rep_type = request.args.get('type', 'Inventory Report') # default to Inventory Report
+    start_date = request.args.get('start_date', '').strip()
+    end_date = request.args.get('end_date', '').strip()
 
-    query = Report.query
-    if search:
-        query = query.filter(Report.report_name.contains(search))
-    if rep_type:
-        query = query.filter(Report.report_type == rep_type)
-
-    # Date Filtering
-    now = datetime.utcnow()
-    if date_filter == 'Today':
-        query = query.filter(db.func.date(Report.created_at) == now.date())
-    elif date_filter == 'Last 7 Days':
-        query = query.filter(Report.created_at >= now - timedelta(days=7))
-    elif date_filter == 'Last Month':
-        query = query.filter(Report.created_at >= now - timedelta(days=30))
-
-    pagination = query.order_by(Report.created_at.desc()).paginate(page=page, per_page=10)
+    # Query Recent Reports (the physical PDF/Excel/CSV generated files archive list)
+    pagination = Report.query.order_by(Report.created_at.desc()).paginate(page=page, per_page=10)
     reports_items = pagination.items
 
-    # Stats
-    stats = {
-        'total': Report.query.count(),
-        'this_month': Report.query.filter(Report.created_at >= now.replace(day=1)).count(),
-        'inventory': Report.query.filter(Report.report_type == 'Inventory').count(),
-        'prediction': Report.query.filter(Report.report_type == 'Prediction').count(),
-        'detection': Report.query.filter(Report.report_type == 'AI Detection').count()
-    }
+    # Fetch report data dynamically from database based on selected filters
+    report_data = []
+    headers = []
 
-    # Analytics Data
-    monthly_data = db.session.query(db.func.strftime('%Y-%m', Report.created_at), db.func.count(Report.id)).group_by(db.func.strftime('%Y-%m', Report.created_at)).all()
-    type_data = db.session.query(Report.report_type, db.func.count(Report.id)).group_by(Report.report_type).all()
-    user_data = db.session.query(User.full_name, db.func.count(Report.id)).join(Report).group_by(User.full_name).all()
+    # Parse dates if supplied
+    s_dt = None
+    e_dt = None
+    if start_date:
+        try:
+            s_dt = pd.to_datetime(start_date)
+        except:
+            pass
+    if end_date:
+        try:
+            e_dt = pd.to_datetime(end_date)
+        except:
+            pass
 
-    analytics = {
-        'labels': [m[0] for m in monthly_data],
-        'counts': [m[1] for m in monthly_data],
-        'types': {t[0]: t[1] for t in type_data},
-        'users': {u[0]: u[1] for u in user_data}
-    }
+    if rep_type == 'Inventory Report' or rep_type == 'Stock Report':
+        query = Product.query
+        if s_dt:
+            query = query.filter(Product.date >= s_dt)
+        if e_dt:
+            query = query.filter(Product.date <= e_dt)
+        items = query.order_by(Product.product_name).all()
+
+        if rep_type == 'Inventory Report':
+            headers = ['Product Name', 'Category', 'Price', 'Stock Quantity', 'Date Added']
+            report_data = [{
+                'Product Name': p.product_name,
+                'Category': p.category,
+                'Price': f"₹{p.price:,.2f}",
+                'Stock Quantity': p.stock_quantity,
+                'Date Added': p.date.strftime('%Y-%m-%d') if p.date else 'N/A'
+            } for p in items]
+        else: # Stock Report
+            headers = ['Product Name', 'Stock Quantity', 'Minimum Threshold', 'Maximum Threshold', 'Status']
+            report_data = [{
+                'Product Name': p.product_name,
+                'Stock Quantity': p.stock_quantity,
+                'Minimum Threshold': p.minimum_threshold,
+                'Maximum Threshold': p.maximum_threshold,
+                'Status': 'In Stock' if p.stock_quantity > p.minimum_threshold else 'Low Stock'
+            } for p in items]
+
+    elif rep_type == 'Sales Report':
+        query = Product.query
+        if s_dt:
+            query = query.filter(Product.date >= s_dt)
+        if e_dt:
+            query = query.filter(Product.date <= e_dt)
+        items = query.order_by(Product.sales.desc()).all()
+        headers = ['Product Name', 'Sales Volume', 'Unit Price', 'Revenue Generated', 'Profit Realized']
+        report_data = [{
+            'Product Name': p.product_name,
+            'Sales Volume': p.sales,
+            'Unit Price': f"₹{p.price:,.2f}",
+            'Revenue Generated': f"₹{p.revenue:,.2f}",
+            'Profit Realized': f"₹{p.profit:,.2f}"
+        } for p in items]
+
+    elif rep_type == 'AI Prediction Report':
+        query = Prediction.query
+        if s_dt:
+            query = query.filter(Prediction.timestamp >= s_dt)
+        if e_dt:
+            query = query.filter(Prediction.timestamp <= e_dt)
+        items = query.order_by(Prediction.timestamp.desc()).all()
+        headers = ['Product Name', 'Predicted Sales', 'Predicted Profit', 'Depletion Days', 'Generated Time']
+        report_data = [{
+            'Product Name': p.product.product_name if p.product else 'N/A',
+            'Predicted Sales': p.predicted_sales,
+            'Predicted Profit': f"₹{p.predicted_profit:,.2f}",
+            'Depletion Days': p.stock_out_days,
+            'Generated Time': p.timestamp.strftime('%Y-%m-%d %H:%M') if p.timestamp else 'N/A'
+        } for p in items]
+
+    elif rep_type == 'AI Recommendation Report':
+        products = Product.query.all()
+        from .recommendation_engine import generate_recommendations
+        db_hash = get_db_state_hash()
+        if GLOBAL_CACHE['db_hash'] == db_hash and GLOBAL_CACHE['recommendations'] is not None:
+            recs = GLOBAL_CACHE['recommendations']
+        else:
+            recs = generate_recommendations(products)
+        headers = ['Priority', 'Category', 'Recommended Action', 'Impact Insight']
+        report_data = [{
+            'Priority': r['priority'],
+            'Category': r['category'],
+            'Recommended Action': r['action'],
+            'Impact Insight': r['message']
+        } for r in recs]
 
     return render_template('user/reports.html',
                            recent_reports=reports_items,
                            pagination=pagination,
-                           stats=stats,
-                           now=now,
-                           analytics=analytics)
+                           headers=headers,
+                           report_data=report_data,
+                           selected_type=rep_type,
+                           start_date=start_date,
+                           end_date=end_date,
+                           now=datetime.utcnow())
 
 @user_bp.route('/download_report/<format>')
 @login_required
 @role_required(['Admin', 'User'])
 def download_report(format):
-    rep_type = request.args.get('type', 'Executive')
-    products = Product.query.all()
+    rep_type = request.args.get('type', 'Inventory Report')
+    start_date = request.args.get('start_date', '').strip()
+    end_date = request.args.get('end_date', '').strip()
 
-    if rep_type == 'Low Stock':
-        products = [p for p in products if p.stock_quantity <= p.minimum_threshold]
-    elif rep_type == 'Stock':
-        products = Product.query.order_by(Product.stock_quantity.desc()).all()
+    # Parse dates if supplied
+    s_dt = None
+    e_dt = None
+    if start_date:
+        try:
+            s_dt = pd.to_datetime(start_date)
+        except:
+            pass
+    if end_date:
+        try:
+            e_dt = pd.to_datetime(end_date)
+        except:
+            pass
 
-    ts, tp, tr = sum([p.sales for p in products]), sum([p.profit for p in products]), sum([p.revenue for p in products])
+    # Query matching data
+    products = []
+    df_data = []
 
-    if format == 'pdf':
-        buffer = generate_pdf_report(products, ts, tp, tr)
-        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf"
-        mimetype = 'application/pdf'
-    elif format == 'excel':
-        buffer = generate_excel_report(products)
-        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.xlsx"
-        mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    elif format == 'csv':
-        data = []
+    if rep_type == 'Inventory Report' or rep_type == 'Stock Report' or rep_type == 'Sales Report':
+        query = Product.query
+        if s_dt:
+            query = query.filter(Product.date >= s_dt)
+        if e_dt:
+            query = query.filter(Product.date <= e_dt)
+        products = query.order_by(Product.product_name).all()
+
         for p in products:
-            data.append({'Name': p.product_name, 'Qty': p.stock_quantity, 'Price': p.price, 'Category': p.category})
-        df = pd.DataFrame(data)
-        buffer = io.BytesIO()
+            if rep_type == 'Inventory Report':
+                df_data.append({
+                    'Product Name': p.product_name,
+                    'Category': p.category,
+                    'Price': p.price,
+                    'Stock Quantity': p.stock_quantity,
+                    'Date Added': p.date.strftime('%Y-%m-%d') if p.date else ''
+                })
+            elif rep_type == 'Stock Report':
+                df_data.append({
+                    'Product Name': p.product_name,
+                    'Stock Quantity': p.stock_quantity,
+                    'Minimum Threshold': p.minimum_threshold,
+                    'Maximum Threshold': p.maximum_threshold,
+                    'Status': 'In Stock' if p.stock_quantity > p.minimum_threshold else 'Low Stock'
+                })
+            else: # Sales Report
+                df_data.append({
+                    'Product Name': p.product_name,
+                    'Sales Volume': p.sales,
+                    'Unit Price': p.price,
+                    'Revenue Generated': p.revenue,
+                    'Profit Realized': p.profit
+                })
+
+    elif rep_type == 'AI Prediction Report':
+        query = Prediction.query
+        if s_dt:
+            query = query.filter(Prediction.timestamp >= s_dt)
+        if e_dt:
+            query = query.filter(Prediction.timestamp <= e_dt)
+        predictions = query.all()
+        for p in predictions:
+            df_data.append({
+                'Product Name': p.product.product_name if p.product else 'N/A',
+                'Predicted Sales': p.predicted_sales,
+                'Predicted Profit': p.predicted_profit,
+                'Depletion Days': p.stock_out_days,
+                'Timestamp': p.timestamp.strftime('%Y-%m-%d %H:%M') if p.timestamp else ''
+            })
+
+    elif rep_type == 'AI Recommendation Report':
+        query_prod = Product.query.all()
+        from .recommendation_engine import generate_recommendations
+        recs = generate_recommendations(query_prod)
+        for r in recs:
+            df_data.append({
+                'Priority': r['priority'],
+                'Category': r['category'],
+                'Recommended Action': r['action'],
+                'Impact Insight': r['message']
+            })
+
+    # Prepare file stream
+    buffer = io.BytesIO()
+    if format == 'pdf':
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+
+        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        story = []
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            'ReportTitle',
+            parent=styles['Heading1'],
+            fontName='Helvetica-Bold',
+            fontSize=18,
+            textColor=colors.HexColor('#1E3A8A'),
+            spaceAfter=15
+        )
+        story.append(Paragraph(f"SmartBiz Enterprise - {rep_type}", title_style))
+        story.append(Paragraph(f"Generated on: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} (UTC)", styles['Normal']))
+        if start_date or end_date:
+            story.append(Paragraph(f"Filters: {start_date} to {end_date}", styles['Normal']))
+        story.append(Spacer(1, 15))
+
+        if df_data:
+            col_headers = list(df_data[0].keys())
+            data_table = [col_headers]
+            for row in df_data:
+                data_table.append([str(v) for v in row.values()])
+
+            t = Table(data_table)
+            t.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E3A8A')),
+                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                ('BOTTOMPADDING', (0,0), (-1,0), 6),
+                ('TOPPADDING', (0,0), (-1,0), 6),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0,0), (-1,-1), 8),
+            ]))
+            story.append(t)
+        else:
+            story.append(Paragraph("No records found matching filters.", styles['Normal']))
+
+        doc.build(story)
+        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf"
+        mimetype = 'application/pdf'
+
+    elif format == 'excel':
+        df = pd.DataFrame(df_data)
+        df.to_excel(buffer, index=False)
+        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    elif format == 'csv':
+        df = pd.DataFrame(df_data)
         df.to_csv(buffer, index=False)
-        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv"
+        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv"
         mimetype = 'text/csv'
+
     else:
         return redirect(url_for('user.reports'))
 
