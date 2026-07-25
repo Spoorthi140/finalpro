@@ -65,14 +65,11 @@ def generate_pdf_report(products, total_sales, total_profit, total_revenue):
     elements.append(Paragraph("SmartBiz Enterprise Intelligence Report", title_style))
     elements.append(Spacer(1, 20))
 
-    # Determine the currency symbol/abbreviation to avoid UnicodeEncodeError in Helvetica fallback
-    currency_symbol = '₹' if DEFAULT_FONT != 'Helvetica' else 'Rs.'
-
     # Executive Summary
     elements.append(Paragraph("Executive Summary", heading2_style))
     summary_text = f"""
-    Total Revenue: {currency_symbol}{total_revenue:,.2f}<br/>
-    Total Profit: {currency_symbol}{total_profit:,.2f}<br/>
+    Total Revenue: ₹{total_revenue:,.2f}<br/>
+    Total Profit: ₹{total_profit:,.2f}<br/>
     Total Sales: {total_sales} units<br/>
     Products Analyzed: {len(products)}
     """
@@ -83,7 +80,7 @@ def generate_pdf_report(products, total_sales, total_profit, total_revenue):
     elements.append(Paragraph("Detailed Product Performance", heading3_style))
     data = [['Product', 'Category', 'Price', 'Stock', 'Sales', 'Profit']]
     for p in products:
-        data.append([p.product_name, p.category, f"{currency_symbol}{p.price:.2f}", p.stock_quantity, p.sales, f"{currency_symbol}{p.profit:.2f}"])
+        data.append([p.product_name, p.category, f"₹{p.price:.2f}", p.stock_quantity, p.sales, f"₹{p.profit:.2f}"])
 
     t = Table(data, colWidths=[150, 80, 60, 60, 60, 80])
     t.setStyle(TableStyle([

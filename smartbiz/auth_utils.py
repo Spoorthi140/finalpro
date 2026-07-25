@@ -6,10 +6,10 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('admin.login'))
+            return redirect(url_for('user.login'))
         if current_user.role != 'Admin':
-            flash("Access Denied", "danger")
-            return redirect(url_for('admin.login'))
+            flash("You do not have permission to access this page.", "danger")
+            return redirect(url_for('user.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 

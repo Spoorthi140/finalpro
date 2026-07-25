@@ -6,9 +6,8 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(150), nullable=False)
+    name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    phone = db.Column(db.String(20), nullable=True)
     password = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='User') # 'Admin' or 'User'
     status = db.Column(db.String(20), default='Active') # 'Active' or 'Inactive'

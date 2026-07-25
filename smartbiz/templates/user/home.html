@@ -3,167 +3,53 @@
 {% block title %}Home - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<!-- Landing Page Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark bg-opacity-75 backdrop-blur rounded-3 mb-5 py-3 shadow-sm px-4">
-    <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-primary fs-3" href="#" style="letter-spacing: 1px;">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="36" height="36">
-            SMARTBIZ
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarText">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-2 ms-4">
-                <li class="nav-item">
-                    <a class="nav-link text-white active fw-semibold" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white-50" href="#features">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white-50" href="#about">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white-50" href="#contact">Contact</a>
-                </li>
-            </ul>
-            <div class="d-flex gap-3">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-premium px-4 py-2">Go to Dashboard</a>
-                {% else %}
-                    <a href="{{ url_for('user.login') }}" class="btn btn-outline-light px-4 py-2">Login</a>
-                    <a href="{{ url_for('user.register') }}" class="btn btn-premium px-4 py-2">Register</a>
-                {% endif %}
-            </div>
+<div class="hero-section text-center py-5">
+    <h1 class="display-3 fw-bold text-info mb-3">SmartBiz Enterprise</h1>
+    <p class="lead text-secondary mb-5">AI-Powered Business Intelligence & Causal Decision Platform</p>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('user.register') }}" class="btn btn-neon btn-lg">Get Started</a>
+        <a href="#features" class="btn btn-outline-info btn-lg">Explore Features</a>
+    </div>
+</div>
+
+<div id="features" class="row g-4 mt-5">
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100">
+            <i class="fas fa-brain fa-3x text-info mb-4"></i>
+            <h4>Causal AI</h4>
+            <p class="text-secondary">Understand why outcomes happen with industry-leading causal inference models.</p>
         </div>
     </div>
-</nav>
-
-<!-- Hero Section -->
-<div class="glass-card text-center py-5 mb-5 border-0 shadow-lg">
-    <div class="py-4">
-        <h1 class="display-3 fw-extrabold text-primary mb-2" style="font-weight: 800; letter-spacing: -1px;">SMARTBIZ</h1>
-        <h3 class="fw-bold text-secondary-emphasis mb-4">AI-Powered Business Intelligence</h3>
-        <p class="lead text-secondary max-w-2xl mx-auto mb-5 px-3">
-            SmartBiz Enterprise integrates **Causal AI, predictive machine learning, and advanced computer vision** to build resilient, data-driven decisions.
-        </p>
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('user.dashboard') }}" class="btn btn-premium btn-lg px-5 py-3">Go to Dashboard</a>
-            {% else %}
-                <a href="{{ url_for('user.login') }}" class="btn btn-premium btn-lg px-5 py-3">Login</a>
-                <a href="{{ url_for('user.register') }}" class="btn btn-outline-premium btn-lg px-5 py-3">Register</a>
-            {% endif %}
-            <a href="#features" class="btn btn-outline-secondary btn-lg px-5 py-3">Learn More</a>
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100">
+            <i class="fas fa-chart-line fa-3x text-success mb-4"></i>
+            <h4>AI Forecasting</h4>
+            <p class="text-secondary">Predict sales, revenue, and profit with XGBoost and Prophet-powered analytics.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100">
+            <i class="fas fa-camera fa-3x text-warning mb-4"></i>
+            <h4>Smart Inventory</h4>
+            <p class="text-secondary">Monitor shelf stock in real-time using computer vision and automated logging.</p>
         </div>
     </div>
 </div>
 
-<!-- Features Section -->
-<div id="features" class="py-4 mb-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary">Advanced Capabilities Built In</h2>
-        <p class="text-secondary">Explore our unified suite of advanced predictive intelligence and monitor systems.</p>
-    </div>
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="glass-card h-100 text-center border-0 p-4 shadow-sm">
-                <div class="icon-box mb-4 mx-auto bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                    <i class="fas fa-brain fa-2x"></i>
-                </div>
-                <h4 class="fw-bold mb-3">Causal AI Reasoning</h4>
-                <p class="text-secondary mb-0">Go beyond correlation. Learn actual mathematical impact of variables with causal inference models powered by DoWhy.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="glass-card h-100 text-center border-0 p-4 shadow-sm">
-                <div class="icon-box mb-4 mx-auto bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                    <i class="fas fa-chart-line fa-2x"></i>
-                </div>
-                <h4 class="fw-bold mb-3">Ensemble Forecasting</h4>
-                <p class="text-secondary mb-0">Leverage Prophet, XGBoost, and robust regressors for highly accurate, weighted forecast projections.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="glass-card h-100 text-center border-0 p-4 shadow-sm">
-                <div class="icon-box mb-4 mx-auto bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                    <i class="fas fa-camera fa-2x"></i>
-                </div>
-                <h4 class="fw-bold mb-3">Computer Vision Inventory</h4>
-                <p class="text-secondary mb-0">Automate warehouse counting. Use YOLOv8 models to count boxes, run stock audits, and assess risks instantly.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Statistics Section -->
-<div class="row g-4 mb-5 text-center">
-    <div class="col-md-3">
-        <div class="glass-card border-0 py-4 shadow-sm">
-            <h2 class="display-5 fw-bold text-primary mb-1">99.4%</h2>
-            <p class="text-secondary mb-0">Forecast Precision</p>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="glass-card border-0 py-4 shadow-sm">
-            <h2 class="display-5 fw-bold text-success mb-1">12M+</h2>
-            <p class="text-secondary mb-0">Insights Generated</p>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="glass-card border-0 py-4 shadow-sm">
-            <h2 class="display-5 fw-bold text-warning mb-1">4.8x</h2>
-            <p class="text-secondary mb-0">Inventory Efficiency Boost</p>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="glass-card border-0 py-4 shadow-sm">
-            <h2 class="display-5 fw-bold text-danger mb-1">&lt;3ms</h2>
-            <p class="text-secondary mb-0">Causal Computation Speed</p>
-        </div>
-    </div>
-</div>
-
-<!-- About / Core Value Section -->
-<div id="about" class="py-5 mb-5 border-top border-secondary border-opacity-10">
-    <div class="row align-items-center g-5">
+<div class="py-5 mt-5 border-top border-secondary">
+    <div class="row align-items-center">
         <div class="col-md-6">
-            <h2 class="text-primary fw-bold mb-3">Enterprise-Grade Performance</h2>
-            <p class="text-secondary mb-4">
-                SmartBiz Enterprise bridges executive strategy with ground-level logistics. From price elasticity simulation to smart automated reports, our software streamlines modern operational efficiency.
-            </p>
-            <div class="d-flex flex-column gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-success"><i class="fas fa-check-circle fa-lg"></i></span>
-                    <span class="text-secondary fw-medium">Secured Role-Based Access controls (RBAC)</span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-success"><i class="fas fa-check-circle fa-lg"></i></span>
-                    <span class="text-secondary fw-medium">High performance data validation pipeline</span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-success"><i class="fas fa-check-circle fa-lg"></i></span>
-                    <span class="text-secondary fw-medium">Integrated PDF and Spreadsheet Reporting Archiver</span>
-                </div>
-            </div>
+            <h2 class="text-info">Decision Intelligence for the Modern Enterprise</h2>
+            <p class="text-secondary">SmartBiz Enterprise combines advanced machine learning with causal reasoning to give executives the confidence to make data-backed strategic decisions.</p>
+            <ul class="list-unstyled text-secondary">
+                <li><i class="fas fa-check text-info me-2"></i> Strategy Simulation</li>
+                <li><i class="fas fa-check text-info me-2"></i> Customer Segmentation</li>
+                <li><i class="fas fa-check text-info me-2"></i> Automated Reporting</li>
+            </ul>
         </div>
         <div class="col-md-6 text-center">
-             <i class="fas fa-network-wired fa-10x text-secondary opacity-25"></i>
+             <i class="fas fa-microchip fa-10x text-secondary opacity-25"></i>
         </div>
     </div>
 </div>
-
-<!-- Footer/Contact Section -->
-<footer id="contact" class="py-5 mt-5 border-top border-secondary border-opacity-10 text-center text-secondary">
-    <div class="mb-4">
-        <a class="navbar-brand d-inline-flex align-items-center gap-2 fw-bold text-primary mb-3 fs-4" href="#">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="28" height="24">
-            SMARTBIZ
-        </a>
-        <p class="mb-1">Helping businesses scale with Causal Decision Intelligence.</p>
-        <p>Email: contact@smartbiz.com | Phone: +1 (555) 019-2834</p>
-    </div>
-    <p class="fs-7 mb-0">&copy; 2026 SmartBiz Development Team. All rights reserved.</p>
-</footer>
 {% endblock %}

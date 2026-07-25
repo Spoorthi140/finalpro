@@ -18,10 +18,7 @@
                     <input type="range" name="marketing_change" class="form-range" min="-50" max="100" step="5" value="0" oninput="this.nextElementSibling.value = this.value + '%'">
                     <output class="text-info fw-bold">0%</output>
                 </div>
-                <!-- Blue: Process simulation -->
-                <button type="submit" class="btn btn-primary w-100 btn-hover-effect" data-bs-toggle="tooltip" title="Run strategic simulation to predict impact">
-                    Run Simulation
-                </button>
+                <button type="submit" class="btn btn-neon w-100">Run Simulation</button>
             </form>
         </div>
     </div>
@@ -75,10 +72,7 @@
         {% endif %}
         <div class="row mt-4">
             <div class="col-12 text-end">
-                <!-- Blue: Proceed to prediction -->
-                <a href="{{ url_for('user.prediction') }}" class="btn btn-primary btn-hover-effect" data-bs-toggle="tooltip" title="Proceed to AI Predictions">
-                    Proceed to Prediction <i class="fas fa-arrow-right ms-2"></i>
-                </a>
+                <a href="{{ url_for('user.prediction') }}" class="btn btn-neon">Proceed to Prediction <i class="fas fa-arrow-right ms-2"></i></a>
             </div>
         </div>
     </div>

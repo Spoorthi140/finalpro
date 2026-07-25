@@ -4,19 +4,15 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="glass-card p-4">
-            <h2 class="text-white mb-4">Edit User: {{ user.full_name }}</h2>
+            <h2 class="text-white mb-4">Edit User: {{ user.name }}</h2>
             <form method="POST">
                 <div class="mb-3">
                     <label class="form-label text-secondary">Full Name</label>
-                    <input type="text" name="full_name" class="form-control bg-dark text-white border-secondary" value="{{ user.full_name }}" required>
+                    <input type="text" name="name" class="form-control bg-dark text-white border-secondary" value="{{ user.name }}" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-secondary">Email Address</label>
                     <input type="email" name="email" class="form-control bg-dark text-white border-secondary" value="{{ user.email }}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label text-secondary">Phone Number</label>
-                    <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ user.phone if user.phone else '' }}" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-secondary">Role</label>
@@ -32,15 +28,9 @@
                         <option value="Inactive" {{ 'selected' if user.status == 'Inactive' }}>Inactive</option>
                     </select>
                 </div>
-                <div class="mt-4 d-flex gap-2">
-                    <!-- Cancel: Grey -->
-                    <a href="{{ url_for('admin.users') }}" class="btn btn-secondary w-100 btn-hover-effect">
-                        <i class="fas fa-arrow-left me-1"></i> Cancel
-                    </a>
-                    <!-- Update: Blue -->
-                    <button type="submit" class="btn btn-primary w-100 btn-hover-effect">
-                        <i class="fas fa-save me-1"></i> Update User
-                    </button>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">Update User</button>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
                 </div>
             </form>
         </div>

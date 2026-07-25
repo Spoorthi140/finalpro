@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 import io
 import pandas as pd
-from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Report, InventoryDetection
+from .models import db, User, Product, Prediction, InventoryLog, AuditLog, Company, Report, InventoryDetection
 from .causal_analysis import run_causal_analysis
 from .recommendation_engine import generate_recommendations
 from .prediction import train_and_predict, generate_forecasts
@@ -49,54 +49,20 @@ def home():
 
 @user_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    import re
     if current_user.is_authenticated:
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
-        full_name = request.form.get('full_name', '').strip()
-        email = request.form.get('email', '').strip()
-        phone = request.form.get('phone', '').strip()
-        password = request.form.get('password', '')
-        confirm_password = request.form.get('confirm_password', '')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-        if not full_name or not email or not phone or not password or not confirm_password:
-            flash('All fields are required.', 'danger')
-            return redirect(url_for('user.register'))
-
-        if password != confirm_password:
-            flash('Passwords do not match.', 'danger')
-            return redirect(url_for('user.register'))
-
-        # Password validation
-        if len(password) < 8:
-            flash('Password must be at least 8 characters long.', 'danger')
-            return redirect(url_for('user.register'))
-        if not re.search(r"[A-Z]", password):
-            flash('Password must contain at least one uppercase letter.', 'danger')
-            return redirect(url_for('user.register'))
-        if not re.search(r"[a-z]", password):
-            flash('Password must contain at least one lowercase letter.', 'danger')
-            return redirect(url_for('user.register'))
-        if not re.search(r"[0-9]", password):
-            flash('Password must contain at least one number.', 'danger')
-            return redirect(url_for('user.register'))
-        if not re.search(r"[^A-Za-z0-9]", password):
-            flash('Password must contain at least one special character.', 'danger')
-            return redirect(url_for('user.register'))
-
-        # Phone validation (10 to 15 digits, allowing optional + and common spacing characters)
-        phone_cleaned = re.sub(r"[\s\-\(\)\+]", "", phone)
-        if not phone_cleaned.isdigit() or len(phone_cleaned) < 10 or len(phone_cleaned) > 15:
-            flash('Invalid telephone number. Must contain between 10 and 15 digits.', 'danger')
-            return redirect(url_for('user.register'))
-
-        user_exists = User.query.filter(db.func.lower(User.email) == email.lower()).first()
+        user_exists = User.query.filter_by(email=email).first()
         if user_exists:
             flash('Email already exists.', 'danger')
             return redirect(url_for('user.register'))
 
         new_user = User(
-            full_name=full_name, email=email.lower(), phone=phone,
+            name=name, email=email,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
             role='User' # Force User role for all registrations
         )
@@ -113,9 +79,9 @@ def login():
             return redirect(url_for('admin.dashboard'))
         return redirect(url_for('user.dashboard'))
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
+        email = request.form.get('email')
         password = request.form.get('password')
-        user = User.query.filter(db.func.lower(User.email) == email).first()
+        user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
             if user.status != 'Active':
                 flash('Your account is inactive. Please contact admin.', 'warning')
@@ -140,52 +106,27 @@ def logout():
 @login_required
 def dashboard():
     from datetime import datetime, timedelta
+    products = Product.query.all()
 
-    # Run optimized count/sum queries on DB directly rather than pulling thousands of Python objects
-    total_products = Product.query.count()
-    categories = [c[0] for c in db.session.query(Product.category).distinct().all() if c[0]]
+    # Summary Stats
+    total_products = len(products)
+    categories = list(set([p.category for p in products if p.category]))
     total_users = User.query.count()
-    total_inventory_items = db.session.query(db.func.sum(Product.stock_quantity)).scalar() or 0
+    total_inventory_items = sum([p.stock_quantity for p in products])
     total_reports = Report.query.count()
     total_predictions = Prediction.query.count()
-
-    low_stock_count = Product.query.filter(Product.stock_quantity > 0, Product.stock_quantity <= Product.minimum_threshold).count()
-    out_of_stock_count = Product.query.filter(Product.stock_quantity <= 0).count()
-
-    # Relative time helper
-    def relative_time(dt):
-        now = datetime.utcnow()
-        diff = now - dt
-        if diff.days == 0:
-            if diff.seconds < 60:
-                return "Just now"
-            elif diff.seconds < 3600:
-                mins = diff.seconds // 60
-                return f"{mins} minute{'s' if mins > 1 else ''} ago"
-            else:
-                hours = diff.seconds // 3600
-                return f"{hours} hour{'s' if hours > 1 else ''} ago"
-        elif diff.days == 1:
-            return "Yesterday"
-        else:
-            return f"{diff.days} days ago"
+    low_stock_items = [p for p in products if 0 < p.stock_quantity <= p.minimum_threshold]
+    out_of_stock_items = [p for p in products if p.stock_quantity <= 0]
 
     # Activity Feed
     recent_activities = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(8).all()
-    activities_list = []
-    for log in recent_activities:
-        activities_list.append({
-            'user_name': log.user.full_name if log.user else 'System',
-            'action': log.action,
-            'relative_time': relative_time(log.timestamp)
-        })
 
     # Reports
     recent_reports = Report.query.order_by(Report.created_at.desc()).limit(5).all()
 
-    # Low Stock / Alerts (limited to 50 for page rendering)
-    out_of_stock = Product.query.filter(Product.stock_quantity <= 0).limit(50).all()
-    low_stock = Product.query.filter(Product.stock_quantity > 0, Product.stock_quantity <= Product.minimum_threshold).limit(50).all()
+    # Low Stock / Alerts
+    out_of_stock = [p for p in products if p.stock_quantity <= 0]
+    low_stock = [p for p in products if 0 < p.stock_quantity <= p.minimum_threshold]
     newly_added = Product.query.filter(Product.created_at >= datetime.utcnow() - timedelta(days=7)).limit(5).all()
 
     # Prediction Stats
@@ -197,14 +138,9 @@ def dashboard():
     top_cat = db.session.query(Product.category, func.count(Prediction.id)).join(Prediction).group_by(Product.category).order_by(func.count(Prediction.id).desc()).first()
     frequent_category = top_cat[0] if top_cat else "N/A"
 
-    # Query raw values for chart calculations to improve speed by 10x
-    product_data = db.session.query(
-        Product.date, Product.revenue, Product.profit, Product.sales, Product.category, Product.stock_quantity
-    ).all()
-
     # Chart Data
-    if product_data:
-        df = pd.DataFrame([{'Date': p[0], 'Revenue': p[1], 'Profit': p[2], 'Sales': p[3], 'Category': p[4], 'Stock': p[5]} for p in product_data])
+    if products:
+        df = pd.DataFrame([{'Date': p.date, 'Revenue': p.revenue, 'Profit': p.profit, 'Sales': p.sales, 'Category': p.category, 'Stock': p.stock_quantity} for p in products])
         df['Date'] = pd.to_datetime(df['Date'])
 
         # Monthly Trend
@@ -218,9 +154,9 @@ def dashboard():
 
         # Inventory Status
         status_dist = {
-            'In Stock': total_products - low_stock_count - out_of_stock_count,
-            'Low Stock': low_stock_count,
-            'Out of Stock': out_of_stock_count
+            'In Stock': total_products - len(low_stock_items) - len(out_of_stock_items),
+            'Low Stock': len(low_stock_items),
+            'Out of Stock': len(out_of_stock_items)
         }
 
         # Reports Generated per Month
@@ -240,11 +176,11 @@ def dashboard():
                            total_inventory_items=total_inventory_items,
                            total_reports=total_reports,
                            total_predictions=total_predictions,
-                           low_stock_count=low_stock_count,
-                           out_of_stock_count=out_of_stock_count,
+                           low_stock_count=len(low_stock_items),
+                           out_of_stock_count=len(out_of_stock_items),
                            todays_predictions=todays_predictions,
                            frequent_category=frequent_category,
-                           activities=activities_list,
+                           activities=recent_activities,
                            recent_reports=recent_reports,
                            out_of_stock=out_of_stock,
                            low_stock=low_stock,
@@ -340,7 +276,6 @@ def inventory():
 
     pagination = query.order_by(Product.product_name).paginate(page=page, per_page=10)
     products = pagination.items
-    all_products = db.session.query(Product.id, Product.product_name, Product.stock_quantity, Product.minimum_threshold).all()
 
     categories = db.session.query(Product.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
@@ -365,7 +300,6 @@ def inventory():
 
     return render_template('user/inventory.html',
                            products=products,
-                           all_products=all_products,
                            pagination=pagination,
                            categories=categories,
                            stats=stats,
@@ -379,20 +313,16 @@ def edit_product(product_id):
     if not p:
         flash("Product not found.", "danger")
         return redirect(url_for('user.inventory'))
-    try:
-        p.product_name = request.form.get('name')
-        p.category = request.form.get('category')
-        p.stock_quantity = int(request.form.get('quantity', 0))
-        p.price = float(request.form.get('price', 0))
-        p.supplier = request.form.get('supplier')
-        p.description = request.form.get('description')
+    p.product_name = request.form.get('name')
+    p.category = request.form.get('category')
+    p.stock_quantity = int(request.form.get('quantity', 0))
+    p.price = float(request.form.get('price', 0))
+    p.supplier = request.form.get('supplier')
+    p.description = request.form.get('description')
 
-        db.session.add(AuditLog(user_id=current_user.id, action=f"Updated Product: {p.product_name}", module="Inventory"))
-        db.session.commit()
-        flash(f"Product {p.product_name} updated successfully.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error updating product: {e}", "danger")
+    db.session.add(AuditLog(user_id=current_user.id, action=f"Updated Product: {p.product_name}", module="Inventory"))
+    db.session.commit()
+    flash(f"Product {p.product_name} updated successfully.", "success")
     return redirect(url_for('user.inventory'))
 
 @user_bp.route('/inventory/delete/<int:product_id>', methods=['POST'])
@@ -402,15 +332,11 @@ def delete_product_user(product_id):
     if not p:
         flash("Product not found.", "danger")
         return redirect(url_for('user.inventory'))
-    try:
-        name = p.product_name
-        db.session.delete(p)
-        db.session.add(AuditLog(user_id=current_user.id, action=f"Deleted Product: {name}", module="Inventory"))
-        db.session.commit()
-        flash(f"Product {name} deleted.", "danger")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error deleting product: {e}", "danger")
+    name = p.product_name
+    db.session.delete(p)
+    db.session.add(AuditLog(user_id=current_user.id, action=f"Deleted Product: {name}", module="Inventory"))
+    db.session.commit()
+    flash(f"Product {name} deleted.", "danger")
     return redirect(url_for('user.inventory'))
 
 @user_bp.route('/inventory/add', methods=['POST'])
@@ -423,22 +349,18 @@ def add_product():
     supplier = request.form.get('supplier')
     desc = request.form.get('description')
 
-    try:
-        new_p = Product(
-            product_name=name,
-            category=cat,
-            stock_quantity=qty,
-            price=price,
-            supplier=supplier,
-            description=desc
-        )
-        db.session.add(new_p)
-        db.session.add(AuditLog(user_id=current_user.id, action=f"Added Product: {name}", module="Inventory"))
-        db.session.commit()
-        flash(f"Product {name} added successfully.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error adding product: {e}", "danger")
+    new_p = Product(
+        product_name=name,
+        category=cat,
+        stock_quantity=qty,
+        price=price,
+        supplier=supplier,
+        description=desc
+    )
+    db.session.add(new_p)
+    db.session.add(AuditLog(user_id=current_user.id, action=f"Added Product: {name}", module="Inventory"))
+    db.session.commit()
+    flash(f"Product {name} added successfully.", "success")
     return redirect(url_for('user.inventory'))
 
 @user_bp.route('/simulator', methods=['GET', 'POST'])
@@ -500,6 +422,49 @@ def forecasting():
 def customer_intelligence():
     segments = perform_rfm_analysis(); clv = calculate_customer_lifetime_value(); retention = retention_analysis()
     return render_template('user/customer_intelligence.html', segments=segments, clv=clv, retention=retention)
+
+@user_bp.route('/company_profile', methods=['GET', 'POST'])
+@login_required
+@role_required(['Admin', 'User'])
+def company_profile():
+    company = Company.query.first()
+    if request.method == 'POST':
+        if not company:
+            company = Company()
+        company.name = request.form.get('name')
+        company.industry = request.form.get('industry')
+        company.business_type = request.form.get('business_type')
+        company.address = request.form.get('address')
+        company.contact_number = request.form.get('contact_number')
+        company.branch_count = int(request.form.get('branch_count', 1))
+
+        db.session.add(company)
+        db.session.add(AuditLog(user_id=current_user.id, action="Updated Company Profile", module="Company"))
+        db.session.commit()
+        flash("Company profile updated successfully.", "success")
+        return redirect(url_for('user.company_profile'))
+
+    return render_template('user/company_profile.html', company=company)
+
+@user_bp.route('/executive_dashboard')
+@login_required
+@role_required(['Admin', 'User', 'Admin'])
+def executive_dashboard():
+    products = Product.query.all()
+    # Logic for Executive Insights
+    health_score = 85 # Mock logic for demo
+    if not products:
+        health_score = 0
+
+    # Risk Assessment
+    risks = {
+        'revenue': 'Low' if sum([p.revenue for p in products]) > 10000 else 'Medium',
+        'inventory': 'High' if Product.query.filter(Product.stock_quantity <= Product.minimum_threshold).count() > 5 else 'Low',
+        'demand': 'Stable',
+        'churn': 'Low'
+    }
+
+    return render_template('user/executive_dashboard.html', health_score=health_score, risks=risks)
 
 @user_bp.route('/prediction', methods=['GET', 'POST'])
 @login_required
@@ -596,270 +561,89 @@ def recommendations():
 @login_required
 @role_required(['Admin', 'User'])
 def reports():
-    from datetime import datetime
+    from datetime import datetime, timedelta
     page = request.args.get('page', 1, type=int)
-    rep_type = request.args.get('type', 'Inventory Report') # default to Inventory Report
-    start_date = request.args.get('start_date', '').strip()
-    end_date = request.args.get('end_date', '').strip()
+    search = request.args.get('search')
+    rep_type = request.args.get('type')
+    date_filter = request.args.get('date_filter')
 
-    # Query Recent Reports (the physical PDF/Excel/CSV generated files archive list)
-    pagination = Report.query.order_by(Report.created_at.desc()).paginate(page=page, per_page=10)
+    query = Report.query
+    if search:
+        query = query.filter(Report.report_name.contains(search))
+    if rep_type:
+        query = query.filter(Report.report_type == rep_type)
+
+    # Date Filtering
+    now = datetime.utcnow()
+    if date_filter == 'Today':
+        query = query.filter(db.func.date(Report.created_at) == now.date())
+    elif date_filter == 'Last 7 Days':
+        query = query.filter(Report.created_at >= now - timedelta(days=7))
+    elif date_filter == 'Last Month':
+        query = query.filter(Report.created_at >= now - timedelta(days=30))
+
+    pagination = query.order_by(Report.created_at.desc()).paginate(page=page, per_page=10)
     reports_items = pagination.items
 
-    # Fetch report data dynamically from database based on selected filters
-    report_data = []
-    headers = []
+    # Stats
+    stats = {
+        'total': Report.query.count(),
+        'this_month': Report.query.filter(Report.created_at >= now.replace(day=1)).count(),
+        'inventory': Report.query.filter(Report.report_type == 'Inventory').count(),
+        'prediction': Report.query.filter(Report.report_type == 'Prediction').count(),
+        'detection': Report.query.filter(Report.report_type == 'AI Detection').count()
+    }
 
-    # Parse dates if supplied
-    s_dt = None
-    e_dt = None
-    if start_date:
-        try:
-            s_dt = pd.to_datetime(start_date)
-        except:
-            pass
-    if end_date:
-        try:
-            e_dt = pd.to_datetime(end_date)
-        except:
-            pass
+    # Analytics Data
+    monthly_data = db.session.query(db.func.strftime('%Y-%m', Report.created_at), db.func.count(Report.id)).group_by(db.func.strftime('%Y-%m', Report.created_at)).all()
+    type_data = db.session.query(Report.report_type, db.func.count(Report.id)).group_by(Report.report_type).all()
+    user_data = db.session.query(User.name, db.func.count(Report.id)).join(Report).group_by(User.name).all()
 
-    if rep_type == 'Inventory Report' or rep_type == 'Stock Report':
-        query = Product.query
-        if s_dt:
-            query = query.filter(Product.date >= s_dt)
-        if e_dt:
-            query = query.filter(Product.date <= e_dt)
-        items = query.order_by(Product.product_name).all()
-
-        if rep_type == 'Inventory Report':
-            headers = ['Product Name', 'Category', 'Price', 'Stock Quantity', 'Date Added']
-            report_data = [{
-                'Product Name': p.product_name,
-                'Category': p.category,
-                'Price': f"₹{p.price:,.2f}",
-                'Stock Quantity': p.stock_quantity,
-                'Date Added': p.date.strftime('%Y-%m-%d') if p.date else 'N/A'
-            } for p in items]
-        else: # Stock Report
-            headers = ['Product Name', 'Stock Quantity', 'Minimum Threshold', 'Maximum Threshold', 'Status']
-            report_data = [{
-                'Product Name': p.product_name,
-                'Stock Quantity': p.stock_quantity,
-                'Minimum Threshold': p.minimum_threshold,
-                'Maximum Threshold': p.maximum_threshold,
-                'Status': 'In Stock' if p.stock_quantity > p.minimum_threshold else 'Low Stock'
-            } for p in items]
-
-    elif rep_type == 'Sales Report':
-        query = Product.query
-        if s_dt:
-            query = query.filter(Product.date >= s_dt)
-        if e_dt:
-            query = query.filter(Product.date <= e_dt)
-        items = query.order_by(Product.sales.desc()).all()
-        headers = ['Product Name', 'Sales Volume', 'Unit Price', 'Revenue Generated', 'Profit Realized']
-        report_data = [{
-            'Product Name': p.product_name,
-            'Sales Volume': p.sales,
-            'Unit Price': f"₹{p.price:,.2f}",
-            'Revenue Generated': f"₹{p.revenue:,.2f}",
-            'Profit Realized': f"₹{p.profit:,.2f}"
-        } for p in items]
-
-    elif rep_type == 'AI Prediction Report':
-        query = Prediction.query
-        if s_dt:
-            query = query.filter(Prediction.timestamp >= s_dt)
-        if e_dt:
-            query = query.filter(Prediction.timestamp <= e_dt)
-        items = query.order_by(Prediction.timestamp.desc()).all()
-        headers = ['Product Name', 'Predicted Sales', 'Predicted Profit', 'Depletion Days', 'Generated Time']
-        report_data = [{
-            'Product Name': p.product.product_name if p.product else 'N/A',
-            'Predicted Sales': p.predicted_sales,
-            'Predicted Profit': f"₹{p.predicted_profit:,.2f}",
-            'Depletion Days': p.stock_out_days,
-            'Generated Time': p.timestamp.strftime('%Y-%m-%d %H:%M') if p.timestamp else 'N/A'
-        } for p in items]
-
-    elif rep_type == 'AI Recommendation Report':
-        products = Product.query.all()
-        from .recommendation_engine import generate_recommendations
-        db_hash = get_db_state_hash()
-        if GLOBAL_CACHE['db_hash'] == db_hash and GLOBAL_CACHE['recommendations'] is not None:
-            recs = GLOBAL_CACHE['recommendations']
-        else:
-            recs = generate_recommendations(products)
-        headers = ['Priority', 'Category', 'Recommended Action', 'Impact Insight']
-        report_data = [{
-            'Priority': r['priority'],
-            'Category': r['category'],
-            'Recommended Action': r['action'],
-            'Impact Insight': r['message']
-        } for r in recs]
+    analytics = {
+        'labels': [m[0] for m in monthly_data],
+        'counts': [m[1] for m in monthly_data],
+        'types': {t[0]: t[1] for t in type_data},
+        'users': {u[0]: u[1] for u in user_data}
+    }
 
     return render_template('user/reports.html',
                            recent_reports=reports_items,
                            pagination=pagination,
-                           headers=headers,
-                           report_data=report_data,
-                           selected_type=rep_type,
-                           start_date=start_date,
-                           end_date=end_date,
-                           now=datetime.utcnow())
+                           stats=stats,
+                           now=now,
+                           analytics=analytics)
 
 @user_bp.route('/download_report/<format>')
 @login_required
 @role_required(['Admin', 'User'])
 def download_report(format):
-    rep_type = request.args.get('type', 'Inventory Report')
-    start_date = request.args.get('start_date', '').strip()
-    end_date = request.args.get('end_date', '').strip()
+    rep_type = request.args.get('type', 'Executive')
+    products = Product.query.all()
 
-    # Parse dates if supplied
-    s_dt = None
-    e_dt = None
-    if start_date:
-        try:
-            s_dt = pd.to_datetime(start_date)
-        except:
-            pass
-    if end_date:
-        try:
-            e_dt = pd.to_datetime(end_date)
-        except:
-            pass
+    if rep_type == 'Low Stock':
+        products = [p for p in products if p.stock_quantity <= p.minimum_threshold]
+    elif rep_type == 'Stock':
+        products = Product.query.order_by(Product.stock_quantity.desc()).all()
 
-    # Query matching data
-    products = []
-    df_data = []
+    ts, tp, tr = sum([p.sales for p in products]), sum([p.profit for p in products]), sum([p.revenue for p in products])
 
-    if rep_type == 'Inventory Report' or rep_type == 'Stock Report' or rep_type == 'Sales Report':
-        query = Product.query
-        if s_dt:
-            query = query.filter(Product.date >= s_dt)
-        if e_dt:
-            query = query.filter(Product.date <= e_dt)
-        products = query.order_by(Product.product_name).all()
-
-        for p in products:
-            if rep_type == 'Inventory Report':
-                df_data.append({
-                    'Product Name': p.product_name,
-                    'Category': p.category,
-                    'Price': p.price,
-                    'Stock Quantity': p.stock_quantity,
-                    'Date Added': p.date.strftime('%Y-%m-%d') if p.date else ''
-                })
-            elif rep_type == 'Stock Report':
-                df_data.append({
-                    'Product Name': p.product_name,
-                    'Stock Quantity': p.stock_quantity,
-                    'Minimum Threshold': p.minimum_threshold,
-                    'Maximum Threshold': p.maximum_threshold,
-                    'Status': 'In Stock' if p.stock_quantity > p.minimum_threshold else 'Low Stock'
-                })
-            else: # Sales Report
-                df_data.append({
-                    'Product Name': p.product_name,
-                    'Sales Volume': p.sales,
-                    'Unit Price': p.price,
-                    'Revenue Generated': p.revenue,
-                    'Profit Realized': p.profit
-                })
-
-    elif rep_type == 'AI Prediction Report':
-        query = Prediction.query
-        if s_dt:
-            query = query.filter(Prediction.timestamp >= s_dt)
-        if e_dt:
-            query = query.filter(Prediction.timestamp <= e_dt)
-        predictions = query.all()
-        for p in predictions:
-            df_data.append({
-                'Product Name': p.product.product_name if p.product else 'N/A',
-                'Predicted Sales': p.predicted_sales,
-                'Predicted Profit': p.predicted_profit,
-                'Depletion Days': p.stock_out_days,
-                'Timestamp': p.timestamp.strftime('%Y-%m-%d %H:%M') if p.timestamp else ''
-            })
-
-    elif rep_type == 'AI Recommendation Report':
-        query_prod = Product.query.all()
-        from .recommendation_engine import generate_recommendations
-        recs = generate_recommendations(query_prod)
-        for r in recs:
-            df_data.append({
-                'Priority': r['priority'],
-                'Category': r['category'],
-                'Recommended Action': r['action'],
-                'Impact Insight': r['message']
-            })
-
-    # Prepare file stream
-    buffer = io.BytesIO()
     if format == 'pdf':
-        from reportlab.lib.pagesizes import letter
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib import colors
-
-        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
-        story = []
-        styles = getSampleStyleSheet()
-
-        title_style = ParagraphStyle(
-            'ReportTitle',
-            parent=styles['Heading1'],
-            fontName='Helvetica-Bold',
-            fontSize=18,
-            textColor=colors.HexColor('#1E3A8A'),
-            spaceAfter=15
-        )
-        story.append(Paragraph(f"SmartBiz Enterprise - {rep_type}", title_style))
-        story.append(Paragraph(f"Generated on: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} (UTC)", styles['Normal']))
-        if start_date or end_date:
-            story.append(Paragraph(f"Filters: {start_date} to {end_date}", styles['Normal']))
-        story.append(Spacer(1, 15))
-
-        if df_data:
-            col_headers = list(df_data[0].keys())
-            data_table = [col_headers]
-            for row in df_data:
-                data_table.append([str(v) for v in row.values()])
-
-            t = Table(data_table)
-            t.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E3A8A')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-                ('BOTTOMPADDING', (0,0), (-1,0), 6),
-                ('TOPPADDING', (0,0), (-1,0), 6),
-                ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
-                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,-1), 8),
-            ]))
-            story.append(t)
-        else:
-            story.append(Paragraph("No records found matching filters.", styles['Normal']))
-
-        doc.build(story)
-        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf"
+        buffer = generate_pdf_report(products, ts, tp, tr)
+        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf"
         mimetype = 'application/pdf'
-
     elif format == 'excel':
-        df = pd.DataFrame(df_data)
-        df.to_excel(buffer, index=False)
-        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        buffer = generate_excel_report(products)
+        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.xlsx"
         mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-
     elif format == 'csv':
-        df = pd.DataFrame(df_data)
+        data = []
+        for p in products:
+            data.append({'Name': p.product_name, 'Qty': p.stock_quantity, 'Price': p.price, 'Category': p.category})
+        df = pd.DataFrame(data)
+        buffer = io.BytesIO()
         df.to_csv(buffer, index=False)
-        filename = f"SmartBiz_{rep_type.replace(' ', '_')}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv"
+        filename = f"SmartBiz_{rep_type}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv"
         mimetype = 'text/csv'
-
     else:
         return redirect(url_for('user.reports'))
 
@@ -948,8 +732,7 @@ def inventory_detect():
     return {
         'count': count,
         'annotated': annotated_filename,
-        'confidence': confidence,
-        'proc_time': proc_time
+        'confidence': confidence
     }
 
 @user_bp.route('/inventory/detect_sample', methods=['POST'])

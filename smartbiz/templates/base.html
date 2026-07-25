@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,34 +7,28 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script>
-        // Synchronous theme initialization to prevent flash
-        (function initTheme() {
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-        })();
-    </script>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="midnight-theme">
     {% if current_user.is_authenticated %}
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="p-4 text-center border-bottom border-secondary border-opacity-10">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SmartBiz" class="img-fluid mb-3" style="max-width: 50px;">
-            <h5 class="text-white fw-bold mb-0">SMARTBIZ</h5>
-            <span class="text-primary-light fs-7 fw-semibold tracking-wider">Enterprise Suite</span>
+    <div class="sidebar">
+        <div class="p-4 mb-4 text-center">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SmartBiz" class="img-fluid mb-3" style="max-width: 60px;">
+            <h5 class="text-white fw-bold">SmartBiz<br><span class="text-info">Enterprise</span></h5>
         </div>
-        <nav class="nav flex-column py-3">
+        <nav class="nav flex-column">
             <a class="nav-link {{ 'active' if request.endpoint == 'user.dashboard' }}" href="{{ url_for('user.dashboard') }}">
-                <i class="fas fa-chart-pie"></i> Dashboard
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.executive_dashboard' }}" href="{{ url_for('user.executive_dashboard') }}">
+                <i class="fas fa-user-tie"></i> Executive Hub
             </a>
             <a class="nav-link {{ 'active' if request.endpoint == 'user.upload' }}" href="{{ url_for('user.upload') }}">
                 <i class="fas fa-cloud-upload-alt"></i> Data Hub
@@ -63,109 +57,41 @@
             <a class="nav-link {{ 'active' if request.endpoint == 'user.reports' }}" href="{{ url_for('user.reports') }}">
                 <i class="fas fa-file-invoice"></i> Reports
             </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.company_profile' }}" href="{{ url_for('user.company_profile') }}">
+                <i class="fas fa-building"></i> Company
+            </a>
             {% if current_user.role == 'Admin' %}
-            <hr class="mx-3 border-secondary border-opacity-20 my-3">
+            <hr class="mx-3 border-secondary">
             <a class="nav-link text-warning" href="{{ url_for('admin.dashboard') }}">
                 <i class="fas fa-user-shield"></i> Admin Portal
             </a>
             {% endif %}
-            <a class="nav-link text-danger mt-3" href="{{ url_for('user.logout') }}">
+            <a class="nav-link text-danger mt-auto" href="{{ url_for('user.logout') }}">
                 <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </nav>
     </div>
     {% endif %}
 
-    <!-- Main Section Wrapper -->
     <div class="{{ 'main-content' if current_user.is_authenticated else '' }}">
-        {% if current_user.is_authenticated %}
-        <!-- Top Navigation Bar -->
-        <header class="topnav d-flex justify-content-between align-items-center mb-4 rounded-3">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn d-lg-none btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h4 class="mb-0 fw-bold text-primary tracking-tight">SMARTBIZ</h4>
-            </div>
-
-            <div class="d-flex align-items-center gap-3">
-                <!-- Textual Theme Switch Component -->
-                <div class="d-flex align-items-center">
-                    <button id="themeToggleBtn" onclick="toggleTheme()" class="btn btn-sm btn-outline-premium d-flex align-items-center gap-2">
-                        <span id="themeToggleIcon"><i class="fas fa-sun"></i></span>
-                        <span id="themeToggleText">Light Mode</span>
-                    </button>
-                </div>
-                <div class="vr bg-secondary opacity-25" style="height: 24px;"></div>
-                <span class="badge bg-primary px-3 py-2 rounded-pill">{{ current_user.role }}</span>
-            </div>
-        </header>
-        {% endif %}
-
-        <main class="container-fluid py-2 animate-fade-in">
+        <div class="container-fluid py-4">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show border-0 mb-4 shadow-sm" role="alert" style="border-radius: 12px;">
+                        <div class="alert alert-{{ category }} alert-dismissible fade show glass-card border-0 mb-4" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
             {% block content %}{% endblock %}
-        </main>
+        </div>
     </div>
 
     <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Initialize Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', function () {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.toggle('show');
-            }
-        }
-
-        function updateToggleButton(theme) {
-            const btnText = document.getElementById('themeToggleText');
-            const btnIcon = document.getElementById('themeToggleIcon');
-            if (theme === 'dark') {
-                if (btnText) btnText.innerText = "🌙 Dark Mode";
-                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-moon"></i>';
-            } else {
-                if (btnText) btnText.innerText = "☀️ Light Mode";
-                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-sun"></i>';
-            }
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateToggleButton(newTheme);
-
-            // Dispatch dynamic window event for live Chart updates
-            window.dispatchEvent(new Event('themeChanged'));
-        }
-
-        // Initialize Toggle visual indicator
-        (function initToggleButton() {
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            updateToggleButton(currentTheme);
-        })();
-    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

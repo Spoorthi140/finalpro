@@ -12,10 +12,7 @@
                     <p class="text-secondary">Understanding the "Why" behind your business outcomes using Directed Acyclic Graphs (DAGs) and counterfactual inference.</p>
                 </div>
                 <div class="text-end">
-                    <!-- Blue: Proceed to strategy simulation -->
-                    <a href="{{ url_for('user.simulator') }}" class="btn btn-primary btn-hover-effect" data-bs-toggle="tooltip" title="Proceed to Strategy Simulator">
-                        Proceed to Strategy Simulator <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
+                    <a href="{{ url_for('user.simulator') }}" class="btn btn-neon">Proceed to Strategy Simulator <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
@@ -54,10 +51,7 @@
 {% else %}
 <div class="row mt-4">
     <div class="col-12 text-end">
-        <!-- Blue: Proceed to strategy simulation -->
-        <a href="{{ url_for('user.simulator') }}" class="btn btn-primary btn-hover-effect" data-bs-toggle="tooltip" title="Proceed to Strategy Simulator">
-            Go to Strategy Simulator <i class="fas fa-arrow-right ms-2"></i>
-        </a>
+        <a href="{{ url_for('user.simulator') }}" class="btn btn-neon">Go to Strategy Simulator <i class="fas fa-arrow-right ms-2"></i></a>
     </div>
 </div>
 {% endif %}

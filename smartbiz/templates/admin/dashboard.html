@@ -57,7 +57,7 @@
                     <tbody>
                         {% for user in users %}
                         <tr>
-                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.name }}</td>
                             <td>{{ user.email }}</td>
                             <td><span class="badge bg-{{ 'info' if user.role == 'Admin' else 'secondary' }}">{{ user.role }}</span></td>
                             <td>
@@ -69,26 +69,13 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <form action="{{ url_for('admin.toggle_status', user_id=user.id) }}" method="POST" class="d-inline">
-                                        {% if user.is_active %}
-                                        <!-- Deactivate: Orange -->
-                                        <button class="btn btn-sm btn-warning btn-hover-effect" data-bs-toggle="tooltip" title="Deactivate User">
-                                            <i class="fas fa-user-slash"></i>
-                                        </button>
-                                        {% else %}
-                                        <!-- Activate: Green -->
-                                        <button class="btn btn-sm btn-success btn-hover-effect" data-bs-toggle="tooltip" title="Activate User">
-                                            <i class="fas fa-user-check"></i>
-                                        </button>
-                                        {% endif %}
-                                    </form>
-                                    {% if user.id != current_user.id %}
-                                    <!-- Delete: Red (with confirmation) -->
-                                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this user? This action cannot be undone.');">
-                                        <button class="btn btn-sm btn-danger btn-hover-effect" data-bs-toggle="tooltip" title="Delete User">
-                                            <i class="fas fa-trash-alt"></i>
+                                        <button class="btn btn-sm btn-outline-warning" title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                                            <i class="fas fa-power-off"></i>
                                         </button>
                                     </form>
-                                    {% endif %}
+                                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently delete this user?');">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -107,8 +94,8 @@
                 {% for log in activities %}
                 <div class="mb-3 pb-3 border-bottom border-secondary">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-info small fw-bold">{{ log.user_name }}</span>
-                        <span class="text-secondary xx-small fw-bold">{{ log.relative_time }}</span>
+                        <span class="text-info small fw-bold">{{ log.user.name if log.user else 'System' }}</span>
+                        <span class="text-secondary xx-small">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
                     </div>
                     <p class="mb-0 small text-light-50">{{ log.action }}</p>
                 </div>
@@ -138,13 +125,10 @@
                         <tr>
                             <td class="text-truncate" style="max-width: 200px;">{{ r.report_name }}</td>
                             <td>{{ r.report_type }}</td>
-                            <td>{{ r.author.full_name if r.author else 'System' }}</td>
+                            <td>{{ r.author.name if r.author else 'System' }}</td>
                             <td>
-                                <!-- Delete: Red -->
                                 <form action="{{ url_for('admin.delete_report', report_id=r.id) }}" method="POST" class="d-inline">
-                                    <button class="btn btn-sm btn-danger btn-hover-effect p-1" data-bs-toggle="tooltip" title="Delete Report">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    <button class="btn btn-sm btn-link text-danger p-0"><i class="fas fa-times"></i></button>
                                 </form>
                             </td>
                         </tr>
