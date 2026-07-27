@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Strategy Simulator - SmartBiz Enterprise{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="glass-card mb-4">
+            <h4 class="text-info mb-4"><i class="fas fa-sliders-h me-2"></i> Strategy Inputs</h4>
+            <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-4">
+                    <label class="form-label">Price Change (%)</label>
+                    <input type="range" name="price_change" class="form-range" min="-50" max="50" step="1" value="0" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-info fw-bold">0%</output>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Marketing Budget Change (%)</label>
+                    <input type="range" name="marketing_change" class="form-range" min="-50" max="100" step="5" value="0" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-info fw-bold">0%</output>
+                </div>
+                <button type="submit" class="btn btn-neon w-100">Run Simulation</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if simulation %}
+        <div class="glass-card mb-4">
+            <h4 class="text-info mb-4"><i class="fas fa-project-diagram me-2"></i> Simulation Results</h4>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="p-3 border border-secondary rounded text-center">
+                        <small class="text-secondary d-block">Predicted Sales</small>
+                        <h3 class="mb-1">{{ simulation.simulated_sales }}</h3>
+                        <small class="text-{{ 'success' if simulation.sales_impact >= 0 else 'danger' }}">
+                            {{ simulation.sales_impact }}% impact
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border border-secondary rounded text-center">
+                        <small class="text-secondary d-block">Predicted Revenue</small>
+                        <h3 class="mb-1">₹{{ "{:,.0f}".format(simulation.simulated_revenue) }}</h3>
+                        <small class="text-{{ 'success' if simulation.revenue_impact >= 0 else 'danger' }}">
+                            {{ simulation.revenue_impact }}% impact
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border border-secondary rounded text-center">
+                        <small class="text-secondary d-block">Predicted Profit</small>
+                        <h3 class="mb-1">₹{{ "{:,.0f}".format(simulation.simulated_profit) }}</h3>
+                        <small class="text-{{ 'success' if simulation.profit_impact >= 0 else 'danger' }}">
+                            {{ simulation.profit_impact }}% impact
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h5 class="text-info mb-4">Comparison: Current vs Simulated</h5>
+                <canvas id="simChart" height="150"></canvas>
+            </div>
+        </div>
+        {% else %}
+        <div class="glass-card d-flex align-items-center justify-content-center" style="height: 400px;">
+            <div class="text-center text-secondary">
+                <i class="fas fa-robot fa-3x mb-3"></i>
+                <p>Adjust inputs and click "Run Simulation" to see AI-driven business impact predictions.</p>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row mt-4">
+            <div class="col-12 text-end">
+                <a href="{{ url_for('user.prediction') }}" class="btn btn-neon">Proceed to Prediction <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if simulation %}
+<script>
+    const ctx = document.getElementById('simChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Sales', 'Revenue', 'Profit'],
+            datasets: [{
+                label: 'Current',
+                data: [{{ simulation.current_sales }}, {{ simulation.current_revenue }}, {{ simulation.current_profit }}],
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1
+            }, {
+                label: 'Simulated',
+                data: [{{ simulation.simulated_sales }}, {{ simulation.simulated_revenue }}, {{ simulation.simulated_profit }}],
+                backgroundColor: 'rgba(0, 210, 255, 0.5)',
+                borderColor: '#00d2ff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                x: { ticks: { color: '#fff' } }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

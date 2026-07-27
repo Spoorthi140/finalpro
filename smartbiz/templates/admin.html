@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - SmartBiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .nav-tabs { border-bottom: 1px solid var(--border-color); }
+        .nav-tabs .nav-link { color: var(--text-muted); border: none; padding: 1rem 2rem; }
+        .nav-tabs .nav-link.active { background: transparent; color: var(--primary-color); border-bottom: 2px solid var(--primary-color); }
+        .nav-tabs .nav-link:hover { border: none; color: white; }
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    <div id="nav-container"></div>
+
+    <main class="main-content">
+        <div class="container-fluid">
+            <h1 class="fw-bold mb-4">System Administration</h1>
+
+            <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#users-tab">User Access</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#datasets-tab">Global Datasets</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#logs-tab">Audit Trails</button></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="users-tab">
+                    <div class="card p-4 shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Email Address</th>
+                                        <th>Role</th>
+                                        <th class="text-end">Management</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="datasets-tab">
+                    <div class="card p-4 shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>System Filename</th>
+                                        <th>Owner ID</th>
+                                        <th>Registration Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-datasets-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="logs-tab">
+                    <div class="card p-4 shadow-sm">
+                        <div class="list-group list-group-flush bg-transparent" id="admin-logs-list" style="max-height: 600px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        async function refreshAdmin() {
+            const [users, datasets, logs] = await Promise.all([
+                fetch('/api/admin/users').then(r => r.json()),
+                fetch('/api/admin/datasets').then(r => r.json()),
+                fetch('/api/admin/logs').then(r => r.json())
+            ]);
+
+            document.getElementById('admin-users-table').innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td class="text-theme fw-bold">${u.name}</td>
+                    <td class="text-muted">${u.email}</td>
+                    <td><span class="badge ${u.role === 'admin' ? 'bg-primary bg-opacity-10 text-primary' : 'bg-secondary bg-opacity-10 text-muted'}">${u.role.toUpperCase()}</span></td>
+                    <td class="text-end">${u.role !== 'admin' ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id})">Terminate Access</button>` : '<small class="text-muted">System Reserved</small>'}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('admin-datasets-table').innerHTML = datasets.map(d => `
+                <tr>
+                    <td>${d.id}</td>
+                    <td class="text-theme small">${d.filename}</td>
+                    <td><span class="badge bg-dark">UID: ${d.user_id}</span></td>
+                    <td class="text-muted">${formatDate(d.date)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('admin-logs-list').innerHTML = logs.map(l => `
+                <div class="list-group-item bg-transparent border-color py-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-theme small">${l.action}</span>
+                        <small class="text-muted">${formatDate(l.timestamp)}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteUser(id) {
+            if (confirm("Permanently revoke access for this user?")) {
+                const res = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    refreshAdmin();
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshAdmin);
+    </script>
+</body>
+</html>

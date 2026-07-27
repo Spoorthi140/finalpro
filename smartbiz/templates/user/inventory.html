@@ -1,172 +1,354 @@
 {% extends "base.html" %}
 
-{% block title %}Smart Inventory - SmartBiz{% endblock %}
+{% block title %}AI Smart Inventory Monitor - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="glass-card">
-            <h4 class="mb-4 text-info"><i class="fas fa-video me-2"></i> Automated Inventory Scanner</h4>
-            <div id="camera-container" class="position-relative bg-dark rounded overflow-hidden" style="height: 350px; border: 2px solid var(--neon-blue);">
-                <video id="video" width="100%" height="100%" autoplay></video>
-                <canvas id="canvas" style="display:none;"></canvas>
-            </div>
-            <div class="mt-3 text-center">
-                <button id="capture-btn" class="btn btn-neon btn-lg w-100">
-                    <i class="fas fa-camera me-2"></i> Capture & Monitor Shelf
-                </button>
+<div class="row g-4">
+    <!-- PAGE HEADER -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-primary mb-1"><i class="fas fa-boxes me-2"></i>AI Smart Inventory</h2>
+                <p class="text-secondary small mb-0">Streamlined computer vision counting workflow for cardboard boxes and cartons.</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="glass-card h-100">
-            <h4 class="mb-4 text-info"><i class="fas fa-microchip me-2"></i> OpenCV Detection Analysis</h4>
-            <div id="result-container" class="bg-dark rounded overflow-hidden d-flex align-items-center justify-content-center mb-3" style="height: 300px; border: 1px dashed #444;">
-                <img id="processed-img" class="img-fluid" src="" style="display:none;">
-                <p id="placeholder-text" class="text-light-50">Activate camera and capture image for detection</p>
-            </div>
-            <div class="row g-2">
-                <div class="col-6">
-                    <div class="glass-card text-center p-2 bg-dark">
-                        <small class="text-info d-block">Detected Quantity</small>
-                        <span id="count-value" class="h3 fw-bold text-white">--</span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div id="status-badge" class="glass-card text-center p-2 bg-dark d-flex align-items-center justify-content-center">
-                        <span class="small text-light-50">Waiting for data...</span>
-                    </div>
-                </div>
-            </div>
+    <!-- MAIN TWO-COLUMN WORKFLOW -->
+    <div class="col-lg-6">
+        <!-- STEP 1: UPLOAD PANEL ONLY -->
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-3"><i class="fas fa-file-upload me-2"></i>Step 1: Upload Warehouse Image</h5>
 
-            <div id="update-form" class="mt-4" style="display:none;">
-                <h6 class="text-info border-bottom pb-2">Sync with Database</h6>
-                <div class="mb-3">
-                    <label class="small text-light-50">Select Product to Update</label>
-                    <select id="product-select" class="form-select bg-dark text-white border-secondary">
-                        {% for product in products %}
-                        <option value="{{ product.id }}">{{ product.product_name }} (Current: {{ product.stock_quantity }})</option>
+            <div class="border border-secondary border-dashed rounded p-5 text-center" id="dropZone" style="cursor: pointer; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="document.getElementById('inventoryFile').click()">
+                <div>
+                    <i class="fas fa-cloud-upload-alt fa-3x text-secondary mb-3 d-block"></i>
+                    <h6 class="text-theme">Drag & Drop Warehouse Image</h6>
+                    <p class="xx-small text-secondary mb-3">Supports JPG, PNG, WEBP (Max 10MB)</p>
+                    <input type="file" id="inventoryFile" class="d-none" accept="image/*">
+                    <button class="btn btn-primary btn-sm px-4 py-2">Browse Local Files</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STOCKS TABLE -->
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-3"><i class="fas fa-list-alt me-2"></i>Product Stock Inventory</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-dark bg-dark bg-opacity-40 table-bordered mb-0" style="border-radius: 8px; overflow: hidden;" id="stocksTable">
+                    <thead>
+                        <tr class="text-secondary small">
+                            <th>Product Name</th>
+                            <th class="text-end">Current Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr id="stock-row-{{ p.id }}" class="small">
+                            <td class="text-theme">{{ p.product_name }}</td>
+                            <td class="text-end fw-bold text-success" id="stock-val-{{ p.id }}">{{ p.stock_quantity }} units</td>
+                        </tr>
                         {% endfor %}
-                    </select>
-                </div>
-                <button id="update-btn" class="btn btn-info w-100">Update Inventory Level</button>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
 
-<div class="glass-card mt-4">
-    <h5 class="text-info mb-3">Inventory Table Summary</h5>
-    <div class="table-responsive">
-        <table class="table table-dark table-striped table-hover small">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Current Stock</th>
-                    <th>Last Monitored</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in products %}
-                <tr>
-                    <td>{{ p.product_name }}</td>
-                    <td>{{ p.stock_quantity }}</td>
-                    <td>{{ p.last_updated.strftime('%Y-%m-%d %H:%M') if p.last_updated else 'Never' }}</td>
-                    <td>
-                        {% if p.stock_quantity < 10 %}
-                        <span class="badge bg-danger">Low Stock</span>
-                        {% else %}
-                        <span class="badge bg-success">Normal</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- COLUMN 2: DETECTION PREVIEW AND QUANTITY UPDATE -->
+    <div class="col-lg-6">
+        <div class="glass-card mb-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-info mb-3"><i class="fas fa-eye me-2"></i>Step 2: Detection and Save</h5>
+
+                <!-- Dynamic Detection Success Notification -->
+                <div id="save-success-alert" class="alert bg-success bg-opacity-10 border border-success border-opacity-30 text-success d-none mb-3 p-3" role="alert" style="border-radius: 10px;">
+                    <h6 class="fw-bold mb-1"><i class="fas fa-check-circle me-1"></i> Stock Updated Successfully!</h6>
+                    <p class="mb-0 small">
+                        Product: <strong id="success-product-name">Product Name</strong><br>
+                        Previous Stock: <strong id="success-prev-stock">0</strong> units<br>
+                        Detected Boxes added: <strong id="success-detected-qty">0</strong> units<br>
+                        New Stock: <strong id="success-new-stock">0</strong> units
+                    </p>
+                </div>
+
+                <div id="detectionPlaceholder" class="text-center p-5 border border-secondary border-opacity-10 rounded d-flex flex-column align-items-center justify-content-center" style="min-height: 250px;">
+                    <i class="fas fa-image fa-3x text-secondary opacity-25 mb-3"></i>
+                    <p class="text-secondary small mb-0">Submit an image to execute AI carton counting pipeline.</p>
+                </div>
+
+                <div id="detectionResult" class="d-none">
+                    <!-- Preview Image -->
+                    <div class="mb-3 position-relative text-center bg-dark rounded overflow-hidden border border-secondary border-opacity-30">
+                        <img id="annotatedPreview" class="img-fluid w-100" style="max-height: 280px; object-fit: contain;">
+                        <span class="position-absolute top-2 start-2 badge bg-success shadow"><i class="fas fa-check me-1"></i> AI Boxes Counts Verified</span>
+                    </div>
+
+                    <!-- Detected Box Count Display -->
+                    <div class="d-flex justify-content-between align-items-center bg-dark bg-opacity-40 p-3 rounded border border-secondary border-opacity-10 mb-3">
+                        <span class="text-secondary small fw-bold">DETECTED BOX COUNT:</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="detCount" class="badge bg-primary fs-4 px-3 py-1">0</span>
+                            <span class="text-secondary xx-small" id="detTime">0ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Searchable Product Dropdown -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">SELECT TARGET PRODUCT</label>
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text"><i class="fas fa-search text-secondary"></i></span>
+                            <input type="text" id="productSearchInput" onkeyup="filterProducts()" class="form-control" placeholder="Type to filter products...">
+                        </div>
+                        <select id="detProductSelect" class="form-select form-select-sm py-2" onchange="updateStockDisplay()">
+                            <option value="">-- Choose Product --</option>
+                            {% for p in products %}
+                            <option value="{{ p.id }}" data-stock="{{ p.stock_quantity }}" data-name="{{ p.product_name }}">{{ p.product_name }} (Current: {{ p.stock_quantity }} units)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Stock Updates Table Metrics -->
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary border-opacity-10 rounded text-center bg-dark bg-opacity-20">
+                                <small class="text-secondary xx-small d-block text-uppercase">Current Stock</small>
+                                <span id="detCurrentStock" class="fw-bold text-warning fs-5">--</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary border-opacity-10 rounded text-center bg-dark bg-opacity-20">
+                                <small class="text-secondary xx-small d-block text-uppercase">Updated Stock Preview</small>
+                                <span id="detUpdatedStock" class="fw-bold text-success fs-5">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTON -->
+            <button id="saveInventoryBtn" onclick="saveInventoryUpdate()" class="btn btn-success w-100 py-2 fw-bold d-none mt-3" disabled><i class="fas fa-sync-alt me-1"></i> Update Stock</button>
+        </div>
     </div>
 </div>
 
 <style>
-    #video { transform: scaleX(-1); }
+    .xx-small { font-size: 0.65rem; }
+    .border-dashed { border-style: dashed !important; }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const processedImg = document.getElementById('processed-img');
-    const countValue = document.getElementById('count-value');
-    const updateForm = document.getElementById('update-form');
-    const productSelect = document.getElementById('product-select');
-    const updateBtn = document.getElementById('update-btn');
-    const statusBadge = document.getElementById('status-badge');
+    let lastBoxCount = 0;
 
-    // Access Webcam
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(err => { console.error("Error accessing webcam:", err); });
+    // Searchable Select filter logic
+    function filterProducts() {
+        const filter = document.getElementById('productSearchInput').value.toLowerCase();
+        const select = document.getElementById('detProductSelect');
+        const options = select.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === "") continue;
+            const text = options[i].getAttribute('data-name') || options[i].text;
+            if (text.toLowerCase().includes(filter)) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
 
-    captureBtn.addEventListener('click', () => {
-        const context = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Process Drag & Drop
+    const dropZone = document.getElementById('dropZone');
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                dropZone.classList.add('border-primary');
+            }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                dropZone.classList.remove('border-primary');
+            }, false);
+        });
+        dropZone.addEventListener('drop', e => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                const reader = new FileReader();
+                reader.readAsDataURL(files[0]);
+                reader.onloadend = () => {
+                    processInventoryImage(reader.result);
+                };
+            }
+        });
+    }
 
-        const imageData = canvas.toDataURL('image/jpeg');
+    // Process file browsing
+    document.getElementById('inventoryFile').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.readAsDataURL(this.files[0]);
+            reader.onloadend = () => {
+                processInventoryImage(reader.result);
+            };
+        }
+    });
 
-        captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing...';
-        captureBtn.disabled = true;
+    // General image processing helper (webcam base64 or upload)
+    function processInventoryImage(base64Image) {
+        showLoadingState();
+        const formData = new FormData();
+        // Extract base64 part
+        const parts = base64Image.split(',');
+        const blob = base64ToBlob(parts[1], 'image/jpeg');
+        formData.append('file', blob, 'upload_image.jpg');
 
-        // Send to backend
-        fetch('/process_inventory', {
+        fetch('/inventory/detect', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageData })
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: formData
         })
         .then(res => res.json())
         .then(data => {
-            captureBtn.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Monitor Shelf';
-            captureBtn.disabled = false;
-
-            processedImg.src = data.processed_image;
-            processedImg.style.display = 'block';
-            document.getElementById('placeholder-text').style.display = 'none';
-            countValue.innerText = data.count;
-            updateForm.style.display = 'block';
-
-            statusBadge.innerHTML = data.count < 10 ?
-                '<span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</span>' :
-                '<span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Stock Healthy</span>';
+            displayDetectionResult(data);
         })
         .catch(err => {
             console.error(err);
-            captureBtn.disabled = false;
-            captureBtn.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Monitor Shelf';
+            alert("Error executing box counting pipeline.");
+            hideLoadingState();
         });
-    });
+    }
 
-    updateBtn.addEventListener('click', () => {
-        const productId = productSelect.value;
-        const quantity = countValue.innerText;
+    // Helper: Convert base64 to Blob object
+    function base64ToBlob(base64, mimeType) {
+        const bytes = window.atob(base64);
+        const ab = new ArrayBuffer(bytes.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < bytes.length; i++) {
+            ia[i] = bytes.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mimeType });
+    }
 
-        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    function showLoadingState() {
+        document.getElementById('detectionPlaceholder').classList.add('d-none');
+        document.getElementById('detectionResult').classList.remove('d-none');
+        document.getElementById('save-success-alert').classList.add('d-none');
+
+        document.getElementById('annotatedPreview').style.opacity = '0.4';
+        document.getElementById('detCount').innerText = "...";
+        document.getElementById('detCurrentStock').innerText = "...";
+        document.getElementById('detUpdatedStock').innerText = "...";
+        document.getElementById('saveInventoryBtn').disabled = true;
+    }
+
+    function hideLoadingState() {
+        document.getElementById('detectionPlaceholder').classList.remove('d-none');
+        document.getElementById('detectionResult').classList.add('d-none');
+    }
+
+    function displayDetectionResult(data) {
+        document.getElementById('detectionPlaceholder').classList.add('d-none');
+        document.getElementById('detectionResult').classList.remove('d-none');
+
+        document.getElementById('annotatedPreview').style.opacity = '1';
+        document.getElementById('annotatedPreview').src = "/static/detections/" + data.annotated;
+        document.getElementById('detCount').innerText = data.count;
+        document.getElementById('detTime').innerText = Math.round(data.proc_time) + "ms";
+
+        lastBoxCount = data.count;
+        updateStockDisplay();
+    }
+
+    function updateStockDisplay() {
+        const select = document.getElementById('detProductSelect');
+        const saveBtn = document.getElementById('saveInventoryBtn');
+
+        if (select && select.options[select.selectedIndex] && select.value !== "") {
+            const currentStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
+            const updatedStock = currentStock + lastBoxCount;
+            document.getElementById('detCurrentStock').innerText = currentStock + " units";
+            document.getElementById('detUpdatedStock').innerText = updatedStock + " units";
+
+            // Show update button once product is selected
+            saveBtn.classList.remove('d-none');
+            saveBtn.disabled = false;
+        } else {
+            document.getElementById('detCurrentStock').innerText = "--";
+            document.getElementById('detUpdatedStock').innerText = "--";
+            saveBtn.disabled = true;
+        }
+    }
+
+    // Submit inventory change to endpoint
+    function saveInventoryUpdate() {
+        const select = document.getElementById('detProductSelect');
+        const productId = select.value;
+        const productName = select.options[select.selectedIndex].getAttribute('data-name');
+        const prevStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
+        const newStock = prevStock + lastBoxCount;
+
+        if (!productId) {
+            alert("Please choose a valid product label!");
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveInventoryBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Saving Stock...";
 
         fetch('/update_inventory', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, quantity: quantity })
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: newStock
+            })
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success) {
-                alert('Inventory database updated successfully!');
-                location.reload();
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Update Stock';
+            if (data.success) {
+                // (8) Display a success message showing the previous stock, detected quantity, and new stock
+                const successAlert = document.getElementById('save-success-alert');
+                document.getElementById('success-product-name').innerText = productName;
+                document.getElementById('success-prev-stock').innerText = prevStock;
+                document.getElementById('success-detected-qty').innerText = lastBoxCount;
+                document.getElementById('success-new-stock').innerText = newStock;
+
+                successAlert.classList.remove('d-none');
+                successAlert.scrollIntoView({ behavior: 'smooth' });
+
+                // Update dropdown state to reflect the new stock without requiring a hard refresh
+                select.options[select.selectedIndex].setAttribute('data-stock', newStock);
+                select.options[select.selectedIndex].text = `${productName} (Current: ${newStock} units)`;
+
+                // Dynamically update the product's row in the Stocks table
+                const stockValElement = document.getElementById(`stock-val-${productId}`);
+                if (stockValElement) {
+                    stockValElement.innerText = `${newStock} units`;
+                }
+
+                updateStockDisplay();
+            } else {
+                alert("Failed to save updated inventory stock level.");
             }
+        })
+        .catch(err => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Update Stock';
+            console.error(err);
+            alert("A transmission error occurred while saving the stock.");
         });
-    });
+    }
 </script>
 {% endblock %}

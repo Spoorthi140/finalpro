@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartBiz - Admin Login</title>
+    <title>SmartBiz Enterprise - Admin Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -26,15 +26,16 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .btn-neon {
-            background: transparent;
-            border: 1px solid #e94560;
-            color: #e94560;
+            background: #10B981;
+            border: 1px solid #10B981;
+            color: white;
             transition: 0.3s;
         }
         .btn-neon:hover {
-            background: #e94560;
+            background: #059669;
+            border-color: #059669;
             color: white;
-            box-shadow: 0 0 15px #e94560;
+            box-shadow: 0 0 15px #10B981;
         }
         .form-control {
             background: rgba(255, 255, 255, 0.1);
@@ -61,13 +62,14 @@
             {% endif %}
         {% endwith %}
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="mb-3">
-                <label class="form-label small">Admin Email</label>
-                <input type="email" name="email" class="form-control" required>
+                <label for="admin-email" class="form-label small">Admin Email</label>
+                <input type="email" id="admin-email" name="email" class="form-control" required>
             </div>
             <div class="mb-4">
-                <label class="form-label small">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label for="admin-password" class="form-label small">Password</label>
+                <input type="password" id="admin-password" name="password" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-neon w-100 py-2 fw-bold">AUTHENTICATE</button>
         </form>
@@ -75,5 +77,15 @@
             <a href="{{ url_for('user.home') }}" class="text-decoration-none text-light-50 small"><i class="fas fa-arrow-left"></i> Back to Site</a>
         </div>
     </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = this.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Authenticating...';
+            }
+        });
+    </script>
 </body>
 </html>
