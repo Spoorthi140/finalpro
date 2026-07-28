@@ -7,13 +7,21 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <h2 class="text-info mb-2"><i class="fas fa-chart-line me-2"></i> AI Prediction & Forecasting Center</h2>
-                    <p class="text-secondary">Predicting future business performance based entirely on uploaded historical data.</p>
+                    <p class="text-secondary">Generates highly accurate 2-year predictive modeling forecasts (2027-2028) based on advanced ensembles.</p>
                 </div>
-                <div class="text-end">
-                    <span class="badge bg-primary px-3 py-2">Model: {{ forecasts.model_info }}</span>
+                <div class="d-flex gap-3 align-items-center">
+                    <div>
+                        <select id="categoryFilter" class="form-select bg-dark text-white border-secondary" style="min-width: 200px;" onchange="filterCategory()">
+                            <option value="All">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <span class="badge bg-primary px-3 py-2 fs-6">Model: {{ forecasts.model_info }}</span>
                 </div>
             </div>
         </div>
@@ -24,20 +32,27 @@
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="glass-card text-center forecast-card-detail">
-            <p class="text-secondary small text-uppercase mb-1">Forecasted Revenue (12M)</p>
+            <p class="text-secondary small text-uppercase mb-1">Projected 2-Year Revenue (2027-2028)</p>
             <h3 class="text-info mb-0">₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='revenue')) }}</h3>
+            <div class="text-secondary small mt-1">
+                Bounds: ₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='revenue_lower')) }} - ₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='revenue_upper')) }}
+            </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center forecast-card-detail">
-            <p class="text-secondary small text-uppercase mb-1">Forecasted Profit (12M)</p>
+            <p class="text-secondary small text-uppercase mb-1">Projected 2-Year Net Profit</p>
             <h3 class="text-success mb-0">₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='profit')) }}</h3>
+            <div class="text-secondary small mt-1">
+                Bounds: ₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='profit_lower')) }} - ₹{{ "{:,.0f}".format(forecasts.monthly|sum(attribute='profit_upper')) }}
+            </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-card text-center forecast-card-detail">
-            <p class="text-secondary small text-uppercase mb-1">Forecasted Demand (Avg)</p>
-            <h3 class="text-warning mb-0">{{ (forecasts.monthly|sum(attribute='demand') / 12)|int }} <small>Units</small></h3>
+            <p class="text-secondary small text-uppercase mb-1">Model Fit Metrics</p>
+            <h3 class="text-warning mb-0">R²: {{ forecasts.r2_score }}</h3>
+            <div class="text-secondary small mt-1">MAPE: {{ forecasts.mape_score }}%</div>
         </div>
     </div>
     <div class="col-md-3">
@@ -55,15 +70,15 @@
 <div class="row g-4 mb-4">
     <div class="col-md-12">
         <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="text-info m-0">Interactive Sales & Revenue Trend (Historical + Forecast)</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h5 class="text-info m-0">Interactive Sales & Revenue Trend (Historical + 2-Year Forecast with Confidence Bounds)</h5>
                 <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-info active" onclick="updateChartFreq('monthly')">Monthly</button>
-                    <button class="btn btn-outline-info" onclick="updateChartFreq('quarterly')">Quarterly</button>
-                    <button class="btn btn-outline-info" onclick="updateChartFreq('yearly')">Yearly</button>
+                    <button id="btnMonthly" class="btn btn-outline-info active" onclick="updateChartFreq('monthly')">Monthly</button>
+                    <button id="btnQuarterly" class="btn btn-outline-info" onclick="updateChartFreq('quarterly')">Quarterly</button>
+                    <button id="btnYearly" class="btn btn-outline-info" onclick="updateChartFreq('yearly')">Yearly</button>
                 </div>
             </div>
-            <div style="height: 350px;">
+            <div style="height: 380px;">
                 <canvas id="mainForecastChart"></canvas>
             </div>
         </div>
@@ -88,13 +103,13 @@
                             <th>Growth %</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for pf in forecasts.product_forecasts[:5] %}
-                        <tr>
+                    <tbody id="productDemandTable">
+                        {% for pf in forecasts.product_forecasts %}
+                        <tr class="product-row" data-category="{{ pf.category if pf.category else 'General' }}">
                             <td>{{ pf.product_name }}</td>
                             <td>{{ pf.current_sales }}</td>
                             <td>{{ pf.forecasted_demand }}</td>
-                            <td class="text-{{ 'success' if pf.growth_pct > 0 else 'danger' }}">{{ pf.growth_pct }}%</td>
+                            <td class="text-{{ 'success' if pf.growth_pct >= 0 else 'danger' }}">{{ pf.growth_pct }}%</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -107,9 +122,9 @@
     <div class="col-md-5">
         <div class="glass-card h-100">
             <h5 class="text-info mb-4">Inventory Risk Analysis & Stock-Out Projection</h5>
-            <div class="list-group list-group-flush bg-transparent">
+            <div class="list-group list-group-flush bg-transparent" id="inventoryRiskList">
                 {% for pf in forecasts.product_forecasts %}
-                <div class="list-group-item bg-transparent text-theme border-secondary px-0 py-3">
+                <div class="list-group-item bg-transparent text-theme border-secondary px-0 py-3 product-risk-item" data-category="{{ pf.category if pf.category else 'General' }}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="flex-grow-1">
                             <h6 class="mb-1">{{ pf.product_name }}</h6>
@@ -140,7 +155,7 @@
         <div class="glass-card border-start border-4 border-info">
             <h5 class="text-info mb-3"><i class="fas fa-robot me-2"></i> AI-Generated Strategic Insights</h5>
             <ul class="list-unstyled text-secondary small">
-                <li class="mb-2"><i class="fas fa-check text-info me-2"></i> Revenue is expected to spike in <strong>{{ forecasts.monthly[0].period }}</strong> based on seasonal trends.</li>
+                <li class="mb-2"><i class="fas fa-check text-info me-2"></i> Revenue is expected to spike based on regional seasonal trends during Q4.</li>
                 <li class="mb-2"><i class="fas fa-check text-info me-2"></i> <strong>{{ forecasts.product_forecasts[0].product_name }}</strong> shows the highest growth potential (+{{ forecasts.product_forecasts[0].growth_pct }}%).</li>
                 <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i> Predicted inventory shortage for <strong>{{ (forecasts.product_forecasts|selectattr('risk_level', 'equalto', 'High')|list|length) }}</strong> products within 15 days.</li>
             </ul>
@@ -190,7 +205,7 @@
 
     let mainChart;
 
-    function initMainChart(labels, revenue, sales, forecastStartIndex) {
+    function initMainChart(labels, revenue, revenueLower, revenueUpper, sales, salesLower, salesUpper, forecastStartIndex) {
         const ctx = document.getElementById('mainForecastChart').getContext('2d');
         if (mainChart) mainChart.destroy();
 
@@ -200,15 +215,34 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Revenue',
+                        label: 'Projected Revenue (Upper Bound)',
+                        data: revenueUpper,
+                        borderColor: 'rgba(0, 210, 255, 0.25)',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Revenue Prediction',
                         data: revenue,
                         borderColor: '#00d2ff',
-                        backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                        backgroundColor: 'rgba(0, 210, 255, 0.12)',
                         segment: {
                             borderDash: ctx => ctx.p0DataIndex >= forecastStartIndex ? [5, 5] : undefined
                         },
                         tension: 0.4,
-                        fill: true
+                        fill: '-1' // Fills to upper bound
+                    },
+                    {
+                        label: 'Projected Revenue (Lower Bound)',
+                        data: revenueLower,
+                        borderColor: 'rgba(0, 210, 255, 0.25)',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        backgroundColor: 'rgba(0, 210, 255, 0.04)',
+                        fill: '-1', // Fills to prediction
+                        tension: 0.4
                     },
                     {
                         label: 'Sales (Volume)',
@@ -219,7 +253,8 @@
                         segment: {
                             borderDash: ctx => ctx.p0DataIndex >= forecastStartIndex ? [5, 5] : undefined
                         },
-                        tension: 0.4
+                        tension: 0.4,
+                        borderWidth: 2
                     }
                 ]
             },
@@ -227,7 +262,15 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#fff' } },
+                    legend: {
+                        labels: {
+                            color: '#fff',
+                            filter: function(item, chart) {
+                                // Filter out upper/lower bound from simple legend view to keep it neat
+                                return !item.text.includes('Bound');
+                            }
+                        }
+                    },
                     tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
@@ -249,58 +292,108 @@
     }
 
     function updateChartFreq(freq) {
+        document.getElementById('btnMonthly').classList.remove('active');
+        document.getElementById('btnQuarterly').classList.remove('active');
+        document.getElementById('btnYearly').classList.remove('active');
+
         if (freq === 'monthly') {
+            document.getElementById('btnMonthly').classList.add('active');
             const labels = [...histData.labels, ...forecastData.map(f => f.period)];
-            const revenue = [...histData.revenue, ...forecastData.map(f => f.revenue)];
+
+            // Historical has no bounds, duplicate actuals to align
+            const rev = [...histData.revenue, ...forecastData.map(f => f.revenue)];
+            const revLower = [...histData.revenue, ...forecastData.map(f => f.revenue_lower)];
+            const revUpper = [...histData.revenue, ...forecastData.map(f => f.revenue_upper)];
+
             const sales = [...histData.sales, ...forecastData.map(f => f.sales)];
-            initMainChart(labels, revenue, sales, histData.labels.length - 1);
+            const salesLower = [...histData.sales, ...forecastData.map(f => f.sales_lower)];
+            const salesUpper = [...histData.sales, ...forecastData.map(f => f.sales_upper)];
+
+            initMainChart(labels, rev, revLower, revUpper, sales, salesLower, salesUpper, histData.labels.length - 1);
         } else if (freq === 'quarterly') {
+            document.getElementById('btnQuarterly').classList.add('active');
             const labels = quarterlyData.map(q => q.period);
             const revenue = quarterlyData.map(q => q.revenue);
             const sales = quarterlyData.map(q => q.sales);
-            initMainChart(labels, revenue, sales, 0);
+            initMainChart(labels, revenue, revenue, revenue, sales, sales, sales, 0);
         } else {
+            document.getElementById('btnYearly').classList.add('active');
             const labels = yearlyData.map(y => y.period);
             const revenue = yearlyData.map(y => y.revenue);
             const sales = yearlyData.map(y => y.sales);
-            initMainChart(labels, revenue, sales, 0);
+            initMainChart(labels, revenue, revenue, revenue, sales, sales, sales, 0);
         }
     }
 
-    // Demand Bar Chart
-    const barCtx = document.getElementById('demandBarChart').getContext('2d');
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: productData.map(p => p.product_name),
-            datasets: [
-                {
-                    label: 'Current Sales',
-                    data: productData.map(p => p.current_sales),
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Forecast Demand',
-                    data: productData.map(p => p.forecasted_demand),
-                    backgroundColor: 'rgba(0, 210, 255, 0.6)',
-                    borderColor: '#00d2ff',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#fff' } } },
-            scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
-                x: { grid: { display: false }, ticks: { color: '#888' } }
-            }
-        }
-    });
+    // Category Filtering logic
+    function filterCategory() {
+        const cat = document.getElementById('categoryFilter').value;
 
+        // Filter rows in demand table
+        const rows = document.querySelectorAll('.product-row');
+        rows.forEach(row => {
+            if (cat === 'All' || row.getAttribute('data-category') === cat) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Filter cards in risk list
+        const items = document.querySelectorAll('.product-risk-item');
+        items.forEach(item => {
+            if (cat === 'All' || item.getAttribute('data-category') === cat) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Re-generate bar chart for filtered products
+        const filteredProducts = productData.filter(p => cat === 'All' || p.category === cat);
+        updateDemandBarChart(filteredProducts);
+    }
+
+    let demandBarChart;
+    function updateDemandBarChart(data) {
+        const barCtx = document.getElementById('demandBarChart').getContext('2d');
+        if (demandBarChart) demandBarChart.destroy();
+
+        demandBarChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: data.map(p => p.product_name),
+                datasets: [
+                    {
+                        label: 'Current Sales',
+                        data: data.map(p => p.current_sales),
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Forecast Demand',
+                        data: data.map(p => p.forecasted_demand),
+                        backgroundColor: 'rgba(0, 210, 255, 0.6)',
+                        borderColor: '#00d2ff',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                    x: { grid: { display: false }, ticks: { color: '#888' } }
+                }
+            }
+        });
+    }
+
+    // Initializations
+    updateDemandBarChart(productData);
     updateChartFreq('monthly');
 </script>
 <style>

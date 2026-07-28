@@ -405,97 +405,140 @@ body, .glass-card, .sidebar, .topnav, .form-control, .form-select, .table, td, t
     color: var(--text-secondary) !important;
 }
 
-/* GLOBAL BUTTON GREEN OVERRIDES (EXCLUDING ALERTS AND CLOSE BUTTONS) */
+/* STANDARDIZED ENTERPRISE THEME COLOR MAPPINGS for BUTTONS & ACTIONS */
 
-/* 1. Solid Buttons (forced to sleek emerald green) */
-.btn-primary,
-.btn-secondary,
-.btn-success,
-.btn-warning,
-.btn-danger,
-.btn-info,
-.btn-light,
-.btn-dark,
-.btn-neon,
-.btn-premium {
-    background-color: #10B981 !important;
-    background-image: none !important;
-    color: #FFFFFF !important;
-    border-color: #10B981 !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
-    text-shadow: none !important;
-    transition: all 0.2s ease !important;
+/* General Button Transitions */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.25s ease !important;
+    border-width: 1px;
 }
 
-.btn-primary:hover,
-.btn-secondary:hover,
-.btn-success:hover,
-.btn-warning:hover,
-.btn-danger:hover,
-.btn-info:hover,
-.btn-light:hover,
-.btn-dark:hover,
-.btn-neon:hover,
-.btn-premium:hover {
+/* Class-based Button Color Styling Rules (Enforcing contrast compliance) */
+
+/* 1. GREEN -> SAVE / ACTIVE / ACTIVATE / SUBMIT */
+.btn-success, .btn-active, .btn-activate, .btn-neon {
+    background-color: #10B981 !important;
+    color: #FFFFFF !important;
+    border-color: #10B981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
+}
+.btn-success:hover, .btn-active:hover, .btn-activate:hover, .btn-neon:hover {
     background-color: #059669 !important;
     border-color: #059669 !important;
     color: #FFFFFF !important;
-    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4) !important;
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.3) !important;
+    transform: translateY(-1px);
 }
-
-/* 2. Outline Buttons (hollow green design with transparent backgrounds) */
-.btn-outline-primary,
-.btn-outline-secondary,
-.btn-outline-info,
-.btn-outline-warning,
-.btn-outline-danger,
-.btn-outline-success,
-.btn-outline-light,
-.btn-outline-dark,
-.btn-outline-premium {
+.btn-outline-success {
     background-color: transparent !important;
     color: #10B981 !important;
     border: 1px solid #10B981 !important;
-    box-shadow: none !important;
-    transition: all 0.2s ease !important;
 }
-
-.btn-outline-primary:hover,
-.btn-outline-secondary:hover,
-.btn-outline-info:hover,
-.btn-outline-warning:hover,
-.btn-outline-danger:hover,
-.btn-outline-success:hover,
-.btn-outline-light:hover,
-.btn-outline-dark:hover,
-.btn-outline-premium:hover,
-.btn-outline-primary.active,
-.btn-outline-secondary.active,
-.btn-outline-info.active,
-.btn-outline-warning.active,
-.btn-outline-danger.active,
-.btn-outline-success.active,
-.btn-outline-light.active,
-.btn-outline-dark.active,
-.btn-outline-premium.active {
+.btn-outline-success:hover, .btn-outline-success.active {
     background-color: #10B981 !important;
     color: #FFFFFF !important;
     border-color: #10B981 !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
 }
 
-/* 3. General Fallback Button overrides (safely excluding close alerts and links) */
-.btn:not(.btn-close):not(.btn-link):not([class*="btn-outline-"]) {
-    background-color: #10B981 !important;
-    background-image: none !important;
+/* 2. BLUE -> EDIT / UPLOAD IMAGE / ANALYZE / PROCESS / PROCEED / DETAILS / RESET */
+.btn-primary, .btn-edit, .btn-info, .btn-premium {
+    background-color: #2563EB !important;
     color: #FFFFFF !important;
-    border-color: #10B981 !important;
-    transition: all 0.2s ease !important;
+    border-color: #2563EB !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+}
+.btn-primary:hover, .btn-edit:hover, .btn-info:hover, .btn-premium:hover {
+    background-color: #1D4ED8 !important;
+    border-color: #1D4ED8 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 6px 18px rgba(29, 78, 216, 0.3) !important;
+    transform: translateY(-1px);
+}
+.btn-outline-primary, .btn-outline-info {
+    background-color: transparent !important;
+    color: #3B82F6 !important;
+    border: 1px solid #3B82F6 !important;
+}
+.btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-primary.active, .btn-outline-info.active {
+    background-color: #2563EB !important;
+    color: #FFFFFF !important;
+    border-color: #2563EB !important;
 }
 
-.btn:not(.btn-close):not(.btn-link):not([class*="btn-outline-"]):hover {
-    background-color: #059669 !important;
-    border-color: #059669 !important;
+/* 3. YELLOW/ORANGE -> UPDATE / SYNC / STRATEGIC CHANGE */
+.btn-warning, .btn-update {
+    background-color: #F59E0B !important;
+    color: #1F2937 !important;
+    border-color: #F59E0B !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15) !important;
+}
+.btn-warning:hover, .btn-update:hover {
+    background-color: #D97706 !important;
+    border-color: #D97706 !important;
     color: #FFFFFF !important;
-    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4) !important;
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.3) !important;
+    transform: translateY(-1px);
+}
+.btn-outline-warning {
+    background-color: transparent !important;
+    color: #F59E0B !important;
+    border: 1px solid #F59E0B !important;
+}
+.btn-outline-warning:hover, .btn-outline-warning.active {
+    background-color: #F59E0B !important;
+    color: #1F2937 !important;
+    border-color: #F59E0B !important;
+}
+
+/* 4. RED -> DELETE / DEACTIVATE */
+.btn-danger, .btn-delete, .btn-deactivate {
+    background-color: #EF4444 !important;
+    color: #FFFFFF !important;
+    border-color: #EF4444 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+}
+.btn-danger:hover, .btn-delete:hover, .btn-deactivate:hover {
+    background-color: #DC2626 !important;
+    border-color: #DC2626 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.3) !important;
+    transform: translateY(-1px);
+}
+.btn-outline-danger {
+    background-color: transparent !important;
+    color: #EF4444 !important;
+    border: 1px solid #EF4444 !important;
+}
+.btn-outline-danger:hover, .btn-outline-danger.active {
+    background-color: #EF4444 !important;
+    color: #FFFFFF !important;
+    border-color: #EF4444 !important;
+}
+
+/* 5. GRAY -> INACTIVE / CANCEL / BACK / CLOSE */
+.btn-secondary, .btn-inactive, .btn-light, .btn-dark, .btn-close-alert {
+    background-color: #6B7280 !important;
+    color: #FFFFFF !important;
+    border-color: #6B7280 !important;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15) !important;
+}
+.btn-secondary:hover, .btn-inactive:hover, .btn-light:hover, .btn-dark:hover, .btn-close-alert:hover {
+    background-color: #4B5563 !important;
+    border-color: #4B5563 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 6px 18px rgba(75, 85, 99, 0.3) !important;
+    transform: translateY(-1px);
+}
+.btn-outline-secondary {
+    background-color: transparent !important;
+    color: #9CA3AF !important;
+    border: 1px solid #9CA3AF !important;
+}
+.btn-outline-secondary:hover, .btn-outline-secondary.active {
+    background-color: #6B7280 !important;
+    color: #FFFFFF !important;
+    border-color: #6B7280 !important;
 }

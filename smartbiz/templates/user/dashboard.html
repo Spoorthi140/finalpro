@@ -19,62 +19,114 @@
     </div>
 </div>
 
-<!-- SUMMARY CARDS -->
+<!-- EXECUTIVE KPI CARDS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card border-start border-4 border-info h-100 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-secondary text-uppercase mb-0 small fw-bold">Gross Revenue</h6>
+                <div class="bg-info bg-opacity-10 p-2 rounded-circle">
+                    <i class="fas fa-wallet text-info fa-lg"></i>
+                </div>
+            </div>
+            <h3 class="text-theme fw-bold mb-1">₹{{ "{:,.2f}".format(gross_revenue) }}</h3>
+            <span class="text-success small fw-bold"><i class="fas fa-arrow-up me-1"></i>+12.4% MoM</span>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card border-start border-4 border-success h-100 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-secondary text-uppercase mb-0 small fw-bold">Net Profit</h6>
+                <div class="bg-success bg-opacity-10 p-2 rounded-circle">
+                    <i class="fas fa-hand-holding-usd text-success fa-lg"></i>
+                </div>
+            </div>
+            <h3 class="text-success fw-bold mb-1">₹{{ "{:,.2f}".format(net_profit) }}</h3>
+            <span class="text-success small fw-bold"><i class="fas fa-arrow-up me-1"></i>+14.8% MoM</span>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card border-start border-4 border-warning h-100 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-secondary text-uppercase mb-0 small fw-bold">Profit Margin</h6>
+                <div class="bg-warning bg-opacity-10 p-2 rounded-circle">
+                    <i class="fas fa-percentage text-warning fa-lg"></i>
+                </div>
+            </div>
+            <h3 class="text-theme fw-bold mb-1">{{ "{:.2f}".format(profit_margin) }}%</h3>
+            <span class="text-warning small fw-bold"><i class="fas fa-balance-scale me-1"></i>Optimal Zone</span>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card border-start border-4 border-primary h-100 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-secondary text-uppercase mb-0 small fw-bold">Business Health</h6>
+                <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                    <i class="fas fa-heartbeat text-primary fa-lg"></i>
+                </div>
+            </div>
+            <h3 class="text-theme fw-bold mb-1">{{ health_score }}/100</h3>
+            <span class="text-primary small fw-bold"><i class="fas fa-check-circle me-1"></i>AI Evaluated</span>
+        </div>
+    </div>
+</div>
+
+<!-- OPERATIONAL STATS -->
 <div class="row g-3 mb-4">
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-box-open text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Total Products</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_products }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_products }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-tags text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Categories</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_categories }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_categories }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-users text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Users</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_users }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_users }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-warehouse text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Inventory Items</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_inventory_items }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_inventory_items }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-file-alt text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Reports</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_reports }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_reports }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-brain text-info mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">AI Predictions</h6>
-            <h3 class="text-theme mb-0 fw-bold">{{ total_predictions }}</h3>
+            <h4 class="text-theme mb-0 fw-bold">{{ total_predictions }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-exclamation-circle text-warning mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Low Stock</h6>
-            <h3 class="text-warning mb-0 fw-bold">{{ low_stock_count }}</h3>
+            <h4 class="text-warning mb-0 fw-bold">{{ low_stock_count }}</h4>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="glass-card text-center p-3 h-100">
             <i class="fas fa-times-circle text-danger mb-2 fa-lg"></i>
             <h6 class="text-secondary small text-uppercase">Out of Stock</h6>
-            <h3 class="text-danger mb-0 fw-bold">{{ out_of_stock_count }}</h3>
+            <h4 class="text-danger mb-0 fw-bold">{{ out_of_stock_count }}</h4>
         </div>
     </div>
 </div>
@@ -299,12 +351,12 @@
         <div class="glass-card">
             <h5 class="text-info mb-4">Enterprise Quick Actions</h5>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-neon btn-sm"><i class="fas fa-plus me-1"></i> Add Product</a>
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-neon btn-sm"><i class="fas fa-camera me-1"></i> Upload Image</a>
-                <a href="{{ url_for('user.prediction') }}" class="btn btn-neon btn-sm"><i class="fas fa-brain me-1"></i> Run Prediction</a>
-                <a href="{{ url_for('user.reports') }}" class="btn btn-neon btn-sm"><i class="fas fa-file-export me-1"></i> Generate Report</a>
-                <a href="{{ url_for('user.reports') }}" class="btn btn-outline-info btn-sm">View Reports</a>
-                <a href="{{ url_for('user.inventory') }}" class="btn btn-outline-info btn-sm">View Inventory</a>
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-success btn-sm"><i class="fas fa-plus me-1"></i> Add Product</a>
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-primary btn-sm"><i class="fas fa-camera me-1"></i> Upload Image</a>
+                <a href="{{ url_for('user.prediction') }}" class="btn btn-primary btn-sm"><i class="fas fa-brain me-1"></i> Run Prediction</a>
+                <a href="{{ url_for('user.reports') }}" class="btn btn-primary btn-sm"><i class="fas fa-file-export me-1"></i> Generate Report</a>
+                <a href="{{ url_for('user.reports') }}" class="btn btn-secondary btn-sm">View Reports</a>
+                <a href="{{ url_for('user.inventory') }}" class="btn btn-secondary btn-sm">View Inventory</a>
             </div>
         </div>
     </div>

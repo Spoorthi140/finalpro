@@ -29,7 +29,7 @@ def test_generate_forecasts_logic():
     assert 'quarterly' in forecasts
     assert 'yearly' in forecasts
     assert 'product_forecasts' in forecasts
-    assert len(forecasts['monthly']) == 12
+    assert len(forecasts['monthly']) == 24
     assert forecasts['confidence_score'] > 0
     assert forecasts['monthly'][0]['revenue'] > 0
     assert forecasts['product_forecasts'][0]['product_name'] == "Test Product"

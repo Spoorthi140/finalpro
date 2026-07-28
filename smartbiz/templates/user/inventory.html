@@ -16,18 +16,67 @@
 
     <!-- MAIN TWO-COLUMN WORKFLOW -->
     <div class="col-lg-6">
-        <!-- STEP 1: UPLOAD PANEL ONLY -->
+        <!-- STEP 1: UPLOAD & SAMPLE SELECTION PANEL -->
         <div class="glass-card mb-4">
-            <h5 class="text-info mb-3"><i class="fas fa-file-upload me-2"></i>Step 1: Upload Warehouse Image</h5>
+            <h5 class="text-info mb-3"><i class="fas fa-file-upload me-2"></i>Step 1: Select or Upload Warehouse Image</h5>
 
-            <div class="border border-secondary border-dashed rounded p-5 text-center" id="dropZone" style="cursor: pointer; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="document.getElementById('inventoryFile').click()">
+            <!-- Drag & Drop Zone -->
+            <div class="border border-secondary border-dashed rounded p-4 text-center mb-4" id="dropZone" style="cursor: pointer; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.02);" onclick="handleDropZoneClick()">
                 <div>
-                    <i class="fas fa-cloud-upload-alt fa-3x text-secondary mb-3 d-block"></i>
-                    <h6 class="text-theme">Drag & Drop Warehouse Image</h6>
+                    <i class="fas fa-cloud-upload-alt fa-3x text-secondary mb-3 d-block" id="uploadIcon"></i>
+                    <h6 class="text-theme" id="uploadText">Drag & Drop Warehouse Image</h6>
                     <p class="xx-small text-secondary mb-3">Supports JPG, PNG, WEBP (Max 10MB)</p>
                     <input type="file" id="inventoryFile" class="d-none" accept="image/*">
-                    <button class="btn btn-primary btn-sm px-4 py-2">Browse Local Files</button>
+                    <button class="btn btn-primary btn-sm px-4 py-2" id="browseBtn"><i class="fas fa-search me-1"></i>Browse Local Files</button>
                 </div>
+            </div>
+
+            <!-- Sample Images Section -->
+            <h6 class="text-secondary small fw-bold mb-3">OR SELECT A SAMPLE WAREHOUSE IMAGE</h6>
+            <div class="row g-2" id="sampleImagesContainer">
+                <div class="col-6 col-md-3">
+                    <div class="card bg-dark border-secondary h-100 sample-card cursor-pointer" onclick="selectSample('sample1.jpg', 1)" id="sample-1" style="cursor: pointer; transition: all 0.2s;">
+                        <img src="/static/sample_images/sample1.jpg" class="card-img-top" style="height: 60px; object-fit: cover;" alt="Sample 1">
+                        <div class="card-body p-2 text-center">
+                            <span class="xx-small text-theme fw-bold d-block">Sample 1</span>
+                            <span class="text-secondary xx-small">5 Boxes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card bg-dark border-secondary h-100 sample-card cursor-pointer" onclick="selectSample('sample2.jpg', 2)" id="sample-2" style="cursor: pointer; transition: all 0.2s;">
+                        <img src="/static/sample_images/sample2.jpg" class="card-img-top" style="height: 60px; object-fit: cover;" alt="Sample 2">
+                        <div class="card-body p-2 text-center">
+                            <span class="xx-small text-theme fw-bold d-block">Sample 2</span>
+                            <span class="text-secondary xx-small">8 Boxes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card bg-dark border-secondary h-100 sample-card cursor-pointer" onclick="selectSample('sample3.jpg', 3)" id="sample-3" style="cursor: pointer; transition: all 0.2s;">
+                        <img src="/static/sample_images/sample3.jpg" class="card-img-top" style="height: 60px; object-fit: cover;" alt="Sample 3">
+                        <div class="card-body p-2 text-center">
+                            <span class="xx-small text-theme fw-bold d-block">Sample 3</span>
+                            <span class="text-secondary xx-small">12 Boxes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card bg-dark border-secondary h-100 sample-card cursor-pointer" onclick="selectSample('sample4.jpg', 4)" id="sample-4" style="cursor: pointer; transition: all 0.2s;">
+                        <img src="/static/sample_images/sample4.jpg" class="card-img-top" style="height: 60px; object-fit: cover;" alt="Sample 4">
+                        <div class="card-body p-2 text-center">
+                            <span class="xx-small text-theme fw-bold d-block">Sample 4</span>
+                            <span class="text-secondary xx-small">15 Boxes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Source Image Preview (Before Detection) -->
+            <div id="sourcePreviewContainer" class="mt-4 d-none border border-secondary border-opacity-30 rounded p-2 text-center bg-dark bg-opacity-40">
+                <span class="text-secondary xx-small d-block mb-2 text-uppercase fw-bold">Source Image Selected</span>
+                <img id="sourcePreviewImg" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: contain;">
+                <button id="analyzeBtn" onclick="triggerDetection()" class="btn btn-primary w-100 py-2 fw-bold"><i class="fas fa-brain me-1"></i> Analyze Image</button>
             </div>
         </div>
 
@@ -61,20 +110,65 @@
             <div>
                 <h5 class="text-info mb-3"><i class="fas fa-eye me-2"></i>Step 2: Detection and Save</h5>
 
-                <!-- Dynamic Detection Success Notification -->
-                <div id="save-success-alert" class="alert bg-success bg-opacity-10 border border-success border-opacity-30 text-success d-none mb-3 p-3" role="alert" style="border-radius: 10px;">
-                    <h6 class="fw-bold mb-1"><i class="fas fa-check-circle me-1"></i> Stock Updated Successfully!</h6>
-                    <p class="mb-0 small">
-                        Product: <strong id="success-product-name">Product Name</strong><br>
-                        Previous Stock: <strong id="success-prev-stock">0</strong> units<br>
-                        Detected Boxes added: <strong id="success-detected-qty">0</strong> units<br>
-                        New Stock: <strong id="success-new-stock">0</strong> units
-                    </p>
+                <!-- Dynamic Detection Success Notification Summary Alert -->
+                <div id="save-success-alert" class="alert bg-success bg-opacity-15 border border-success border-opacity-40 text-success d-none mb-4 p-4 shadow" role="alert" style="border-radius: 12px;">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-check-circle me-1 text-success"></i> Stock Updated Successfully!</h5>
+
+                    <div class="row g-3">
+                        <div class="col-12 border-bottom border-success border-opacity-20 pb-2 mb-2">
+                            <h6 class="xx-small text-secondary text-uppercase fw-bold mb-1">Detection Summary</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small fw-bold text-theme" id="summary-product-name">Wireless Headset</span>
+                                <span class="badge bg-success text-dark fw-bold" id="summary-timestamp">Just Now</span>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-4">
+                            <small class="xx-small text-secondary d-block text-uppercase">Image Name</small>
+                            <span class="small text-theme fw-semibold text-truncate d-block" style="max-width: 140px;" id="summary-img-name">--</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="xx-small text-secondary d-block text-uppercase">Boxes Counted</small>
+                            <span class="small text-theme fw-semibold" id="summary-boxes-count">0</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="xx-small text-secondary d-block text-uppercase">Processing Time</small>
+                            <span class="small text-theme fw-semibold" id="summary-proc-time">0ms</span>
+                        </div>
+
+                        <div class="col-4 border-top border-success border-opacity-20 pt-2">
+                            <small class="xx-small text-secondary d-block text-uppercase">Previous Stock</small>
+                            <span class="small text-warning fw-bold" id="summary-prev-stock">0 units</span>
+                        </div>
+                        <div class="col-4 border-top border-success border-opacity-20 pt-2">
+                            <small class="xx-small text-secondary d-block text-uppercase">Added Qty</small>
+                            <span class="small text-info fw-bold" id="summary-added-qty">+0 units</span>
+                        </div>
+                        <div class="col-4 border-top border-success border-opacity-20 pt-2">
+                            <small class="xx-small text-secondary d-block text-uppercase">Updated Stock</small>
+                            <span class="small text-success fw-bold" id="summary-new-stock">0 units</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Progress Loading Indicator -->
+                <div id="analysisLoader" class="text-center p-5 border border-secondary border-opacity-10 rounded d-none flex-column align-items-center justify-content-center" style="min-height: 250px;">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Analyzing Image...</span>
+                    </div>
+                    <p class="text-primary fw-bold mb-1">AI Counter Active</p>
+                    <p class="text-secondary xx-small">Executing SAHI object detection pipeline to locate carton boxes...</p>
+                </div>
+
+                <!-- Error Messages Box -->
+                <div id="errorAlert" class="alert bg-danger bg-opacity-10 border border-danger border-opacity-30 text-danger d-none p-3 mb-3" style="border-radius: 10px;">
+                    <h6 class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-1"></i> Analysis Failed</h6>
+                    <p class="mb-0 small" id="errorMsg">--</p>
                 </div>
 
                 <div id="detectionPlaceholder" class="text-center p-5 border border-secondary border-opacity-10 rounded d-flex flex-column align-items-center justify-content-center" style="min-height: 250px;">
                     <i class="fas fa-image fa-3x text-secondary opacity-25 mb-3"></i>
-                    <p class="text-secondary small mb-0">Submit an image to execute AI carton counting pipeline.</p>
+                    <p class="text-secondary small mb-0 text-center">Select a sample or upload a custom image and click "Analyze Image" to execute box counting pipeline.</p>
                 </div>
 
                 <div id="detectionResult" class="d-none">
@@ -135,12 +229,35 @@
 <style>
     .xx-small { font-size: 0.65rem; }
     .border-dashed { border-style: dashed !important; }
+    .sample-card { border-width: 2px !important; }
+    .sample-card:hover { transform: translateY(-3px); border-color: var(--bs-primary) !important; }
+    .sample-card.active { border-color: var(--bs-primary) !important; background: rgba(var(--bs-primary-rgb), 0.15) !important; }
+
+    /* Ensure proper Light and Dark mode contrast */
+    body.light-mode .text-theme { color: #212529 !important; }
+    body.light-mode .sample-card { background-color: #ffffff !important; color: #212529 !important; }
+    body.light-mode .bg-dark { background-color: #f8f9fa !important; }
+    body.light-mode .border-secondary { border-color: #dee2e6 !important; }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     let lastBoxCount = 0;
+    let selectedImageBase64 = null;
+    let selectedSampleFilename = null;
+
+    // Summary Variables
+    let currentImageName = "";
+    let currentBoxesDetected = 0;
+    let currentProcessingTime = 0;
+    let currentAnalysisTimestamp = "";
+    let isProcessing = false;
+
+    function handleDropZoneClick() {
+        if (isProcessing) return;
+        document.getElementById('inventoryFile').click();
+    }
 
     // Searchable Select filter logic
     function filterProducts() {
@@ -158,29 +275,56 @@
         }
     }
 
+    // Process sample selection
+    function selectSample(filename, id) {
+        if (isProcessing) return;
+        selectedImageBase64 = null;
+        selectedSampleFilename = filename;
+        currentImageName = filename;
+
+        // Visual highlights
+        document.querySelectorAll('.sample-card').forEach(card => card.classList.remove('active'));
+        document.getElementById(`sample-${id}`).classList.add('active');
+
+        // Update Source Preview
+        document.getElementById('sourcePreviewContainer').classList.remove('d-none');
+        document.getElementById('sourcePreviewImg').src = `/static/sample_images/${filename}`;
+
+        // Hide previous detection results or placeholders
+        document.getElementById('detectionResult').classList.add('d-none');
+        document.getElementById('detectionPlaceholder').classList.remove('d-none');
+        document.getElementById('save-success-alert').classList.add('d-none');
+        document.getElementById('errorAlert').classList.add('d-none');
+        document.getElementById('saveInventoryBtn').classList.add('d-none');
+    }
+
     // Process Drag & Drop
     const dropZone = document.getElementById('dropZone');
     if (dropZone) {
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, e => {
                 e.preventDefault();
+                if (isProcessing) return;
                 dropZone.classList.add('border-primary');
             }, false);
         });
         ['dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, e => {
                 e.preventDefault();
+                if (isProcessing) return;
                 dropZone.classList.remove('border-primary');
             }, false);
         });
         dropZone.addEventListener('drop', e => {
             const dt = e.dataTransfer;
             const files = dt.files;
+            if (isProcessing) return;
             if (files.length) {
                 const reader = new FileReader();
+                currentImageName = files[0].name;
                 reader.readAsDataURL(files[0]);
                 reader.onloadend = () => {
-                    processInventoryImage(reader.result);
+                    handleLocalImageLoad(reader.result);
                 };
             }
         });
@@ -188,40 +332,95 @@
 
     // Process file browsing
     document.getElementById('inventoryFile').addEventListener('change', function() {
+        if (isProcessing) return;
         if (this.files && this.files[0]) {
             const reader = new FileReader();
+            currentImageName = this.files[0].name;
             reader.readAsDataURL(this.files[0]);
             reader.onloadend = () => {
-                processInventoryImage(reader.result);
+                handleLocalImageLoad(reader.result);
             };
         }
     });
 
-    // General image processing helper (webcam base64 or upload)
-    function processInventoryImage(base64Image) {
-        showLoadingState();
-        const formData = new FormData();
-        // Extract base64 part
-        const parts = base64Image.split(',');
-        const blob = base64ToBlob(parts[1], 'image/jpeg');
-        formData.append('file', blob, 'upload_image.jpg');
+    function handleLocalImageLoad(base64Image) {
+        selectedImageBase64 = base64Image;
+        selectedSampleFilename = null;
 
-        fetch('/inventory/detect', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token() }}'
-            },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            displayDetectionResult(data);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error executing box counting pipeline.");
-            hideLoadingState();
-        });
+        // Visual highlights removal
+        document.querySelectorAll('.sample-card').forEach(card => card.classList.remove('active'));
+
+        // Update Source Preview
+        document.getElementById('sourcePreviewContainer').classList.remove('d-none');
+        document.getElementById('sourcePreviewImg').src = base64Image;
+
+        // Hide previous detection results or placeholders
+        document.getElementById('detectionResult').classList.add('d-none');
+        document.getElementById('detectionPlaceholder').classList.remove('d-none');
+        document.getElementById('save-success-alert').classList.add('d-none');
+        document.getElementById('errorAlert').classList.add('d-none');
+        document.getElementById('saveInventoryBtn').classList.add('d-none');
+    }
+
+    // Trigger AI detection pipeline based on currently loaded image
+    function triggerDetection() {
+        if (isProcessing) return;
+        if (!selectedImageBase64 && !selectedSampleFilename) {
+            alert("Please select a sample or upload a warehouse image first.");
+            return;
+        }
+
+        showLoadingState();
+
+        if (selectedSampleFilename) {
+            // Trigger sample detection endpoint
+            fetch('/inventory/detect_sample', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ filename: selectedSampleFilename })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    displayError(data.error);
+                } else {
+                    displayDetectionResult(data);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                displayError("Transmission error executing sample counting pipeline.");
+            });
+        } else {
+            // Trigger upload detection endpoint
+            const formData = new FormData();
+            const parts = selectedImageBase64.split(',');
+            const blob = base64ToBlob(parts[1], 'image/jpeg');
+            formData.append('file', blob, currentImageName);
+
+            fetch('/inventory/detect', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    displayError(data.error);
+                } else {
+                    displayDetectionResult(data);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                displayError("Transmission error executing uploaded image counting pipeline.");
+            });
+        }
     }
 
     // Helper: Convert base64 to Blob object
@@ -236,23 +435,51 @@
     }
 
     function showLoadingState() {
-        document.getElementById('detectionPlaceholder').classList.add('d-none');
-        document.getElementById('detectionResult').classList.remove('d-none');
-        document.getElementById('save-success-alert').classList.add('d-none');
+        isProcessing = true;
 
-        document.getElementById('annotatedPreview').style.opacity = '0.4';
-        document.getElementById('detCount').innerText = "...";
-        document.getElementById('detCurrentStock').innerText = "...";
-        document.getElementById('detUpdatedStock').innerText = "...";
+        // Disable UI buttons
+        document.getElementById('analyzeBtn').disabled = true;
+        document.getElementById('browseBtn').disabled = true;
+        document.getElementById('dropZone').style.opacity = '0.5';
+        document.getElementById('dropZone').style.cursor = 'not-allowed';
+        document.querySelectorAll('.sample-card').forEach(card => card.style.opacity = '0.5');
+
+        document.getElementById('detectionPlaceholder').classList.add('d-none');
+        document.getElementById('detectionResult').classList.add('d-none');
+        document.getElementById('analysisLoader').classList.remove('d-none');
+        document.getElementById('analysisLoader').classList.add('d-flex');
+        document.getElementById('save-success-alert').classList.add('d-none');
+        document.getElementById('errorAlert').classList.add('d-none');
+        document.getElementById('saveInventoryBtn').classList.add('d-none');
         document.getElementById('saveInventoryBtn').disabled = true;
     }
 
     function hideLoadingState() {
-        document.getElementById('detectionPlaceholder').classList.remove('d-none');
+        isProcessing = false;
+
+        // Re-enable UI buttons
+        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('browseBtn').disabled = false;
+        document.getElementById('dropZone').style.opacity = '1';
+        document.getElementById('dropZone').style.cursor = 'pointer';
+        document.querySelectorAll('.sample-card').forEach(card => card.style.opacity = '1');
+
+        document.getElementById('analysisLoader').classList.add('d-none');
+        document.getElementById('analysisLoader').classList.remove('d-flex');
+    }
+
+    function displayError(msg) {
+        hideLoadingState();
+        document.getElementById('detectionPlaceholder').classList.add('d-none');
         document.getElementById('detectionResult').classList.add('d-none');
+
+        const errorAlert = document.getElementById('errorAlert');
+        document.getElementById('errorMsg').innerText = msg;
+        errorAlert.classList.remove('d-none');
     }
 
     function displayDetectionResult(data) {
+        hideLoadingState();
         document.getElementById('detectionPlaceholder').classList.add('d-none');
         document.getElementById('detectionResult').classList.remove('d-none');
 
@@ -262,6 +489,12 @@
         document.getElementById('detTime').innerText = Math.round(data.proc_time) + "ms";
 
         lastBoxCount = data.count;
+
+        // Save summary state
+        currentBoxesDetected = data.count;
+        currentProcessingTime = Math.round(data.proc_time);
+        currentAnalysisTimestamp = new Date().toLocaleString();
+
         updateStockDisplay();
     }
 
@@ -282,6 +515,7 @@
             document.getElementById('detCurrentStock').innerText = "--";
             document.getElementById('detUpdatedStock').innerText = "--";
             saveBtn.disabled = true;
+            saveBtn.classList.add('d-none');
         }
     }
 
@@ -318,12 +552,18 @@
             saveBtn.disabled = false;
             saveBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Update Stock';
             if (data.success) {
-                // (8) Display a success message showing the previous stock, detected quantity, and new stock
+                // Display the comprehensive summary showing Image Name, Boxes Detected, Processing Time, Product Selected, Previous Stock, Added Quantity, Updated Stock, and Analysis Timestamp
                 const successAlert = document.getElementById('save-success-alert');
-                document.getElementById('success-product-name').innerText = productName;
-                document.getElementById('success-prev-stock').innerText = prevStock;
-                document.getElementById('success-detected-qty').innerText = lastBoxCount;
-                document.getElementById('success-new-stock').innerText = newStock;
+
+                document.getElementById('summary-product-name').innerText = productName;
+                document.getElementById('summary-timestamp').innerText = currentAnalysisTimestamp;
+                document.getElementById('summary-img-name').innerText = currentImageName || "custom_upload.jpg";
+                document.getElementById('summary-boxes-count').innerText = currentBoxesDetected;
+                document.getElementById('summary-proc-time').innerText = currentProcessingTime + "ms";
+
+                document.getElementById('summary-prev-stock').innerText = prevStock + " units";
+                document.getElementById('summary-added-qty').innerText = "+" + currentBoxesDetected + " units";
+                document.getElementById('summary-new-stock').innerText = newStock + " units";
 
                 successAlert.classList.remove('d-none');
                 successAlert.scrollIntoView({ behavior: 'smooth' });
@@ -338,7 +578,11 @@
                     stockValElement.innerText = `${newStock} units`;
                 }
 
-                updateStockDisplay();
+                // Reset/Hide result to force a fresh analysis or select
+                document.getElementById('detectionResult').classList.add('d-none');
+                document.getElementById('sourcePreviewContainer').classList.add('d-none');
+                document.querySelectorAll('.sample-card').forEach(card => card.classList.remove('active'));
+
             } else {
                 alert("Failed to save updated inventory stock level.");
             }
