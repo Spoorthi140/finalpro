@@ -668,90 +668,95 @@ def prediction():
         return redirect(url_for('user.upload'))
 
     if request.method == 'POST':
-        # AJAX outcome prediction
-        data = request.get_json() if request.is_json else request.form
-        price = float(data.get('price', 100.0))
-        marketing = float(data.get('marketing', 1000.0))
-        discount = float(data.get('discount', 0.0))
-        stock = float(data.get('stock', 100.0))
-        category = data.get('category', 'General')
-        region = data.get('region', 'North')
+        try:
+            # AJAX outcome prediction
+            data = request.get_json() if request.is_json else request.form
+            price = float(data.get('price', 100.0))
+            marketing = float(data.get('marketing', 1000.0))
+            discount = float(data.get('discount', 0.0))
+            stock = float(data.get('stock', 100.0))
+            category = data.get('category', 'General')
+            region = data.get('region', 'North')
 
-        # Get baselines
-        cur_sales = sum([p.sales for p in products if p.sales])
-        cur_revenue = sum([p.revenue for p in products if p.revenue])
-        cur_profit = sum([p.profit for p in products if p.profit])
-        cur_stock = sum([p.stock_quantity for p in products if p.stock_quantity])
+            # Get baselines
+            cur_sales = sum([p.sales for p in products if p.sales])
+            cur_revenue = sum([p.revenue for p in products if p.revenue])
+            cur_profit = sum([p.profit for p in products if p.profit])
+            cur_stock = sum([p.stock_quantity for p in products if p.stock_quantity])
 
-        # Baseline average values
-        avg_price = sum([p.price for p in products if p.price]) / len(products) if products else 100.0
-        avg_mkt = sum([p.marketing_spend for p in products if p.marketing_spend]) / len(products) if products else 1000.0
+            # Baseline average values
+            avg_price = sum([p.price for p in products if p.price]) / len(products) if products else 100.0
+            avg_mkt = sum([p.marketing_spend for p in products if p.marketing_spend]) / len(products) if products else 1000.0
 
-        # Calculate adjustments relative to current averages
-        price_delta = (price - avg_price) / avg_price if avg_price > 0 else 0.0
-        mkt_delta = (marketing - avg_mkt) / avg_mkt if avg_mkt > 0 else 0.0
+            # Calculate adjustments relative to current averages
+            price_delta = (price - avg_price) / avg_price if avg_price > 0 else 0.0
+            mkt_delta = (marketing - avg_mkt) / avg_mkt if avg_mkt > 0 else 0.0
 
-        # Run dynamic AI modeling predictions
-        sales_mult = (1.0 - 1.5 * price_delta) * (1.0 + 0.4 * mkt_delta) * (1.0 - 0.2 * (discount / 100.0)) * (1.0 + 0.1 * (stock / cur_stock if cur_stock > 0 else 1.0))
-        pred_sales = max(5.0, cur_sales * sales_mult / len(products)) # average per-product sales predicted
+            # Run dynamic AI modeling predictions
+            sales_mult = (1.0 - 1.5 * price_delta) * (1.0 + 0.4 * mkt_delta) * (1.0 - 0.2 * (discount / 100.0)) * (1.0 + 0.1 * (stock / cur_stock if cur_stock > 0 else 1.0))
+            pred_sales = max(5.0, cur_sales * sales_mult / len(products)) # average per-product sales predicted
 
-        pred_demand = max(5.0, pred_sales * 1.05)
-        predicted_revenue = pred_sales * price * (1.0 - discount / 100.0)
+            pred_demand = max(5.0, pred_sales * 1.05)
+            predicted_revenue = pred_sales * price * (1.0 - discount / 100.0)
 
-        # Profit calculations
-        cost_ratio = 0.65 # default cost of goods sold ratio
-        predicted_profit = max(0.0, predicted_revenue * (1.0 - cost_ratio) - (marketing * 0.1 / len(products)))
+            # Profit calculations
+            cost_ratio = 0.65 # default cost of goods sold ratio
+            predicted_profit = max(0.0, predicted_revenue * (1.0 - cost_ratio) - (marketing * 0.1 / len(products)))
 
-        required_inventory = max(0.0, pred_demand * 1.25)
-        avg_daily_sales = max(pred_sales / 30.0, 0.1)
-        stock_out_days = round(stock / avg_daily_sales, 1)
+            required_inventory = max(0.0, pred_demand * 1.25)
+            avg_daily_sales = max(pred_sales / 30.0, 0.1)
+            stock_out_days = round(stock / avg_daily_sales, 1)
 
-        expected_growth = round(((predicted_revenue - (cur_revenue / len(products))) / (cur_revenue / len(products)) * 100.0), 1) if cur_revenue > 0 else 12.5
+            expected_growth = round(((predicted_revenue - (cur_revenue / len(products))) / (cur_revenue / len(products)) * 100.0), 1) if cur_revenue > 0 else 12.5
 
-        # AI explanations synthesis
-        explain_revenue = f"Predicted revenue of ₹{predicted_revenue:,.2f} is heavily supported by the target region's pricing parameters and promotional campaign."
-        explain_price = f"A unit price of ₹{price:,.2f} combined with a {discount}% discount yields an optimized profit margin of {predicted_profit / predicted_revenue * 100.0 if predicted_revenue > 0 else 0.0:.1f}%."
-        explain_mkt = f"Your target marketing spend of ₹{marketing:,.2f} will efficiently capture regional demand with low diminishing returns."
-        explain_stock = f"Stock level of {stock:.0f} units results in a low stockout risk profile of {stock_out_days} days. replenishment threshold should trigger at 15 days."
-        explain_action = f"Proceed with launching {category} promotions targeting {region} region with a soft 5% introductory discount buffer."
+            # AI explanations synthesis
+            explain_revenue = f"Predicted revenue of ₹{predicted_revenue:,.2f} is heavily supported by the target region's pricing parameters and promotional campaign."
+            explain_price = f"A unit price of ₹{price:,.2f} combined with a {discount}% discount yields an optimized profit margin of {predicted_profit / predicted_revenue * 100.0 if predicted_revenue > 0 else 0.0:.1f}%."
+            explain_mkt = f"Your target marketing spend of ₹{marketing:,.2f} will efficiently capture regional demand with low diminishing returns."
+            explain_stock = f"Stock level of {stock:.0f} units results in a low stockout risk profile of {stock_out_days} days. replenishment threshold should trigger at 15 days."
+            explain_action = f"Proceed with launching {category} promotions targeting {region} region with a soft 5% introductory discount buffer."
 
-        # Add prediction log
-        db.session.add(Prediction(
-            product_id=products[0].id if products else 1,
-            predicted_sales=predicted_sales,
-            predicted_profit=predicted_profit,
-            stock_out_days=stock_out_days
-        ))
-        db.session.add(AuditLog(user_id=current_user.id, action=f"Generated Prediction for {category} ({region})", module="Prediction"))
-        db.session.commit()
+            # Add prediction log
+            db.session.add(Prediction(
+                product_id=products[0].id if products else 1,
+                predicted_sales=pred_sales,
+                predicted_profit=predicted_profit,
+                stock_out_days=stock_out_days
+            ))
+            db.session.add(AuditLog(user_id=current_user.id, action=f"Generated Prediction for {category} ({region})", module="Prediction"))
+            db.session.commit()
 
-        import datetime
-        return {
-            'success': True,
-            'predicted_revenue': round(predicted_revenue, 2),
-            'predicted_profit': round(predicted_profit, 2),
-            'predicted_sales': round(pred_sales),
-            'predicted_demand': round(pred_demand),
-            'required_inventory': round(required_inventory),
-            'stock_out_days': stock_out_days,
-            'expected_growth': expected_growth,
-            'prediction_confidence': 93.8,
+            import datetime
+            return {
+                'success': True,
+                'predicted_revenue': round(predicted_revenue, 2),
+                'predicted_profit': round(predicted_profit, 2),
+                'predicted_sales': round(pred_sales),
+                'predicted_demand': round(pred_demand),
+                'required_inventory': round(required_inventory),
+                'stock_out_days': stock_out_days,
+                'expected_growth': expected_growth,
+                'prediction_confidence': 93.8,
 
-            'cur_revenue': round(cur_revenue / len(products)),
-            'cur_profit': round(cur_profit / len(products)),
-            'cur_sales': round(cur_sales / len(products)),
-            'cur_stock': round(cur_stock / len(products)),
+                'cur_revenue': round(cur_revenue / len(products)),
+                'cur_profit': round(cur_profit / len(products)),
+                'cur_sales': round(cur_sales / len(products)),
+                'cur_stock': round(cur_stock / len(products)),
 
-            'explain_revenue': explain_revenue,
-            'explain_price': explain_price,
-            'explain_mkt': explain_mkt,
-            'explain_stock': explain_stock,
-            'explain_action': explain_action,
+                'explain_revenue': explain_revenue,
+                'explain_price': explain_price,
+                'explain_mkt': explain_mkt,
+                'explain_stock': explain_stock,
+                'explain_action': explain_action,
 
-            'model_used': "XGBoost + Random Forest Ensemble Model",
-            'prediction_accuracy': 94.8,
-            'last_prediction_time': datetime.datetime.now().strftime('%H:%M:%S')
-        }
+                'model_used': "XGBoost + Random Forest Ensemble Model",
+                'prediction_accuracy': 94.8,
+                'last_prediction_time': datetime.datetime.now().strftime('%H:%M:%S')
+            }
+        except Exception as ex:
+            current_app.logger.error(f"Prediction error: {str(ex)}")
+            db.session.rollback()
+            return {'success': False, 'error': 'A processing error occurred during prediction generation. Please ensure your inputs are valid.'}
 
     return render_template('user/prediction.html')
 
