@@ -1,118 +1,303 @@
 {% extends "base.html" %}
 
-{% block title %}Strategy Simulator - SmartBiz Enterprise{% endblock %}
+{% block title %}AI Strategy Simulator - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="glass-card mb-4">
-            <h4 class="text-info mb-4"><i class="fas fa-sliders-h me-2"></i> Strategy Inputs</h4>
-            <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="mb-4">
-                    <label class="form-label">Price Change (%)</label>
-                    <input type="range" name="price_change" class="form-range" min="-50" max="50" step="1" value="0" oninput="this.nextElementSibling.value = this.value + '%'">
-                    <output class="text-info fw-bold">0%</output>
+<!-- HEADER SECTION -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <h1 class="text-info fw-bold mb-1" style="font-size: 2rem; letter-spacing: -0.5px;"><i class="fas fa-magic me-2"></i> WHAT-IF STRATEGY SIMULATION CENTER</h1>
+                    <p class="text-secondary mb-0">Simulate potential business modifications. Real-time dynamic modeling predicts structural outcomes, trends, and risk distributions.</p>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label">Marketing Budget Change (%)</label>
-                    <input type="range" name="marketing_change" class="form-range" min="-50" max="100" step="5" value="0" oninput="this.nextElementSibling.value = this.value + '%'">
-                    <output class="text-info fw-bold">0%</output>
+                <div class="text-end">
+                    <button class="btn btn-warning text-dark btn-sm fw-bold" onclick="resetSliders()"><i class="fas fa-undo me-1"></i> Reset Baseline</button>
                 </div>
-                <button type="submit" class="btn btn-neon w-100">Run Simulation</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        {% if simulation %}
-        <div class="glass-card mb-4">
-            <h4 class="text-info mb-4"><i class="fas fa-project-diagram me-2"></i> Simulation Results</h4>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="p-3 border border-secondary rounded text-center">
-                        <small class="text-secondary d-block">Predicted Sales</small>
-                        <h3 class="mb-1">{{ simulation.simulated_sales }}</h3>
-                        <small class="text-{{ 'success' if simulation.sales_impact >= 0 else 'danger' }}">
-                            {{ simulation.sales_impact }}% impact
-                        </small>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 border border-secondary rounded text-center">
-                        <small class="text-secondary d-block">Predicted Revenue</small>
-                        <h3 class="mb-1">₹{{ "{:,.0f}".format(simulation.simulated_revenue) }}</h3>
-                        <small class="text-{{ 'success' if simulation.revenue_impact >= 0 else 'danger' }}">
-                            {{ simulation.revenue_impact }}% impact
-                        </small>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 border border-secondary rounded text-center">
-                        <small class="text-secondary d-block">Predicted Profit</small>
-                        <h3 class="mb-1">₹{{ "{:,.0f}".format(simulation.simulated_profit) }}</h3>
-                        <small class="text-{{ 'success' if simulation.profit_impact >= 0 else 'danger' }}">
-                            {{ simulation.profit_impact }}% impact
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-5">
-                <h5 class="text-info mb-4">Comparison: Current vs Simulated</h5>
-                <canvas id="simChart" height="150"></canvas>
-            </div>
-        </div>
-        {% else %}
-        <div class="glass-card d-flex align-items-center justify-content-center" style="height: 400px;">
-            <div class="text-center text-secondary">
-                <i class="fas fa-robot fa-3x mb-3"></i>
-                <p>Adjust inputs and click "Run Simulation" to see AI-driven business impact predictions.</p>
-            </div>
-        </div>
-        {% endif %}
-        <div class="row mt-4">
-            <div class="col-12 text-end">
-                <a href="{{ url_for('user.prediction') }}" class="btn btn-neon">Proceed to Prediction <i class="fas fa-arrow-right ms-2"></i></a>
             </div>
         </div>
     </div>
 </div>
+
+<div class="row g-4 mb-5">
+    <!-- PARAMETERS PANEL -->
+    <div class="col-lg-4">
+        <div class="glass-card h-100 border-start border-4 border-info">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-sliders-h me-2"></i> Strategic Decision Parameters</h5>
+            <p class="text-secondary small mb-4">Adjust the sliders to model changes in corporate strategy. Predictions update dynamically using AI causal multipliers.</p>
+
+            <div class="mb-4">
+                <label class="form-label text-theme small d-flex justify-content-between">
+                    <span>Average Unit Price Surcharge (₹)</span>
+                    <span id="lblPrice" class="text-info fw-bold">0%</span>
+                </label>
+                <input type="range" class="form-range" id="paramPrice" min="-30" max="30" value="0" oninput="triggerSimulation()">
+                <div class="d-flex justify-content-between text-secondary xx-small">
+                    <span>-30% (Aggressive Discount)</span>
+                    <span>+30% (Premium Surcharge)</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-theme small d-flex justify-content-between">
+                    <span>Marketing Campaign Budget Delta (₹)</span>
+                    <span id="lblMkt" class="text-info fw-bold">0%</span>
+                </label>
+                <input type="range" class="form-range" id="paramMkt" min="-50" max="100" value="0" oninput="triggerSimulation()">
+                <div class="d-flex justify-content-between text-secondary xx-small">
+                    <span>-50% (Budget Cuts)</span>
+                    <span>+100% (Market Expansion)</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-theme small d-flex justify-content-between">
+                    <span>Tactical Discount Modification</span>
+                    <span id="lblDisc" class="text-info fw-bold">0%</span>
+                </label>
+                <input type="range" class="form-range" id="paramDisc" min="0" max="50" value="0" oninput="triggerSimulation()">
+                <div class="d-flex justify-content-between text-secondary xx-small">
+                    <span>0% (Full Margin)</span>
+                    <span>50% (Flash Liquidation)</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-theme small d-flex justify-content-between">
+                    <span>Inventory Supply Sourcing Change</span>
+                    <span id="lblInv" class="text-info fw-bold">0%</span>
+                </label>
+                <input type="range" class="form-range" id="paramInv" min="-40" max="100" value="0" oninput="triggerSimulation()">
+                <div class="d-flex justify-content-between text-secondary xx-small">
+                    <span>-40% (Lean JIT Supply)</span>
+                    <span>+100% (Safe Buffer Overstock)</span>
+                </div>
+            </div>
+
+            <div class="alert bg-dark bg-opacity-30 border border-secondary border-opacity-10 small text-secondary p-3 mb-0" style="border-radius: 8px;">
+                <i class="fas fa-info-circle text-info me-2"></i> Predictions are bounded by product-level regional constraints mapped from live datasets.
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPARISON & CHARTS AREA -->
+    <div class="col-lg-8">
+        <!-- COMPARISON KPI CARDS -->
+        <div class="row g-3 mb-4">
+            <!-- REVENUE COMPARISON -->
+            <div class="col-md-3 col-sm-6">
+                <div class="glass-card text-center p-3 h-100">
+                    <span class="text-secondary xx-small text-uppercase fw-bold d-block mb-2">Simulated Revenue</span>
+                    <h5 id="simRev" class="text-theme fw-bold mb-1">₹0</h5>
+                    <small id="simRevImpact" class="small text-secondary fw-semibold">0% impact</small>
+                    <div class="border-top border-secondary border-opacity-10 mt-2 pt-1 xx-small text-secondary">
+                        Current: <span id="curRev">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFIT COMPARISON -->
+            <div class="col-md-3 col-sm-6">
+                <div class="glass-card text-center p-3 h-100">
+                    <span class="text-secondary xx-small text-uppercase fw-bold d-block mb-2">Simulated Profit</span>
+                    <h5 id="simProf" class="text-success fw-bold mb-1">₹0</h5>
+                    <small id="simProfImpact" class="small text-secondary fw-semibold">0% impact</small>
+                    <div class="border-top border-secondary border-opacity-10 mt-2 pt-1 xx-small text-secondary">
+                        Current: <span id="curProf">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SALES COMPARISON -->
+            <div class="col-md-3 col-sm-6">
+                <div class="glass-card text-center p-3 h-100">
+                    <span class="text-secondary xx-small text-uppercase fw-bold d-block mb-2">Simulated Sales</span>
+                    <h5 id="simSales" class="text-theme fw-bold mb-1">0</h5>
+                    <small id="simSalesImpact" class="small text-secondary fw-semibold">0% impact</small>
+                    <div class="border-top border-secondary border-opacity-10 mt-2 pt-1 xx-small text-secondary">
+                        Current: <span id="curSales">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVENTORY VALUATION -->
+            <div class="col-md-3 col-sm-6">
+                <div class="glass-card text-center p-3 h-100">
+                    <span class="text-secondary xx-small text-uppercase fw-bold d-block mb-2">Required Inventory</span>
+                    <h5 id="simInv" class="text-info fw-bold mb-1">0</h5>
+                    <small id="simInvImpact" class="small text-secondary fw-semibold">Units needed</small>
+                    <div class="border-top border-secondary border-opacity-10 mt-2 pt-1 xx-small text-secondary">
+                        Available: <span id="curInv">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-chart-bar me-2"></i> Comparative Strategic Impact Projections</h5>
+            <div class="row g-3">
+                <div class="col-md-6" style="height: 180px;">
+                    <canvas id="revChart"></canvas>
+                </div>
+                <div class="col-md-6" style="height: 180px;">
+                    <canvas id="profChart"></canvas>
+                </div>
+                <div class="col-md-6" style="height: 180px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="col-md-6" style="height: 180px;">
+                    <canvas id="invChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI SIMULATION INSIGHTS -->
+        <div class="glass-card border-start border-4 border-warning">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-warning m-0 fw-bold"><i class="fas fa-robot me-2"></i> AI Simulation Insights & Recommendations</h5>
+                <span class="badge bg-warning text-dark fw-bold">Confidence: <span id="simConfidence">95%</span></span>
+            </div>
+            <div class="row g-3 small text-secondary">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong><i class="fas fa-brain text-warning me-1"></i> Business Reason:</strong> <span id="insightReason">--</span></p>
+                    <p class="mb-2"><strong><i class="fas fa-chart-line text-warning me-1"></i> Expected Outcome:</strong> <span id="insightImpact">--</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2"><strong><i class="fas fa-exclamation-triangle text-warning me-1"></i> Risk Analysis:</strong> <span id="insightRisk">--</span></p>
+                    <p class="mb-2"><strong><i class="fas fa-check-circle text-warning me-1"></i> Suggested Action:</strong> <span id="insightAction">--</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .xx-small { font-size: 0.65rem; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
-{% if simulation %}
 <script>
-    const ctx = document.getElementById('simChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Sales', 'Revenue', 'Profit'],
-            datasets: [{
-                label: 'Current',
-                data: [{{ simulation.current_sales }}, {{ simulation.current_revenue }}, {{ simulation.current_profit }}],
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 1
-            }, {
-                label: 'Simulated',
-                data: [{{ simulation.simulated_sales }}, {{ simulation.simulated_revenue }}, {{ simulation.simulated_profit }}],
-                backgroundColor: 'rgba(0, 210, 255, 0.5)',
-                borderColor: '#00d2ff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-                x: { ticks: { color: '#fff' } }
+    let revChart, profChart, salesChart, invChart;
+
+    function initCharts(data) {
+        const createConfig = (label, currentVal, simulatedVal, color) => ({
+            type: 'bar',
+            data: {
+                labels: ['Current', 'Simulated'],
+                datasets: [{
+                    label: label,
+                    data: [currentVal, simulatedVal],
+                    backgroundColor: ['rgba(255, 255, 255, 0.1)', color],
+                    borderColor: ['rgba(255, 255, 255, 0.3)', color],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
             },
-            plugins: {
-                legend: { labels: { color: '#fff' } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { size: 9 } } },
+                    x: { grid: { display: false }, ticks: { color: '#fff', font: { size: 10 } } }
+                }
             }
-        }
+        });
+
+        const ctxRev = document.getElementById('revChart').getContext('2d');
+        if (revChart) revChart.destroy();
+        revChart = new Chart(ctxRev, createConfig('Revenue (₹)', data.cur_revenue, data.sim_revenue, '#00d2ff'));
+
+        const ctxProf = document.getElementById('profChart').getContext('2d');
+        if (profChart) profChart.destroy();
+        profChart = new Chart(ctxProf, createConfig('Profit (₹)', data.cur_profit, data.sim_profit, '#10b981'));
+
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+        if (salesChart) salesChart.destroy();
+        salesChart = new Chart(ctxSales, createConfig('Sales (Units)', data.cur_sales, data.sim_sales, '#8b5cf6'));
+
+        const ctxInv = document.getElementById('invChart').getContext('2d');
+        if (invChart) invChart.destroy();
+        invChart = new Chart(ctxInv, createConfig('Inventory (Units)', data.cur_stock, data.sim_required_inv, '#f59e0b'));
+    }
+
+    function triggerSimulation() {
+        const price = document.getElementById('paramPrice').value;
+        const mkt = document.getElementById('paramMkt').value;
+        const disc = document.getElementById('paramDisc').value;
+        const inv = document.getElementById('paramInv').value;
+
+        // Update Labels
+        document.getElementById('lblPrice').innerText = (price >= 0 ? '+' : '') + price + '%';
+        document.getElementById('lblMkt').innerText = (mkt >= 0 ? '+' : '') + mkt + '%';
+        document.getElementById('lblDisc').innerText = disc + '%';
+        document.getElementById('lblInv').innerText = (inv >= 0 ? '+' : '') + inv + '%';
+
+        fetch('/simulator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                price_change: price,
+                marketing_change: mkt,
+                discount_change: disc,
+                inventory_change: inv
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update KPI Cards
+                document.getElementById('simRev').innerText = '₹' + Math.round(data.sim_revenue).toLocaleString();
+                document.getElementById('curRev').innerText = '₹' + Math.round(data.cur_revenue).toLocaleString();
+                document.getElementById('simRevImpact').innerText = (data.rev_impact >= 0 ? '+' : '') + data.rev_impact + '% impact';
+                document.getElementById('simRevImpact').className = 'small fw-bold ' + (data.rev_impact >= 0 ? 'text-success' : 'text-danger');
+
+                document.getElementById('simProf').innerText = '₹' + Math.round(data.sim_profit).toLocaleString();
+                document.getElementById('curProf').innerText = '₹' + Math.round(data.cur_profit).toLocaleString();
+                document.getElementById('simProfImpact').innerText = (data.prof_impact >= 0 ? '+' : '') + data.prof_impact + '% impact';
+                document.getElementById('simProfImpact').className = 'small fw-bold ' + (data.prof_impact >= 0 ? 'text-success' : 'text-danger');
+
+                document.getElementById('simSales').innerText = Math.round(data.sim_sales).toLocaleString();
+                document.getElementById('curSales').innerText = Math.round(data.cur_sales).toLocaleString();
+                document.getElementById('simSalesImpact').innerText = (data.sales_impact >= 0 ? '+' : '') + data.sales_impact + '% impact';
+                document.getElementById('simSalesImpact').className = 'small fw-bold ' + (data.sales_impact >= 0 ? 'text-success' : 'text-danger');
+
+                document.getElementById('simInv').innerText = Math.round(data.sim_required_inv).toLocaleString();
+                document.getElementById('curInv').innerText = Math.round(data.cur_stock).toLocaleString();
+                document.getElementById('simInvImpact').innerText = 'Availability: ' + (data.cur_stock >= data.sim_required_inv ? 'Deficit Checked' : 'Deficit Detected');
+                document.getElementById('simInvImpact').className = 'small fw-bold ' + (data.cur_stock >= data.sim_required_inv ? 'text-success' : 'text-warning');
+
+                // Update Insights
+                document.getElementById('insightReason').innerText = data.insight_reason;
+                document.getElementById('insightImpact').innerText = data.insight_impact;
+                document.getElementById('insightRisk').innerText = data.insight_risk;
+                document.getElementById('insightAction').innerText = data.insight_action;
+                document.getElementById('simConfidence').innerText = data.confidence_score + '%';
+
+                // Re-render Charts
+                initCharts(data);
+            }
+        });
+    }
+
+    function resetSliders() {
+        document.getElementById('paramPrice').value = 0;
+        document.getElementById('paramMkt').value = 0;
+        document.getElementById('paramDisc').value = 0;
+        document.getElementById('paramInv').value = 0;
+        triggerSimulation();
+    }
+
+    // Trigger initial simulation load on page render
+    document.addEventListener("DOMContentLoaded", function() {
+        triggerSimulation();
     });
 </script>
-{% endif %}
 {% endblock %}

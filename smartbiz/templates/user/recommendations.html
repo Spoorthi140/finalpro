@@ -3,80 +3,148 @@
 {% block title %}AI Business Recommendations - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
+<!-- HEADER SECTION -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="glass-card d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="glass-card d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h2 class="text-info mb-1"><i class="fas fa-lightbulb me-2"></i> AI-Powered Business Recommendations</h2>
-                <p class="text-secondary mb-0">Strategic insights derived from causal inference, forecasting models, and inventory health metrics.</p>
+                <h1 class="text-info fw-bold mb-1" style="font-size: 2rem; letter-spacing: -0.5px;"><i class="fas fa-lightbulb me-2"></i> AI-DRIVEN STRATEGIC RECOMMENDATIONS</h1>
+                <p class="text-secondary mb-0">Dynamic strategic actions automatically synthesized from live sales data, weighted forecasting curves, and multi-variable causal reasoning.</p>
             </div>
-            <a href="?refresh=true" class="btn btn-warning text-dark"><i class="fas fa-sync-alt me-1"></i> Sync Recommendations</a>
+            <div>
+                <a href="?refresh=true" class="btn btn-warning text-dark fw-bold"><i class="fas fa-sync-alt me-1"></i> Sync Recommendations</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTERS PANEL -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="row g-3 align-items-center">
+                <!-- Search Input -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fas fa-search"></i></span>
+                        <input type="text" id="filterSearch" class="form-control bg-dark border-secondary text-white" placeholder="Search recommendations..." onkeyup="applyFilters()">
+                    </div>
+                </div>
+                <!-- Category Select -->
+                <div class="col-md-4">
+                    <select id="filterCategory" class="form-select bg-dark border-secondary text-white" onchange="applyFilters()">
+                        <option value="All">All Categories</option>
+                        <option value="Pricing">Pricing Recommendations</option>
+                        <option value="Marketing">Marketing Recommendations</option>
+                        <option value="Inventory">Inventory Recommendations</option>
+                        <option value="Customer Retention">Customer Retention Recommendations</option>
+                        <option value="Product">Product Recommendations</option>
+                        <option value="Risk">Risk Recommendations</option>
+                    </select>
+                </div>
+                <!-- Priority Select -->
+                <div class="col-md-4">
+                    <select id="filterPriority" class="form-select bg-dark border-secondary text-white" onchange="applyFilters()">
+                        <option value="All">All Priorities</option>
+                        <option value="High">High Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="Low">Low Priority</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
-    <!-- RECS FEED -->
+    <!-- RECOMMENDATIONS FEED -->
     <div class="col-md-8">
-        {% for rec in recommendations %}
-        <div class="glass-card mb-4 border-start border-4 {{ 'border-danger' if rec.priority == 'High' else ('border-warning' if rec.priority == 'Medium' else 'border-info') }}">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                    <span class="badge {{ 'bg-danger' if rec.priority == 'High' else ('bg-warning' if rec.priority == 'Medium' else 'bg-info') }} mb-2">
-                        {{ rec.priority }} Priority
-                    </span>
-                    <h4 class="text-theme">{{ rec.category }} Optimization</h4>
-                </div>
-                <div class="text-end">
-                    <small class="text-secondary d-block">Expected Impact</small>
-                    <span class="text-success fw-bold">{{ rec.impact }}</span>
-                </div>
-            </div>
+        <div id="recsContainer">
+            {% for rec in recommendations %}
+            <div class="glass-card mb-4 rec-card border-start border-4 {{ 'border-danger' if rec.priority == 'High' else ('border-warning' if rec.priority == 'Medium' else 'border-info') }}"
+                 data-category="{{ rec.category }}"
+                 data-priority="{{ rec.priority }}">
 
-            <p class="text-light-50 mb-4">{{ rec.message }}</p>
-
-            <div class="p-3 rounded border border-secondary mb-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
                     <div>
-                        <small class="text-info text-uppercase fw-bold d-block mb-1">Recommended Action</small>
-                        <span class="text-theme">{{ rec.action }}</span>
+                        <span class="badge {{ 'bg-danger' if rec.priority == 'High' else ('bg-warning' if rec.priority == 'Medium' else 'bg-info') }} mb-2">
+                            {{ rec.priority }} Priority
+                        </span>
+                        <h4 class="text-theme fw-bold">{{ rec.category }}</h4>
                     </div>
-                    <button class="btn btn-sm btn-neon">EXECUTE STRATEGY</button>
+                    <div class="text-end">
+                        <small class="text-secondary d-block text-uppercase xx-small">Expected Impact</small>
+                        <span class="text-success fw-bold fs-5">{{ rec.expected_impact }}</span>
+                    </div>
+                </div>
+
+                <!-- Business Problem -->
+                <div class="mb-3 p-3 bg-dark bg-opacity-20 rounded border border-secondary border-opacity-10">
+                    <small class="text-danger text-uppercase fw-bold xx-small d-block mb-1"><i class="fas fa-exclamation-circle me-1"></i> Business Challenge Detected</small>
+                    <p class="text-light-50 small mb-0">{{ rec.problem }}</p>
+                </div>
+
+                <!-- AI Reasoning -->
+                <div class="mb-3">
+                    <small class="text-info text-uppercase fw-bold xx-small d-block mb-1"><i class="fas fa-brain me-1"></i> AI Reasoning & Analysis</small>
+                    <p class="text-secondary small mb-0">{{ rec.reasoning }}</p>
+                </div>
+
+                <!-- Suggested Action -->
+                <div class="p-3 rounded border border-secondary bg-dark bg-opacity-10 mb-2">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="flex-grow-1">
+                            <small class="text-success text-uppercase fw-bold xx-small d-block mb-1"><i class="fas fa-check-circle me-1"></i> Suggested Business Action</small>
+                            <span class="text-theme small fw-bold">{{ rec.action }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-end">
+                                <span class="badge bg-outline-info">Confidence: {{ rec.confidence }}%</span>
+                            </div>
+                            <button class="btn btn-sm btn-neon text-dark fw-bold" onclick="executeRecommendation('{{ rec.category }}')">EXECUTE STRATEGY</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% else %}
+            <div class="glass-card text-center py-5">
+                <i class="fas fa-robot fa-4x text-secondary mb-4"></i>
+                <h4 class="text-secondary">Awaiting Dynamic Dataset Compilation</h4>
+                <p class="text-secondary px-5">Please upload your corporate dataset via the Data Hub to automatically generate and visualize AI recommendation streams.</p>
+            </div>
+            {% endfor %}
+
+            <div id="noRecsMsg" class="glass-card text-center py-5 d-none">
+                <i class="fas fa-search fa-3x text-secondary mb-3"></i>
+                <h5 class="text-secondary">No recommendations match your selected filters.</h5>
+                <button class="btn btn-outline-info btn-sm mt-3" onclick="resetFilters()">Reset All Filters</button>
+            </div>
         </div>
-        {% else %}
-        <div class="glass-card text-center py-5">
-            <i class="fas fa-robot fa-4x text-secondary mb-4"></i>
-            <h4 class="text-secondary">Awaiting Sufficient Data for AI Inference</h4>
-            <p class="text-secondary px-5">Upload datasets and perform predictions to generate strategic recommendations.</p>
-        </div>
-        {% endfor %}
     </div>
 
-    <!-- STATS & INFO -->
+    <!-- STRATEGIC DISTRIBUTION & INFO -->
     <div class="col-md-4">
         <div class="glass-card mb-4">
-            <h5 class="text-info mb-4">Strategic Distribution</h5>
-            <div style="height: 250px;">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-chart-pie me-2"></i> Strategic Priority Mix</h5>
+            <div style="height: 220px; position: relative;">
                 <canvas id="recChart"></canvas>
             </div>
         </div>
 
         <div class="glass-card">
-            <h5 class="text-info mb-4">Recommendation Logic</h5>
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-info-circle me-2"></i> Actionable Intelligence Matrix</h5>
             <div class="small text-secondary">
                 <div class="mb-3 d-flex align-items-start">
                     <i class="fas fa-check-circle text-success mt-1 me-2"></i>
-                    <span><strong>Causal AI:</strong> Evaluates how price and marketing changes impact bottom-line profit.</span>
+                    <span><strong>Real-Time Auditing:</strong> Scans all inventory, regional sales trends, and margins to identify hidden inefficiencies.</span>
                 </div>
                 <div class="mb-3 d-flex align-items-start">
                     <i class="fas fa-check-circle text-success mt-1 me-2"></i>
-                    <span><strong>Forecast Gap:</strong> Identifies potential stock-outs by mapping supply against demand trends.</span>
+                    <span><strong>Causal Weighting:</strong> Filters noise using DoWhy backdoor estimators to ensure suggested actions have high-confidence outcomes.</span>
                 </div>
                 <div class="mb-0 d-flex align-items-start">
                     <i class="fas fa-check-circle text-success mt-1 me-2"></i>
-                    <span><strong>ML Predictors:</strong> Uses Random Forest & XGBoost to simulate outcome probabilities.</span>
+                    <span><strong>Zero Latency Updates:</strong> Recommendation logic syncs instantly whenever stock counts are updated or new datasets are parsed.</span>
                 </div>
             </div>
         </div>
@@ -93,17 +161,61 @@
             labels: {{ rec_dist.keys()|list|tojson }},
             datasets: [{
                 data: {{ rec_dist.values()|list|tojson }},
-                backgroundColor: ['#00d2ff', '#e94560', '#00ff88', '#f39c12', '#9b59b6'],
+                backgroundColor: ['#e94560', '#f39c12', '#00d2ff', '#00ff88', '#9b59b6', '#3b82f6'],
                 borderWidth: 0
             }]
         },
         options: {
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#888', padding: 20 } }
+                legend: { position: 'bottom', labels: { color: '#888', font: { size: 9 }, padding: 10 } }
             },
-            cutout: '70%'
+            cutout: '75%'
         }
     });
+
+    function applyFilters() {
+        const searchQuery = document.getElementById('filterSearch').value.toLowerCase();
+        const catFilter = document.getElementById('filterCategory').value;
+        const priFilter = document.getElementById('filterPriority').value;
+
+        let visibleCount = 0;
+        const cards = document.querySelectorAll('.rec-card');
+
+        cards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            const cardPri = card.getAttribute('data-priority');
+            const textContent = card.innerText.toLowerCase();
+
+            const matchSearch = textContent.includes(searchQuery);
+            const matchCat = (catFilter === 'All' || cardCat.includes(catFilter));
+            const matchPri = (priFilter === 'All' || cardPri === priFilter);
+
+            if (matchSearch && matchCat && matchPri) {
+                card.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+
+        const noRecsMsg = document.getElementById('noRecsMsg');
+        if (visibleCount === 0 && cards.length > 0) {
+            noRecsMsg.classList.remove('d-none');
+        } else {
+            noRecsMsg.classList.add('d-none');
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById('filterSearch').value = '';
+        document.getElementById('filterCategory').value = 'All';
+        document.getElementById('filterPriority').value = 'All';
+        applyFilters();
+    }
+
+    function executeRecommendation(category) {
+        alert(`Strategic playbook dispatched for ${category}! Initiating real-time campaign re-allocation.`);
+    }
 </script>
 {% endblock %}
