@@ -576,8 +576,9 @@ def forecasting():
         flash("No data available for forecasting. Please upload a dataset.", "warning")
         return redirect(url_for('user.upload'))
 
+    force_refresh = request.args.get('refresh') == 'true'
     # Standardize and add category details to product forecasts
-    forecasts = generate_forecasts(products)
+    forecasts = generate_forecasts(products, force_refresh=force_refresh)
 
     # Extract unique categories from actual products
     categories = sorted(list(set([p.category for p in products if p.category])))
@@ -747,7 +748,8 @@ def causal_analysis():
     customer_rec = "Implement automated post-purchase surveys and loyalty point boosters to elevate lower-satisfaction clusters and improve lifetime retention."
 
     df = pd.DataFrame([{'Product Name': p.product_name, 'Category': p.category, 'Price': p.price, 'Marketing Spend': p.marketing_spend, 'Stock Quantity': p.stock_quantity, 'Sales': p.sales, 'Revenue': p.revenue, 'Profit': p.profit, 'Date': p.date} for p in products])
-    causal_results = run_causal_analysis(df) if len(df) >= 5 else []
+    force_refresh = request.args.get('refresh') == 'true'
+    causal_results = run_causal_analysis(df, force_refresh=force_refresh) if len(df) >= 5 else []
 
     return render_template(
         'user/causal_analysis.html',
@@ -783,9 +785,10 @@ def causal_analysis():
 def recommendations():
     products = Product.query.all()
     if not products: flash("No data available. Please upload a dataset.", "warning"); return redirect(url_for('user.upload'))
+    force_refresh = request.args.get('refresh') == 'true'
     df = pd.DataFrame([{'Product Name': p.product_name, 'Category': p.category, 'Price': p.price, 'Marketing Spend': p.marketing_spend, 'Stock Quantity': p.stock_quantity, 'Sales': p.sales, 'Revenue': p.revenue, 'Profit': p.profit, 'Date': p.date} for p in products])
-    causal_results = run_causal_analysis(df) if len(df) >= 5 else []
-    forecasts = generate_forecasts(products)
+    causal_results = run_causal_analysis(df, force_refresh=force_refresh) if len(df) >= 5 else []
+    forecasts = generate_forecasts(products, force_refresh=force_refresh)
     recs = generate_recommendations(products, causal_results=causal_results, forecasts=forecasts)
 
     # Aggregated data for recommendation visualizations

@@ -3,15 +3,38 @@ from dowhy import CausalModel
 import pandas as pd
 import numpy as np
 import logging
+import hashlib
+import threading
 
 # Set logging levels to warnings to clean outputs
 logging.getLogger("dowhy").setLevel(logging.WARNING)
 
-def run_causal_analysis(df):
+_causal_cache_lock = threading.Lock()
+_causal_cache = {}
+
+def get_df_hash(df):
+    try:
+        shape = df.shape
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        sums = df[numeric_cols].sum().to_dict() if len(numeric_cols) > 0 else {}
+        state_str = f"{shape}-{sums}"
+        return hashlib.md5(state_str.encode('utf-8')).hexdigest()
+    except Exception:
+        return "fallback"
+
+def run_causal_analysis(df, force_refresh=False):
     """
     df: DataFrame with columns ['Product Name', 'Category', 'Price', 'Marketing Spend', 'Stock Quantity', 'Sales', 'Revenue', 'Profit', 'Date']
     Executes a complete 4-step Causal AI pipeline: Model, Identify, Estimate, Refute using DoWhy.
     """
+    if df is None or len(df) == 0:
+        return []
+
+    db_hash = get_df_hash(df)
+    with _causal_cache_lock:
+        if not force_refresh and db_hash in _causal_cache:
+            return _causal_cache[db_hash]
+
     results = []
 
     # Relationships to analyze:
@@ -102,4 +125,9 @@ def run_causal_analysis(df):
         except Exception as e:
             print(f"Causal analysis failed for {t}->{o}: {e}")
 
+    with _causal_cache_lock:
+        _causal_cache[db_hash] = results
+        if len(_causal_cache) > 5:
+            first_key = next(iter(_causal_cache))
+            _causal_cache.pop(first_key, None)
     return results

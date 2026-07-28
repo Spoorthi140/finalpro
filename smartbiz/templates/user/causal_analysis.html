@@ -13,26 +13,13 @@
                     <p class="text-secondary mb-0">Unified Strategic Dashboard: What happened? Why? What will happen next? What actions should be taken?</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
+                    <a href="?refresh=true" class="btn btn-warning btn-sm text-dark"><i class="fas fa-sync-alt me-1"></i> Recalculate</a>
                     <button class="btn btn-outline-info btn-sm" onclick="window.print()"><i class="fas fa-print me-1"></i> Print</button>
                     <a href="{{ url_for('user.download_report', format='pdf', type='Executive') }}" class="btn btn-primary btn-sm"><i class="fas fa-file-pdf me-1"></i> PDF</a>
                     <a href="{{ url_for('user.download_report', format='excel', type='Stock') }}" class="btn btn-outline-success btn-sm text-success"><i class="fas fa-file-excel me-1"></i> Excel</a>
                     <button class="btn btn-outline-secondary btn-sm" onclick="alert('Strategic brief dispatched to corporate leadership!')"><i class="fas fa-envelope me-1"></i> Email</button>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- EXECUTIVE SUMMARY SECTION -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="glass-card border-start border-4 border-info">
-            <h5 class="text-info mb-3"><i class="fas fa-quote-left me-2"></i> Strategic Executive Summary</h5>
-            <p class="text-secondary mb-0">
-                 SmartBiz Enterprise Suite has executed a comprehensive multi-layered analysis across all operational divisions.
-                Our **Causal Inference Engine** demonstrates a high sensitivity to pricing elasticity (elastic coefficient of -1.50) alongside a strong marketing ROI.
-                With a **Business Health Score of {{ health_score }}/100**, the enterprise is in a robust position, though close attention must be paid to high-priority inventory replenishment.
-            </p>
         </div>
     </div>
 </div>
@@ -97,77 +84,13 @@
     </div>
 </div>
 
-<!-- WHAT-IF SIMULATOR & CAUSAL AI -->
+<!-- CAUSAL AI -->
 <div class="row g-4 mb-4">
-    <!-- What-If Strategy Simulator -->
-    <div class="col-lg-7">
-        <div class="glass-card h-100">
-            <h5 class="text-info mb-3"><i class="fas fa-sliders-h me-2"></i> Real-Time What-If Strategy Simulator</h5>
-            <p class="text-secondary small mb-4">Simulate operational strategy changes. The AI updates metrics dynamically based on causal coefficient models.</p>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label class="form-label text-theme small d-flex justify-content-between">
-                        <span>Price Adjustment</span>
-                        <span id="priceVal" class="text-info fw-bold">0%</span>
-                    </label>
-                    <input type="range" class="form-range" id="priceRange" min="-30" max="30" value="0" oninput="runSim()">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-theme small d-flex justify-content-between">
-                        <span>Marketing Spend Change</span>
-                        <span id="mktVal" class="text-info fw-bold">0%</span>
-                    </label>
-                    <input type="range" class="form-range" id="mktRange" min="-50" max="100" value="0" oninput="runSim()">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-theme small d-flex justify-content-between">
-                        <span>Discount Modification</span>
-                        <span id="discountVal" class="text-info fw-bold">0%</span>
-                    </label>
-                    <input type="range" class="form-range" id="discountRange" min="-15" max="15" value="0" oninput="runSim()">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-theme small d-flex justify-content-between">
-                        <span>Inventory Sourcing Delta</span>
-                        <span id="invVal" class="text-info fw-bold">0%</span>
-                    </label>
-                    <input type="range" class="form-range" id="invRange" min="-20" max="50" value="0" oninput="runSim()">
-                </div>
-            </div>
-
-            <!-- SIMULATION PREVIEW CARDS -->
-            <div class="row g-2 text-center">
-                <div class="col-4">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded bg-dark bg-opacity-20">
-                        <small class="text-secondary xx-small d-block text-uppercase">Projected Sales</small>
-                        <span id="simSales" class="fw-bold text-theme">-</span>
-                        <span id="simSalesImpact" class="small d-block text-secondary">0.0%</span>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded bg-dark bg-opacity-20">
-                        <small class="text-secondary xx-small d-block text-uppercase">Projected Revenue</small>
-                        <span id="simRevenue" class="fw-bold text-theme">-</span>
-                        <span id="simRevenueImpact" class="small d-block text-secondary">0.0%</span>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded bg-dark bg-opacity-20">
-                        <small class="text-secondary xx-small d-block text-uppercase">Projected Profit</small>
-                        <span id="simProfit" class="fw-bold text-success">-</span>
-                        <span id="simProfitImpact" class="small d-block text-secondary">0.0%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Causal AI Relations (DoWhy Results) -->
-    <div class="col-lg-5">
+    <div class="col-lg-12">
         <div class="glass-card h-100">
             <h5 class="text-info mb-3"><i class="fas fa-project-diagram me-2"></i> Causal AI Relations (DoWhy)</h5>
-            <p class="text-secondary small mb-3">Estimated causal effects representing direct change on target outcome variables.</p>
+            <p class="text-secondary small mb-3">Estimated causal effects representing direct change on target outcome variables calculated dynamically using the 4-step causal inference pipeline (Modeling, Identification, Estimation, Refutation).</p>
 
             <div class="table-responsive">
                 <table class="table table-sm table-dark table-hover mb-0">
@@ -176,18 +99,22 @@
                             <th>Relationship</th>
                             <th class="text-end">Causal Effect</th>
                             <th class="text-end">Confidence</th>
+                            <th class="text-end">Refutation Method</th>
+                            <th>Insights</th>
                         </tr>
                     </thead>
                     <tbody class="small text-theme">
                         {% for res in causal_results %}
                         <tr>
-                            <td>{{ res.relation }}</td>
+                            <td class="fw-bold">{{ res.relation }}</td>
                             <td class="text-end fw-bold text-success">{{ "{:+.2f}".format(res.effect) }}</td>
                             <td class="text-end"><span class="badge bg-outline-info">Conf: {{ (res.confidence * 100)|int }}%</span></td>
+                            <td class="text-end text-secondary small">{{ res.refutation }}</td>
+                            <td class="text-secondary small">{{ res.insight }}</td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="3" class="text-center text-secondary py-4">Run full uploads to populate causal model.</td>
+                            <td colspan="5" class="text-center text-secondary py-4">Run full uploads to populate causal model.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -317,41 +244,6 @@
     </div>
 </div>
 
-<!-- AI RECOMMENDATION ENGINE -->
-<div class="row g-4 mb-5">
-    <div class="col-12">
-        <div class="glass-card">
-            <h5 class="text-info mb-4"><i class="fas fa-brain me-2"></i> AI Recommendation Engine Summary</h5>
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded h-100 bg-dark bg-opacity-10">
-                        <small class="text-info text-uppercase fw-bold d-block mb-2">Pricing Strategy</small>
-                        <p class="small text-secondary mb-0">{{ pricing_rec }}</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded h-100 bg-dark bg-opacity-10">
-                        <small class="text-info text-uppercase fw-bold d-block mb-2">Marketing Allocation</small>
-                        <p class="small text-secondary mb-0">{{ marketing_rec }}</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded h-100 bg-dark bg-opacity-10">
-                        <small class="text-info text-uppercase fw-bold d-block mb-2">Inventory Management</small>
-                        <p class="small text-secondary mb-0">{{ inventory_rec }}</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 border border-secondary border-opacity-10 rounded h-100 bg-dark bg-opacity-10">
-                        <small class="text-info text-uppercase fw-bold d-block mb-2">Customer Experience</small>
-                        <p class="small text-secondary mb-0">{{ customer_rec }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     .xx-small { font-size: 0.65rem; }
 </style>
@@ -465,61 +357,6 @@
             plugins: { legend: { position: 'bottom', labels: { color: '#888' } } },
             scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } }
         }
-    });
-
-    // 5. What-If Strategy Simulator Engine AJAX execution
-    function runSim() {
-        const price = document.getElementById('priceRange').value;
-        const mkt = document.getElementById('mktRange').value;
-        const disc = document.getElementById('discountRange').value;
-        const inv = document.getElementById('invRange').value;
-
-        // Update Slider Labels
-        document.getElementById('priceVal').innerText = (price >= 0 ? '+' : '') + price + '%';
-        document.getElementById('mktVal').innerText = (mkt >= 0 ? '+' : '') + mkt + '%';
-        document.getElementById('discountVal').innerText = (disc >= 0 ? '+' : '') + disc + '%';
-        document.getElementById('invVal').innerText = (inv >= 0 ? '+' : '') + inv + '%';
-
-        // Submit to simulator endpoint
-        fetch('/causal_analysis', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                price_change: price,
-                marketing_change: mkt,
-                discount_change: disc,
-                inventory_change: inv
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('simSales').innerText = data.predicted_sales.toLocaleString();
-                document.getElementById('simRevenue').innerText = '₹' + Math.round(data.predicted_revenue).toLocaleString();
-                document.getElementById('simProfit').innerText = '₹' + Math.round(data.predicted_profit).toLocaleString();
-
-                const sImp = document.getElementById('simSalesImpact');
-                sImp.innerText = (data.sales_impact >= 0 ? '+' : '') + data.sales_impact + '%';
-                sImp.className = 'small d-block fw-bold ' + (data.sales_impact >= 0 ? 'text-success' : 'text-danger');
-
-                const rImp = document.getElementById('simRevenueImpact');
-                rImp.innerText = (data.revenue_impact >= 0 ? '+' : '') + data.revenue_impact + '%';
-                rImp.className = 'small d-block fw-bold ' + (data.revenue_impact >= 0 ? 'text-success' : 'text-danger');
-
-                const pImp = document.getElementById('simProfitImpact');
-                pImp.innerText = (data.profit_impact >= 0 ? '+' : '') + data.profit_impact + '%';
-                pImp.className = 'small d-block fw-bold ' + (data.profit_impact >= 0 ? 'text-success' : 'text-danger');
-            }
-        });
-    }
-
-    // Run first simulator execution on load
-    document.addEventListener("DOMContentLoaded", function() {
-        runSim();
     });
 </script>
 {% endblock %}

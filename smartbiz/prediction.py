@@ -5,7 +5,36 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 import xgboost as xgb
 import warnings
+import hashlib
+import threading
 warnings.filterwarnings('ignore')
+
+_forecast_cache_lock = threading.Lock()
+_forecast_cache = {}
+
+def get_products_hash(products_data):
+    if not products_data:
+        return "empty"
+    count = len(products_data)
+    stock_sum = 0
+    sales_sum = 0
+    revenue_sum = 0
+    max_updated = ""
+    for p in products_data:
+        if hasattr(p, 'stock_quantity'):
+            stock_sum += (p.stock_quantity or 0)
+            sales_sum += (p.sales or 0)
+            revenue_sum += (p.revenue or 0)
+            if hasattr(p, 'last_updated') and p.last_updated:
+                max_updated = max(max_updated, str(p.last_updated))
+        elif isinstance(p, dict):
+            stock_sum += (p.get('stock_quantity') or p.get('Stock') or 0)
+            sales_sum += (p.get('sales') or p.get('Sales') or 0)
+            revenue_sum += (p.get('revenue') or p.get('Revenue') or 0)
+            if 'last_updated' in p:
+                max_updated = max(max_updated, str(p['last_updated']))
+    state_str = f"{count}-{stock_sum}-{sales_sum}-{revenue_sum}-{max_updated}"
+    return hashlib.md5(state_str.encode('utf-8')).hexdigest()
 
 try:
     from prophet import Prophet
@@ -153,9 +182,15 @@ def train_and_predict(products_data, input_price, input_marketing, input_stock):
         'stock_out_days': round(float(stock_out_days), 1)
     }
 
-def generate_forecasts(products_data):
+def generate_forecasts(products_data, force_refresh=False):
     if not products_data:
         return {}
+
+    db_hash = get_products_hash(products_data)
+    with _forecast_cache_lock:
+        if not force_refresh and db_hash in _forecast_cache:
+            return _forecast_cache[db_hash]
+
     df = pd.DataFrame([{
         'Date': p.date, 'Revenue': p.revenue, 'Sales': p.sales, 'Profit': p.profit,
         'Product Name': p.product_name, 'Stock': p.stock_quantity, 'Price': p.price
@@ -246,7 +281,7 @@ def generate_forecasts(products_data):
     avg_r2 = (rev_r2 + sales_r2 + profit_r2) / 3
     avg_mape = (rev_mape + sales_mape + profit_mape) / 3
 
-    return {
+    result = {
         'monthly': monthly,
         'quarterly': quarterly,
         'yearly': yearly,
@@ -256,3 +291,9 @@ def generate_forecasts(products_data):
         'r2_score': round(avg_r2, 4),
         'mape_score': round(avg_mape, 2)
     }
+    with _forecast_cache_lock:
+        _forecast_cache[db_hash] = result
+        if len(_forecast_cache) > 5:
+            first_key = next(iter(_forecast_cache))
+            _forecast_cache.pop(first_key, None)
+    return result
