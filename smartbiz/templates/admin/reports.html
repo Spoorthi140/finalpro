@@ -23,8 +23,8 @@
                     <td>{{ r.author.full_name if r.author else 'System' }}</td>
                     <td>
                         <form action="{{ url_for('admin.delete_report', report_id=r.id) }}" method="POST" class="d-inline">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this report?')"><i class="fas fa-trash"></i></button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger text-white fw-semibold shadow-sm" onclick="return confirm('Delete this report?')" data-bs-toggle="tooltip" title="Delete this generated report"><i class="fas fa-trash"></i> 🗑 Delete</button>
                         </form>
                     </td>
                 </tr>

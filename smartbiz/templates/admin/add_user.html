@@ -30,9 +30,9 @@
                         <option value="Admin">Admin</option>
                     </select>
                 </div>
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary w-100">Create User</button>
-                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                <div class="mt-4 d-flex flex-column gap-2">
+                    <button type="submit" class="btn btn-success text-white fw-bold shadow-sm w-100" data-bs-toggle="tooltip" title="Create user with targeted parameters"><i class="fas fa-plus"></i> ➕ Add User</button>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-secondary text-white fw-semibold shadow-sm w-100" data-bs-toggle="tooltip" title="Go back without saving"><i class="fas fa-times"></i> ✖ Cancel</a>
                 </div>
             </form>
         </div>
