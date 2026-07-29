@@ -72,6 +72,9 @@
             <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
+            <a href="{{ url_for('admin.profile') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.profile' }}">
+                <i class="fas fa-user-shield"></i> My Profile
+            </a>
             <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.users' }}">
                 <i class="fas fa-users"></i> User Management
             </a>

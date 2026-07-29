@@ -248,3 +248,33 @@ def settings():
         flash('System settings updated.', 'success')
         return redirect(url_for('admin.settings'))
     return render_template('admin/settings.html')
+
+@admin_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def profile():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        phone = request.form.get('phone', '').strip()
+        password = request.form.get('password', '').strip()
+
+        if not full_name or not email:
+            flash('Name and Email are required.', 'danger')
+            return redirect(url_for('admin.profile'))
+
+        current_user.full_name = full_name
+        current_user.email = email
+        current_user.phone = phone
+
+        if password:
+            if len(password) < 8:
+                flash('Password must be at least 8 characters long.', 'danger')
+                return redirect(url_for('admin.profile'))
+            current_user.password = generate_password_hash(password, method='pbkdf2:sha256')
+
+        db.session.commit()
+        flash('Your profile has been updated successfully.', 'success')
+        return redirect(url_for('admin.profile'))
+
+    return render_template('admin/profile.html', user=current_user)

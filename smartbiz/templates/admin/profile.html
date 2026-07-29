@@ -1,0 +1,81 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}My Profile - SmartBiz Admin{% endblock %}
+
+{% block admin_content %}
+<!-- HEADER -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="text-info mb-1"><i class="fas fa-user-shield me-2"></i> My Administrator Profile</h2>
+            <p class="text-secondary mb-0">Manage your administrative credentials, profile information, and password security.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- PROFILE FORM -->
+    <div class="col-lg-8">
+        <div class="glass-card border-start border-4 border-info">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-edit me-2"></i> Edit Account Information</h5>
+
+            <form method="POST" action="{{ url_for('admin.profile') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small text-uppercase fw-bold">Full Name</label>
+                        <input type="text" name="full_name" class="form-control bg-dark border-secondary text-white" value="{{ user.full_name }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small text-uppercase fw-bold">Email Address</label>
+                        <input type="email" name="email" class="form-control bg-dark border-secondary text-white" value="{{ user.email }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small text-uppercase fw-bold">Telephone / Phone</label>
+                        <input type="text" name="phone" class="form-control bg-dark border-secondary text-white" value="{{ user.phone or '' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small text-uppercase fw-bold">Update Password (Leave blank to keep current)</label>
+                        <input type="password" name="password" class="form-control bg-dark border-secondary text-white" placeholder="Minimum 8 characters...">
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary me-2"><i class="fas fa-times me-1"></i> ✖ Cancel</a>
+                    <button type="submit" class="btn btn-success text-white fw-bold"><i class="fas fa-save me-1"></i> 💾 Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROFILE INFO META -->
+    <div class="col-lg-4">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-info-circle me-2"></i> Security Metadata</h5>
+
+            <div class="p-3 bg-dark bg-opacity-20 border border-secondary border-opacity-10 rounded mb-4">
+                <small class="text-secondary text-uppercase fw-bold d-block xx-small mb-1">Administrative Role</small>
+                <span class="badge bg-danger fs-6 mb-2">{{ user.role }}</span>
+                <p class="text-secondary small mb-0">Your account has full root read/write privileges over users, roles, uploads, forecasts, reports, and platform inventory logs.</p>
+            </div>
+
+            <div class="p-3 bg-dark bg-opacity-20 border border-secondary border-opacity-10 rounded">
+                <small class="text-secondary text-uppercase fw-bold d-block xx-small mb-1">Account Metadata</small>
+                <ul class="list-unstyled small text-secondary mb-0">
+                    <li class="mb-2"><i class="fas fa-calendar-alt text-info me-2"></i> Created: {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A' }}</li>
+                    <li class="mb-2"><i class="fas fa-clock text-info me-2"></i> Last Updated: {{ user.updated_at.strftime('%b %d, %Y %H:%M') if user.updated_at else 'N/A' }}</li>
+                    <li><i class="fas fa-shield-alt text-info me-2"></i> Status: <span class="badge bg-success text-white">Active</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .xx-small { font-size: 0.65rem; }
+</style>
+{% endblock %}
