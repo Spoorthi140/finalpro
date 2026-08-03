@@ -1,205 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SmartBiz - AI Business Strategy{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>{% block title %}SmartBiz Enterprise{% endblock %}</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
-    <style>
-        :root {
-            --bg-dark: #0f0c29;
-            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            --neon-blue: #00d2ff;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-dark);
-            color: #fff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styling */
-        #sidebar {
-            min-width: 250px;
-            max-width: 250px;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid var(--glass-border);
-            height: 100vh;
-            position: fixed;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-
-        #sidebar .sidebar-header {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        #sidebar ul.components {
-            padding: 20px 0;
-        }
-
-        #sidebar ul li a {
-            padding: 15px 25px;
-            display: block;
-            color: #ddd;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        #sidebar ul li a:hover {
-            color: var(--neon-blue);
-            background: var(--glass-bg);
-            padding-left: 30px;
-        }
-
-        #sidebar ul li.active > a {
-            color: var(--neon-blue);
-            background: var(--glass-bg);
-            border-left: 4px solid var(--neon-blue);
-        }
-
-        /* Page Content */
-        #content {
-            width: calc(100% - 250px);
-            margin-left: 250px;
-            transition: all 0.3s;
-            padding: 30px;
-        }
-
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: 0.3s;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--neon-blue);
-        }
-
-        /* Neon Buttons */
-        .btn-neon {
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-weight: 600;
-            padding: 10px 25px;
-            border-radius: 30px;
-            transition: 0.3s;
-        }
-
-        .btn-neon:hover {
-            background: var(--neon-blue);
-            color: var(--bg-dark);
-            box-shadow: 0 0 20px var(--neon-blue);
-        }
-
-        /* Navbar for mobile */
-        .mobile-nav {
-            display: none;
-            background: var(--bg-dark);
-            padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        @media (max-width: 768px) {
-            #sidebar { margin-left: -250px; }
-            #sidebar.active { margin-left: 0; }
-            #content { width: 100%; margin-left: 0; }
-            .mobile-nav { display: block; }
-        }
-
-        .alert {
-            background: var(--glass-bg);
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--glass-border);
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        // Synchronous theme initialization to prevent flash
+        (function initTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% if current_user.is_authenticated %}
     <!-- Sidebar -->
-    <nav id="sidebar">
-        <div class="sidebar-header text-center">
-            <h3 class="text-info"><i class="fas fa-brain"></i> SmartBiz</h3>
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 text-center border-bottom border-secondary border-opacity-10">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SmartBiz" class="img-fluid mb-3" style="max-width: 50px;">
+            <h5 class="text-theme fw-bold mb-0">SMARTBIZ</h5>
+            <span class="text-primary-light fs-7 fw-semibold tracking-wider">Enterprise Suite</span>
         </div>
-
-        <ul class="list-unstyled components">
-            {% if current_user.role == 'admin' %}
-            <li class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
-                <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-user-shield me-2"></i> Admin Dashboard</a>
-            </li>
-            {% else %}
-            <li class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
-                <a href="{{ url_for('user.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.causal_analysis' }}">
-                <a href="{{ url_for('user.causal_analysis') }}"><i class="fas fa-brain me-2"></i> Causal AI</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.upload' }}">
-                <a href="{{ url_for('user.upload') }}"><i class="fas fa-upload me-2"></i> Upload Data</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.inventory' }}">
-                <a href="{{ url_for('user.inventory') }}"><i class="fas fa-camera me-2"></i> Smart Inventory</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.prediction' }}">
-                <a href="{{ url_for('user.prediction') }}"><i class="fas fa-magic me-2"></i> Prediction</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.recommendations' }}">
-                <a href="{{ url_for('user.recommendations') }}"><i class="fas fa-lightbulb me-2"></i> AI Insights</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'user.reports' }}">
-                <a href="{{ url_for('user.reports') }}"><i class="fas fa-file-pdf me-2"></i> Reports</a>
-            </li>
+        <nav class="nav flex-column py-3">
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.dashboard' }}" href="{{ url_for('user.dashboard') }}">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.upload' }}" href="{{ url_for('user.upload') }}">
+                <i class="fas fa-cloud-upload-alt"></i> Data Hub
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.causal_analysis' }}" href="{{ url_for('user.causal_analysis') }}">
+                <i class="fas fa-project-diagram"></i> Decision Intelligence
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.recommendations' }}" href="{{ url_for('user.recommendations') }}">
+                <i class="fas fa-lightbulb"></i> AI Recommendations
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.forecasting' }}" href="{{ url_for('user.forecasting') }}">
+                <i class="fas fa-chart-line"></i> AI Forecasting
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.simulator' }}" href="{{ url_for('user.simulator') }}">
+                <i class="fas fa-magic"></i> AI Strategy Simulator
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.prediction' }}" href="{{ url_for('user.prediction') }}">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.inventory' }}" href="{{ url_for('user.inventory') }}">
+                <i class="fas fa-boxes"></i> Smart Inventory
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.customer_intelligence' }}" href="{{ url_for('user.customer_intelligence') }}">
+                <i class="fas fa-users"></i> Customer Intelligence
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'user.reports' }}" href="{{ url_for('user.reports') }}">
+                <i class="fas fa-file-invoice"></i> Reports
+            </a>
+            {% if current_user.role == 'Admin' %}
+            <hr class="mx-3 border-secondary border-opacity-20 my-3">
+            <a class="nav-link text-warning" href="{{ url_for('admin.dashboard') }}">
+                <i class="fas fa-user-shield"></i> Admin Portal
+            </a>
             {% endif %}
-            <li>
-                <a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-            </li>
-        </ul>
-    </nav>
+            <a class="nav-link text-danger mt-3" href="{{ url_for('user.logout') }}">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
+        </nav>
+    </div>
     {% endif %}
 
-    <div id="content" class="{{ 'w-100 m-0' if not current_user.is_authenticated }}">
-        {% if not current_user.is_authenticated %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent mb-4">
-            <div class="container">
-                <a class="navbar-brand text-info fw-bold" href="{{ url_for('user.home') }}">
-                    <i class="fas fa-brain"></i> SmartBiz
-                </a>
-                <div class="ms-auto">
-                    <a href="{{ url_for('user.login') }}" class="btn btn-outline-info me-2">User Login</a>
-                    <a href="{{ url_for('admin.login') }}" class="btn btn-outline-danger me-2">Admin</a>
-                    <a href="{{ url_for('user.register') }}" class="btn btn-info">Register</a>
-                </div>
+    <!-- Main Section Wrapper -->
+    <div class="{{ 'main-content' if current_user.is_authenticated else '' }}">
+        {% if current_user.is_authenticated %}
+        <!-- Top Navigation Bar -->
+        <header class="topnav d-flex justify-content-between align-items-center mb-4 rounded-3">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-lg-none btn-outline-secondary btn-sm" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h4 class="mb-0 fw-bold text-primary tracking-tight">SMARTBIZ</h4>
             </div>
-        </nav>
+
+            <div class="d-flex align-items-center gap-3">
+                <!-- Textual Theme Switch Component -->
+                <div class="d-flex align-items-center">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="btn btn-sm btn-outline-premium d-flex align-items-center gap-2">
+                        <span id="themeToggleIcon"><i class="fas fa-sun"></i></span>
+                        <span id="themeToggleText">Light Mode</span>
+                    </button>
+                </div>
+                <div class="vr bg-secondary opacity-25" style="height: 24px;"></div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill">{{ current_user.role }}</span>
+            </div>
+        </header>
         {% endif %}
 
-        <div class="container-fluid">
+        <main class="container-fluid py-2 animate-fade-in">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show border-0 mb-4 shadow-sm" role="alert" style="border-radius: 12px;">
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
@@ -208,13 +115,49 @@
             {% endwith %}
 
             {% block content %}{% endblock %}
-        </div>
+        </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('show');
+            }
+        }
+
+        function updateToggleButton(theme) {
+            const btnText = document.getElementById('themeToggleText');
+            const btnIcon = document.getElementById('themeToggleIcon');
+            if (theme === 'dark') {
+                if (btnText) btnText.innerHTML = "☀ Light Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                if (btnText) btnText.innerHTML = "🌙 Dark Mode";
+                if (btnIcon) btnIcon.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Dispatch dynamic window event for live Chart updates
+            window.dispatchEvent(new Event('themeChanged'));
+        }
+
+        // Initialize Toggle visual indicator
+        (function initToggleButton() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            updateToggleButton(currentTheme);
+        })();
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

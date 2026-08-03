@@ -1,138 +1,348 @@
 {% extends "base.html" %}
 
-{% block title %}Business Forecasting - SmartBiz{% endblock %}
+{% block title %}AI Business Prediction - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-5">
+<!-- HEADER SECTION -->
+<div class="row mb-4">
+    <div class="col-12">
         <div class="glass-card">
-            <h4 class="mb-4 text-info"><i class="fas fa-magic me-2"></i> ML Prediction Parameters</h4>
-            <p class="text-light-50 small mb-4">Input simulation parameters to forecast future business outcomes using Scikit-learn regression models.</p>
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Product Unit Price ($)</label>
-                    <input type="number" step="0.01" name="price" class="form-control" required placeholder="e.g. 45.00">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Marketing Budget ($)</label>
-                    <input type="number" step="10" name="marketing" class="form-control" required placeholder="e.g. 1000">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Stock Quantity on Hand</label>
-                    <input type="number" name="stock" class="form-control" required placeholder="e.g. 200">
-                </div>
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-neon btn-lg">
-                        Run Forecast Simulation
-                    </button>
-                </div>
-            </form>
+            <h1 class="text-info fw-bold mb-1" style="font-size: 2rem; letter-spacing: -0.5px;"><i class="fas fa-crystal-ball me-2"></i> AI BUSINESS PREDICTION CENTER</h1>
+            <p class="text-secondary mb-0">Predict future business outcomes based on current business decisions. Enter target parameters below to generate dynamic outcome probabilities.</p>
         </div>
-
-        <div class="glass-card mt-4">
-            <h5 class="text-info mb-3">Prediction Methodology</h5>
-            <p class="small text-light-50">Our system utilizes <strong>Random Forest Regression</strong> for robust non-linear forecasting when data is sufficient, and <strong>Linear Regression</strong> for trend estimation.</p>
-            <div class="alert alert-info py-2 small">
-                <i class="fas fa-info-circle me-1"></i> Stock-out Formula:<br>
-                <code>Stock Quantity / Average Daily Sales</code>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-7">
-        {% if prediction %}
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="glass-card text-center border-top border-info border-4">
-                    <h6 class="text-info small text-uppercase">Predicted Sales</h6>
-                    <h2 class="fw-bold">{{ prediction.predicted_sales }}</h2>
-                    <p class="small text-light-50 mb-0">Units per period</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card text-center border-top border-success border-4">
-                    <h6 class="text-success small text-uppercase">Predicted Profit</h6>
-                    <h2 class="fw-bold">${{ prediction.predicted_profit }}</h2>
-                    <p class="small text-light-50 mb-0">Estimated total</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card text-center border-top border-warning border-4">
-                    <h6 class="text-warning small text-uppercase">Stock-out in</h6>
-                    <h2 class="fw-bold text-warning">{{ prediction.stock_out_days }}</h2>
-                    <p class="small text-light-50 mb-0">Approx. days</p>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="glass-card">
-                    <h5 class="text-info mb-4">Forecast Visualization</h5>
-                    <canvas id="predictionChart" height="280"></canvas>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="alert alert-warning">
-                    <h6 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i> Recommendation</h6>
-                    <p class="mb-0">
-                        {% if prediction.stock_out_days < 7 %}
-                        Stock-out is imminent within a week. We recommend restocking immediately to avoid lost sales opportunities.
-                        {% elif prediction.predicted_profit < 100 %}
-                        Low profit margins detected. Consider adjusting price or optimizing marketing spend based on causal results.
-                        {% else %}
-                        Current strategy looks promising. Predicted profit margins are within healthy ranges.
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="glass-card d-flex align-items-center justify-content-center" style="height: 100%; border: 2px dashed #333;">
-            <div class="text-center text-light-50">
-                <i class="fas fa-chart-line fa-5x mb-4 text-secondary"></i>
-                <h3>Business Simulation Engine</h3>
-                <p class="lead">Enter parameters on the left to see your AI-powered business forecast.</p>
-                <p class="small">System will analyze historical patterns to estimate future outcomes.</p>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
+
+<div class="row g-4 mb-5">
+    <!-- INPUT SECTION PANEL -->
+    <div class="col-lg-4">
+        <div class="glass-card h-100 border-start border-4 border-info">
+            <h5 class="text-info mb-4 fw-bold"><i class="fas fa-sliders-h me-2"></i> Parameter Target Setup</h5>
+            <form id="predictionForm" onsubmit="runPrediction(event)">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Selling Price Target (₹)</label>
+                    <input type="number" id="inputPrice" step="0.01" class="form-control bg-dark border-secondary text-white" placeholder="e.g. 2500" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Marketing Investment target (₹)</label>
+                    <input type="number" id="inputMkt" step="0.01" class="form-control bg-dark border-secondary text-white" placeholder="e.g. 15000" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Discount Percentage Target (%)</label>
+                    <input type="number" id="inputDisc" min="0" max="100" class="form-control bg-dark border-secondary text-white" placeholder="e.g. 10" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Available Stock Level</label>
+                    <input type="number" id="inputStock" class="form-control bg-dark border-secondary text-white" placeholder="e.g. 450" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Target Category</label>
+                    <select id="inputCategory" class="form-select bg-dark border-secondary text-white" required>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Home Appliances">Home Appliances</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Target Region</label>
+                    <select id="inputRegion" class="form-select bg-dark border-secondary text-white" required>
+                        <option value="North">North Region</option>
+                        <option value="South">South Region</option>
+                        <option value="West">West Region</option>
+                        <option value="East">East Region</option>
+                    </select>
+                </div>
+
+                <div class="p-3 bg-dark bg-opacity-20 border border-secondary border-opacity-10 rounded small text-secondary mb-4">
+                    <i class="fas fa-brain text-info me-2"></i> Powered by an XGBoost and Random Forest regression ensemble trained dynamically.
+                </div>
+
+                <button type="submit" id="btnPredict" class="btn btn-neon w-100 py-2 fw-bold text-dark"><i class="fas fa-cogs me-1"></i> GENERATE PREDICTION</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PREDICTION OUTPUTS & VISUALIZATIONS -->
+    <div class="col-lg-8">
+        <!-- Loader / Placeholder -->
+        <div id="loaderArea" class="glass-card h-100 text-center py-5 d-none flex-column align-items-center justify-content-center" style="min-height: 450px;">
+            <div class="spinner-border text-info mb-3" role="status">
+                <span class="visually-hidden">Calculating Prediction...</span>
+            </div>
+            <h5 class="text-info">Ensemble Estimators Active</h5>
+            <p class="text-secondary small">Synthesizing multidimensional regressions and error intervals...</p>
+        </div>
+
+        <div id="placeholderArea" class="glass-card h-100 text-center py-5 d-flex flex-column align-items-center justify-content-center" style="min-height: 450px;">
+            <i class="fas fa-project-diagram fa-4x text-secondary mb-4 opacity-35"></i>
+            <h4 class="text-secondary">Outcome Simulator Idle</h4>
+            <p class="text-secondary px-5">Adjust the parameters on the left and click 'Generate Prediction' to initialize the AI decision prediction center.</p>
+        </div>
+
+        <!-- OUTPUTS VIEW -->
+        <div id="outputArea" class="d-none">
+            <!-- KPI CARDS GRID -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Predicted Revenue</small>
+                        <h5 id="outRev" class="text-theme fw-bold mb-0">₹0</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Predicted Profit</small>
+                        <h5 id="outProf" class="text-success fw-bold mb-0">₹0</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Predicted Sales</small>
+                        <h5 id="outSales" class="text-theme fw-bold mb-0">0</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Expected Growth</small>
+                        <h5 id="outGrowth" class="text-info fw-bold mb-0">0%</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Predicted Demand</small>
+                        <h5 id="outDemand" class="text-theme fw-bold mb-0">0</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Required Inventory</small>
+                        <h5 id="outReqInv" class="text-warning fw-bold mb-0">0</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Stock-Out Days</small>
+                        <h5 id="outStockout" class="text-danger fw-bold mb-0">0 Days</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center p-3 h-100">
+                        <small class="text-secondary xx-small text-uppercase fw-bold d-block mb-1">Confidence Score</small>
+                        <h5 id="outConf" class="text-success fw-bold mb-0">0%</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUALIZATIONS -->
+            <div class="glass-card mb-4">
+                <h5 class="text-info mb-4 fw-bold"><i class="fas fa-chart-line me-2"></i> Outcome Comparatives & Projections</h5>
+                <div class="row g-3">
+                    <div class="col-md-6" style="height: 180px;">
+                        <canvas id="chartRevComp"></canvas>
+                    </div>
+                    <div class="col-md-6" style="height: 180px;">
+                        <canvas id="chartProfComp"></canvas>
+                    </div>
+                    <div class="col-md-6" style="height: 180px;">
+                        <canvas id="chartSalesTrend"></canvas>
+                    </div>
+                    <div class="col-md-6" style="height: 180px;">
+                        <canvas id="chartInvReq"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC AI INSIGHTS -->
+            <div class="glass-card border-start border-4 border-info mb-4">
+                <h5 class="text-info mb-3 fw-bold"><i class="fas fa-brain me-2"></i> Dynamic AI Prediction Explanations</h5>
+                <div class="row g-3 small text-secondary">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong><i class="fas fa-arrow-alt-circle-up text-info me-1"></i> Revenue Triggers:</strong> <span id="explainRevenue">--</span></p>
+                        <p class="mb-2"><strong><i class="fas fa-tags text-info me-1"></i> Pricing Elasticity:</strong> <span id="explainPrice">--</span></p>
+                        <p class="mb-2"><strong><i class="fas fa-bullhorn text-info me-1"></i> Marketing Return:</strong> <span id="explainMkt">--</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong><i class="fas fa-exclamation-triangle text-info me-1"></i> Inventory Risk Assessment:</strong> <span id="explainStock">--</span></p>
+                        <p class="mb-2"><strong><i class="fas fa-check-circle text-info me-1"></i> Recommended Action:</strong> <span id="explainAction">--</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- META DATA -->
+            <div class="row g-3 small text-secondary">
+                <div class="col-md-4"><strong>Model Used:</strong> <span id="metaModel">--</span></div>
+                <div class="col-md-4"><strong>Model Accuracy:</strong> <span id="metaAccuracy">--</span></div>
+                <div class="col-md-4"><strong>Last Predict Time:</strong> <span id="metaTime">--</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .xx-small { font-size: 0.65rem; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
-{% if prediction %}
 <script>
-    const ctx = document.getElementById('predictionChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Predicted Sales', 'Current Stock Level'],
-            datasets: [{
-                label: 'Quantity',
-                data: [{{ prediction.predicted_sales }}, {{ request.form.get('stock') }}],
-                backgroundColor: ['#00d2ff', 'rgba(255,255,255,0.1)'],
-                borderColor: '#00d2ff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
+    let chartRevComp, chartProfComp, chartSalesTrend, chartInvReq;
+
+    function runPrediction(event) {
+        event.preventDefault();
+
+        // Show Loader
+        document.getElementById('placeholderArea').classList.add('d-none');
+        document.getElementById('outputArea').classList.add('d-none');
+        document.getElementById('loaderArea').classList.remove('d-none');
+        document.getElementById('loaderArea').classList.add('d-flex');
+
+        const payload = {
+            price: document.getElementById('inputPrice').value,
+            marketing: document.getElementById('inputMkt').value,
+            discount: document.getElementById('inputDisc').value,
+            stock: document.getElementById('inputStock').value,
+            category: document.getElementById('inputCategory').value,
+            region: document.getElementById('inputRegion').value
+        };
+
+        fetch('/prediction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token() }}'
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(255,255,255,0.1)' },
-                    ticks: { color: '#fff' }
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Hide Loader
+            document.getElementById('loaderArea').classList.add('d-none');
+            document.getElementById('loaderArea').classList.remove('d-flex');
+            document.getElementById('outputArea').classList.remove('d-none');
+
+            if (data.success) {
+                // Update KPI Cards
+                document.getElementById('outRev').innerText = '₹' + Math.round(data.predicted_revenue).toLocaleString();
+                document.getElementById('outProf').innerText = '₹' + Math.round(data.predicted_profit).toLocaleString();
+                document.getElementById('outSales').innerText = Math.round(data.predicted_sales).toLocaleString();
+                document.getElementById('outGrowth').innerText = (data.expected_growth >= 0 ? '+' : '') + data.expected_growth + '%';
+
+                document.getElementById('outDemand').innerText = Math.round(data.predicted_demand).toLocaleString();
+                document.getElementById('outReqInv').innerText = Math.round(data.required_inventory).toLocaleString();
+                document.getElementById('outStockout').innerText = data.stock_out_days + ' Days';
+                document.getElementById('outConf').innerText = data.prediction_confidence + '%';
+
+                // Update Explanations
+                document.getElementById('explainRevenue').innerText = data.explain_revenue;
+                document.getElementById('explainPrice').innerText = data.explain_price;
+                document.getElementById('explainMkt').innerText = data.explain_mkt;
+                document.getElementById('explainStock').innerText = data.explain_stock;
+                document.getElementById('explainAction').innerText = data.explain_action;
+
+                // Update Meta
+                document.getElementById('metaModel').innerText = data.model_used;
+                document.getElementById('metaAccuracy').innerText = data.prediction_accuracy + '%';
+                document.getElementById('metaTime').innerText = data.last_prediction_time;
+
+                // Render Charts
+                renderCharts(data);
+            }
+        });
+    }
+
+    function renderCharts(data) {
+        const createBarConfig = (canvasId, chartObj, label, curVal, predVal, color) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (chartObj) chartObj.destroy();
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Current', 'Predicted'],
+                    datasets: [{
+                        label: label,
+                        data: [curVal, predVal],
+                        backgroundColor: ['rgba(255, 255, 255, 0.1)', color],
+                        borderColor: ['rgba(255, 255, 255, 0.3)', color],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
                 },
-                x: {
-                    ticks: { color: '#fff' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: '#fff', font: { size: 10 } } }
+                    }
+                }
+            });
+        };
+
+        chartRevComp = createBarConfig('chartRevComp', chartRevComp, 'Revenue (₹)', data.cur_revenue, data.predicted_revenue, '#00d2ff');
+        chartProfComp = createBarConfig('chartProfComp', chartProfComp, 'Profit (₹)', data.cur_profit, data.predicted_profit, '#10b981');
+
+        // Line Chart for Sales Trend
+        const ctxSales = document.getElementById('chartSalesTrend').getContext('2d');
+        if (chartSalesTrend) chartSalesTrend.destroy();
+        chartSalesTrend = new Chart(ctxSales, {
+            type: 'line',
+            data: {
+                labels: ['Previous', 'Current', 'Predicted'],
+                datasets: [{
+                    label: 'Sales (Units)',
+                    data: [data.cur_sales * 0.9, data.cur_sales, data.predicted_sales],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { size: 9 } } },
+                    x: { grid: { display: false }, ticks: { color: '#fff', font: { size: 10 } } }
                 }
             }
-        }
-    });
+        });
+
+        // Inventory Sourcing Requirement Bar
+        const ctxInv = document.getElementById('chartInvReq').getContext('2d');
+        if (chartInvReq) chartInvReq.destroy();
+        chartInvReq = new Chart(ctxInv, {
+            type: 'bar',
+            data: {
+                labels: ['Available Stock', 'Required Inventory'],
+                datasets: [{
+                    label: 'Inventory',
+                    data: [data.cur_stock, data.required_inventory],
+                    backgroundColor: ['rgba(255, 255, 255, 0.1)', '#f59e0b'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { size: 9 } } },
+                    x: { grid: { display: false }, ticks: { color: '#fff', font: { size: 10 } } }
+                }
+            }
+        });
+    }
 </script>
-{% endif %}
 {% endblock %}

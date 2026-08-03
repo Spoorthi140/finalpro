@@ -1,0 +1,22 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<h2 class="text-theme mb-4">System Settings</h2>
+<div class="glass-card p-4">
+    <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+            <label class="form-label text-secondary">Platform Name</label>
+            <input type="text" class="form-control" value="SmartBiz Enterprise" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-secondary">Maintenance Mode</label>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox">
+                <label class="form-check-label text-theme">Off</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success text-white fw-bold shadow-sm" data-bs-toggle="tooltip" title="Save changes to system configuration"><i class="fas fa-save"></i> 💾 Save Changes</button>
+    </form>
+</div>
+{% endblock %}

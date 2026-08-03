@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Access Denied{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold text-danger">403</h1>
+    <h2 class="text-theme mb-4">Strategic Clearance Required</h2>
+    <p class="text-secondary mb-5">Your current operational identity does not possess the credentials to access this administrative sector.</p>
+    <a href="{{ url_for('user.dashboard') }}" class="btn btn-neon">Return to Dashboard</a>
+</div>
+{% endblock %}

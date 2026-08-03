@@ -1,54 +1,362 @@
 {% extends "base.html" %}
 
-{% block title %}Causal AI Analysis - SmartBiz{% endblock %}
+{% block title %}Decision Intelligence Center - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
+<!-- HEADER SECTION -->
 <div class="row mb-4">
-    <div class="col-12 text-center">
-        <h2 class="text-info"><i class="fas fa-brain me-2"></i> Causal Inference Engine</h2>
-        <p class="text-light-50">Understanding the <strong>WHY</strong> behind your business performance using DoWhy.</p>
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <h1 class="text-info fw-bold mb-1" style="font-size: 2rem; letter-spacing: -0.5px;">DECISION INTELLIGENCE CENTER</h1>
+                    <p class="text-secondary mb-0">Unified Strategic Dashboard: What happened? Why? What will happen next? What actions should be taken?</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="?refresh=true" class="btn btn-warning btn-sm text-dark"><i class="fas fa-sync-alt me-1"></i> Recalculate</a>
+                    <button class="btn btn-outline-info btn-sm" onclick="window.print()"><i class="fas fa-print me-1"></i> Print</button>
+                    <a href="{{ url_for('user.download_report', format='pdf', type='Executive') }}" class="btn btn-primary btn-sm"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                    <a href="{{ url_for('user.download_report', format='excel', type='Stock') }}" class="btn btn-outline-success btn-sm text-success"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="alert('Strategic brief dispatched to corporate leadership!')"><i class="fas fa-envelope me-1"></i> Email</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    {% if not causal_results %}
-    <div class="col-12 text-center py-5">
-        <div class="glass-card">
-            <h3>No analysis results yet.</h3>
-            <p>Make sure you have uploaded enough data (at least 5 products) to perform causal inference.</p>
-            <a href="{{ url_for('user.upload') }}" class="btn btn-neon mt-3">Upload Data</a>
+<!-- BUSINESS PERFORMANCE KPIS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Revenue</span>
+            <h4 class="text-theme fw-bold mb-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">₹{{ "{:,.0f}".format(total_revenue) }}</h4>
         </div>
     </div>
-    {% else %}
-    {% for res in causal_results %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Profit</span>
+            <h4 class="text-success fw-bold mb-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">₹{{ "{:,.0f}".format(total_profit) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Units Sold</span>
+            <h4 class="text-theme fw-bold mb-0">{{ "{:,}".format(total_sales) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Inventory Val</span>
+            <h4 class="text-theme fw-bold mb-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">₹{{ "{:,.0f}".format(inventory_value) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Growth Rate</span>
+            <h4 class="text-info fw-bold mb-0">{% if growth_rate >= 0 %}+{% endif %}{{ growth_rate }}%</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+        <div class="glass-card text-center p-3 h-100 d-flex flex-column justify-content-center" style="min-height: 120px;">
+            <span class="text-secondary text-uppercase fw-bold d-block mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Health Score</span>
+            <h4 class="text-primary fw-bold mb-0">{{ health_score }}/100</h4>
+        </div>
+    </div>
+</div>
+
+<!-- HISTORICAL TRENDS & AI FORECAST CHARTS -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
         <div class="glass-card h-100">
-            <h5 class="text-info border-bottom pb-2 mb-3">{{ res.relation }}</h5>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="fs-6">Causal Effect:</span>
-                <span class="badge {{ 'bg-success' if res.effect > 0 else 'bg-danger' }} fs-5">
-                    {{ "%.4f"|format(res.effect) }}
-                </span>
-            </div>
-            <p class="text-light-50">{{ res.insight }}</p>
-            <div class="mt-auto">
-                <small class="text-info"><i class="fas fa-info-circle"></i> Backdoor Linear Regression</small>
+            <h5 class="text-info mb-4"><i class="fas fa-history me-2"></i> Historical Performance Trends (2022–2026)</h5>
+            <div style="height: 280px; position: relative;">
+                <canvas id="historicalChart"></canvas>
             </div>
         </div>
     </div>
-    {% endfor %}
-
-    <div class="col-12 mt-4">
-        <div class="glass-card">
-            <h4><i class="fas fa-lightbulb text-warning me-2"></i> How to interpret these results?</h4>
-            <p>Traditional analytics shows correlations (e.g., "when price goes up, sales go down"). Causal AI shows the <strong>impact</strong> of a specific action while controlling for other factors.</p>
-            <ul>
-                <li><strong>Positive Effect:</strong> Increasing the treatment variable causes the outcome to increase.</li>
-                <li><strong>Negative Effect:</strong> Increasing the treatment variable causes the outcome to decrease.</li>
-                <li><strong>Zero Effect:</strong> The treatment variable has no causal impact on the outcome.</li>
-            </ul>
+    <div class="col-lg-6">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-magic me-2"></i> AI-Powered Business Forecast (2027–2028)</h5>
+            <div style="height: 280px; position: relative;">
+                <canvas id="forecastChart"></canvas>
+            </div>
         </div>
     </div>
-    {% endif %}
 </div>
+
+<!-- CAUSAL AI -->
+<div class="row g-4 mb-4">
+    <!-- Causal AI Relations (DoWhy Results) -->
+    <div class="col-lg-12">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-3"><i class="fas fa-project-diagram me-2"></i> Causal AI Relations (DoWhy)</h5>
+            <p class="text-secondary small mb-3">Estimated causal effects representing direct change on target outcome variables calculated dynamically using the 4-step causal inference pipeline (Modeling, Identification, Estimation, Refutation).</p>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-dark table-hover mb-0">
+                    <thead>
+                        <tr class="small text-secondary">
+                            <th>Relationship</th>
+                            <th class="text-end">Causal Effect</th>
+                            <th class="text-end">Confidence</th>
+                            <th class="text-end">Refutation Method</th>
+                            <th>Insights</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small text-theme">
+                        {% for res in causal_results %}
+                        <tr>
+                            <td class="fw-bold">{{ res.relation }}</td>
+                            <td class="text-end fw-bold text-success">{{ "{:+.2f}".format(res.effect) }}</td>
+                            <td class="text-end"><span class="badge bg-outline-info">Conf: {{ (res.confidence * 100)|int }}%</span></td>
+                            <td class="text-end text-secondary small">{{ res.refutation }}</td>
+                            <td class="text-secondary small">{{ res.insight }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-secondary py-4">Run full uploads to populate causal model.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- INVENTORY ANALYTICS & RISK ANALYSIS -->
+<div class="row g-4 mb-4">
+    <!-- Warehouse Stocks Distribution -->
+    <div class="col-lg-4 col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-warehouse me-2"></i> Stocks by Warehouse</h5>
+            <div style="height: 220px; position: relative;">
+                <canvas id="warehouseChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region Stocks Distribution -->
+    <div class="col-lg-4 col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-4"><i class="fas fa-map-marked-alt me-2"></i> Stocks by Region</h5>
+            <div style="height: 220px; position: relative;">
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Risk Analysis Matrix -->
+    <div class="col-lg-4 col-md-12">
+        <div class="glass-card h-100">
+            <h5 class="text-info mb-3"><i class="fas fa-exclamation-triangle me-2"></i> Business Risk Analysis</h5>
+
+            <div class="d-flex flex-column gap-3 mt-3">
+                <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary border-opacity-10 bg-dark bg-opacity-20">
+                    <div>
+                        <span class="small fw-bold text-theme d-block">Revenue Margin Risk</span>
+                        <small class="text-secondary">Evaluates growth rates trends</small>
+                    </div>
+                    <span class="badge bg-{{ 'danger' if rev_risk == 'High' else 'warning' if rev_risk == 'Medium' else 'success' }}">{{ rev_risk }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary border-opacity-10 bg-dark bg-opacity-20">
+                    <div>
+                        <span class="small fw-bold text-theme d-block">Inventory Deficit Risk</span>
+                        <small class="text-secondary">Low stock & out-of-stock count</small>
+                    </div>
+                    <span class="badge bg-{{ 'danger' if inv_risk == 'High' else 'warning' if inv_risk == 'Medium' else 'success' }}">{{ inv_risk }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary border-opacity-10 bg-dark bg-opacity-20">
+                    <div>
+                        <span class="small fw-bold text-theme d-block">Statistical Outliers Risk</span>
+                        <small class="text-secondary">Abnormal sales/profit anomalies</small>
+                    </div>
+                    <span class="badge bg-{{ 'danger' if dem_risk == 'High' else 'warning' if dem_risk == 'Medium' else 'success' }}">{{ dem_risk }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary border-opacity-10 bg-dark bg-opacity-20">
+                    <div>
+                        <span class="small fw-bold text-theme d-block">Customer Retain Risk</span>
+                        <small class="text-secondary">Base retention health indexes</small>
+                    </div>
+                    <span class="badge bg-{{ 'danger' if churn_risk == 'High' else 'warning' if churn_risk == 'Medium' else 'success' }}">{{ churn_risk }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LOW STOCK AND OVERSTOCK ALERTS TABLE -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="text-danger mb-3"><i class="fas fa-arrow-down me-2"></i> Low Stock Alerts (Refill Needed)</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-dark mb-0">
+                    <thead>
+                        <tr class="small text-secondary">
+                            <th>Product Name</th>
+                            <th>Qty Left</th>
+                            <th>Warehouse</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small text-theme">
+                        {% for item in low_stock_list %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td><span class="text-danger fw-bold">{{ item.qty }}</span></td>
+                            <td>{{ item.wh }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-center text-secondary py-3">All stocks are fully replenished!</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="text-warning mb-3"><i class="fas fa-arrow-up me-2"></i> Overstock Alerts (Excess Capital)</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-dark mb-0">
+                    <thead>
+                        <tr class="small text-secondary">
+                            <th>Product Name</th>
+                            <th>Qty Held</th>
+                            <th>Warehouse</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small text-theme">
+                        {% for item in over_stock_list %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td><span class="text-warning fw-bold">{{ item.qty }}</span></td>
+                            <td>{{ item.wh }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-center text-secondary py-3">No excess inventory identified.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .xx-small { font-size: 0.65rem; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 1. Historical Trends Chart Configuration
+    const histCtx = document.getElementById('historicalChart').getContext('2d');
+    new Chart(histCtx, {
+        type: 'line',
+        data: {
+            labels: {{ all_years|tojson }},
+            datasets: [
+                {
+                    label: 'Revenue (₹)',
+                    data: {{ hist_revenue|tojson }},
+                    borderColor: '#00d2ff',
+                    backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: 'Profit (₹)',
+                    data: {{ hist_profit|tojson }},
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#888' } } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // 2. AI Forecast Chart Configuration
+    const fcCtx = document.getElementById('forecastChart').getContext('2d');
+    new Chart(fcCtx, {
+        type: 'bar',
+        data: {
+            labels: [2027, 2028],
+            datasets: [
+                {
+                    label: 'Projected Revenue (₹)',
+                    data: {{ fc_revenue|tojson }},
+                    backgroundColor: '#e94560',
+                    borderRadius: 5
+                },
+                {
+                    label: 'Projected Profit (₹)',
+                    data: {{ fc_profit|tojson }},
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#888' } } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // 3. Warehouse Stocks Chart Configuration
+    const whCtx = document.getElementById('warehouseChart').getContext('2d');
+    new Chart(whCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ stock_by_warehouse.keys()|list|tojson }},
+            datasets: [{
+                data: {{ stock_by_warehouse.values()|list|tojson }},
+                backgroundColor: ['#2563EB', '#3B82F6', '#60A5FA', '#93C5FD'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#888' } } },
+            cutout: '70%'
+        }
+    });
+
+    // 4. Region Stocks Chart Configuration
+    const regCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regCtx, {
+        type: 'polarArea',
+        data: {
+            labels: {{ stock_by_region.keys()|list|tojson }},
+            datasets: [{
+                data: {{ stock_by_region.values()|list|tojson }},
+                backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(239, 68, 68, 0.6)', 'rgba(37, 99, 235, 0.6)'],
+                borderColor: 'transparent'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#888' } } },
+            scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } }
+        }
+    });
+</script>
 {% endblock %}
