@@ -1,171 +1,520 @@
 {% extends "base.html" %}
 
-{% block title %}Smart Inventory - SmartBiz{% endblock %}
+{% block title %}Strategic Inventory Management - SmartBiz Enterprise{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="glass-card">
-            <h4 class="mb-4 text-info"><i class="fas fa-video me-2"></i> Automated Inventory Scanner</h4>
-            <div id="camera-container" class="position-relative bg-dark rounded overflow-hidden" style="height: 350px; border: 2px solid var(--neon-blue);">
-                <video id="video" width="100%" height="100%" autoplay></video>
-                <canvas id="canvas" style="display:none;"></canvas>
-            </div>
-            <div class="mt-3 text-center">
-                <button id="capture-btn" class="btn btn-neon btn-lg w-100">
-                    <i class="fas fa-camera me-2"></i> Capture & Monitor Shelf
-                </button>
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Total Products</h6>
+            <h4 class="text-white mb-0">{{ stats.total }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase">Categories</h6>
+            <h4 class="text-white mb-0">{{ stats.categories }}</h4>
+        </div>
+    </div>
+    <div class="col-md-2 col-4">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase text-success">In Stock</h6>
+            <h4 class="text-success mb-0">{{ stats.in_stock }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase text-warning">Low Stock</h6>
+            <h4 class="text-warning mb-0">{{ stats.low_stock }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="glass-card text-center p-2">
+            <h6 class="text-secondary xx-small text-uppercase text-danger">Out of Stock</h6>
+            <h4 class="text-danger mb-0">{{ stats.out_of_stock }}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Inventory Alerts -->
+    <div class="col-md-12">
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-4 small text-uppercase"><i class="fas fa-bell me-2"></i> Inventory Health Monitor</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="p-3 bg-dark border-start border-danger border-4 rounded h-100">
+                        <small class="text-secondary text-uppercase d-block mb-1">Out of Stock</small>
+                        <h4 class="text-white">{{ alerts.out|length }} Items</h4>
+                        <div class="xx-small text-danger">Immediate restocking required</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-dark border-start border-warning border-4 rounded h-100">
+                        <small class="text-secondary text-uppercase d-block mb-1">Low Stock</small>
+                        <h4 class="text-white">{{ alerts.low|length }} Items</h4>
+                        <div class="xx-small text-warning">Below safety threshold</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-dark border-start border-info border-4 rounded h-100">
+                        <small class="text-secondary text-uppercase d-block mb-1">Overstock</small>
+                        <h4 class="text-white">{{ alerts.over|length }} Items</h4>
+                        <div class="xx-small text-info">Exceeds max threshold</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-dark border-start border-success border-4 rounded h-100">
+                        <small class="text-secondary text-uppercase d-block mb-1">Recently Added</small>
+                        <h4 class="text-white">{{ alerts.recent|length }} Items</h4>
+                        <div class="xx-small text-success">New in catalog (7 Days)</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="glass-card h-100">
-            <h4 class="mb-4 text-info"><i class="fas fa-microchip me-2"></i> OpenCV Detection Analysis</h4>
-            <div id="result-container" class="bg-dark rounded overflow-hidden d-flex align-items-center justify-content-center mb-3" style="height: 300px; border: 1px dashed #444;">
-                <img id="processed-img" class="img-fluid" src="" style="display:none;">
-                <p id="placeholder-text" class="text-light-50">Activate camera and capture image for detection</p>
+    <!-- SEARCH & TABLE -->
+    <div class="col-md-12">
+        <div class="glass-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-info mb-0"><i class="fas fa-warehouse me-2"></i> Inventory Directory</h5>
+                <button class="btn btn-neon btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fas fa-plus me-1"></i> Add New Product
+                </button>
             </div>
-            <div class="row g-2">
-                <div class="col-6">
-                    <div class="glass-card text-center p-2 bg-dark">
-                        <small class="text-info d-block">Detected Quantity</small>
-                        <span id="count-value" class="h3 fw-bold text-white">--</span>
+
+            <!-- Filters -->
+            <form class="row g-2 mb-4">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search by name or supplier..." value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select form-select-sm">
+                        <option value="">All Categories</option>
+                        {% for c in categories %}
+                        <option value="{{ c }}" {{ 'selected' if request.args.get('category') == c }}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option {{ 'selected' if request.args.get('status') == 'In Stock' }}>In Stock</option>
+                        <option {{ 'selected' if request.args.get('status') == 'Low Stock' }}>Low Stock</option>
+                        <option {{ 'selected' if request.args.get('status') == 'Out of Stock' }}>Out of Stock</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-info btn-sm w-100">Filter</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('user.inventory') }}" class="btn btn-outline-secondary btn-sm w-100">Reset</a>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle small">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr>
+                            <td>#{{ p.id }}</td>
+                            <td class="fw-bold">{{ p.product_name }}</td>
+                            <td>{{ p.category }}</td>
+                            <td>{{ p.stock_quantity }}</td>
+                            <td>₹{{ p.price }}</td>
+                            <td>{{ p.supplier or 'N/A' }}</td>
+                            <td>
+                                {% if p.stock_quantity <= 0 %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                                {% elif p.stock_quantity <= p.minimum_threshold %}
+                                <span class="badge bg-warning text-dark">Low Stock</span>
+                                {% else %}
+                                <span class="badge bg-success">In Stock</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewProductModal{{ p.id }}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editProductModal{{ p.id }}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{ p.id }}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+
+                            <!-- View Modal -->
+                            <div class="modal fade" id="viewProductModal{{ p.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content glass-card p-0 border-info">
+                                        <div class="modal-header border-secondary">
+                                            <h5 class="modal-title text-info">{{ p.product_name }} Details</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <div class="row g-3">
+                                                <div class="col-6">
+                                                    <small class="text-secondary d-block">Category</small>
+                                                    <span class="text-white">{{ p.category }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-secondary d-block">Supplier</small>
+                                                    <span class="text-white">{{ p.supplier or 'N/A' }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-secondary d-block">Current Stock</small>
+                                                    <h4 class="text-{{ 'danger' if p.stock_quantity <= 0 else ('warning' if p.stock_quantity <= p.minimum_threshold else 'success') }}">{{ p.stock_quantity }} Units</h4>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-secondary d-block">Unit Price</small>
+                                                    <h4 class="text-white">₹{{ p.price }}</h4>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-secondary d-block">Description</small>
+                                                    <p class="text-light-50 small mb-0">{{ p.description or 'No description provided.' }}</p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-secondary d-block">Last Updated</small>
+                                                    <span class="text-info small">{{ p.last_updated.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit Modal -->
+                            <div class="modal fade" id="editProductModal{{ p.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content glass-card p-0 border-warning">
+                                        <div class="modal-header border-secondary">
+                                            <h5 class="modal-title text-warning">Edit {{ p.product_name }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="{{ url_for('user.edit_product', product_id=p.id) }}" method="POST">
+                                            <div class="modal-body text-start">
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <label class="form-label small text-secondary">Product Name</label>
+                                                        <input type="text" name="name" class="form-control" value="{{ p.product_name }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label small text-secondary">Category</label>
+                                                        <input type="text" name="category" class="form-control" value="{{ p.category }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label small text-secondary">Supplier</label>
+                                                        <input type="text" name="supplier" class="form-control" value="{{ p.supplier }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label small text-secondary">Quantity</label>
+                                                        <input type="number" name="quantity" class="form-control" value="{{ p.stock_quantity }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label small text-secondary">Unit Price (₹)</label>
+                                                        <input type="number" step="0.01" name="price" class="form-control" value="{{ p.price }}" required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label small text-secondary">Description</label>
+                                                        <textarea name="description" class="form-control" rows="2">{{ p.description }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-secondary">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-warning btn-sm">Update Product</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteProductModal{{ p.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered modal-sm">
+                                    <div class="modal-content glass-card p-0 border-danger">
+                                        <div class="modal-body text-center py-4">
+                                            <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                                            <h5 class="text-white">Delete Product?</h5>
+                                            <p class="text-secondary small">This action cannot be undone. Are you sure you want to delete <strong>{{ p.product_name }}</strong>?</p>
+                                            <div class="d-flex gap-2 justify-content-center mt-4">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">No</button>
+                                                <form action="{{ url_for('user.delete_product_user', product_id=p.id) }}" method="POST">
+                                                    <button type="submit" class="btn btn-danger btn-sm px-3">Yes, Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" class="text-center text-secondary py-5">No products found matching your criteria.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if pagination.pages > 1 %}
+            <nav class="mt-3">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
+                        <a class="page-link bg-dark border-secondary text-info" href="{{ url_for('user.inventory', page=pagination.prev_num, search=request.args.get('search'), category=request.args.get('category'), status=request.args.get('status')) }}">Previous</a>
+                    </li>
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {{ 'active' if page_num == pagination.page }}">
+                                <a class="page-link {{ 'bg-info border-info text-dark' if page_num == pagination.page else 'bg-dark border-secondary text-info' }}" href="{{ url_for('user.inventory', page=page_num, search=request.args.get('search'), category=request.args.get('category'), status=request.args.get('status')) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link bg-dark border-secondary text-secondary">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {{ 'disabled' if not pagination.has_next }}">
+                        <a class="page-link bg-dark border-secondary text-info" href="{{ url_for('user.inventory', page=pagination.next_num, search=request.args.get('search'), category=request.args.get('category'), status=request.args.get('status')) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- AI DETECTION SECTION -->
+    <div class="col-md-12">
+        <div class="glass-card mb-4">
+            <h5 class="text-info mb-4"><i class="fas fa-microchip me-2"></i> AI Inventory Object Detection</h5>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="border border-secondary border-dashed rounded p-5 text-center" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-secondary mb-3"></i>
+                        <h6 class="text-white">Drag & Drop Warehouse Image</h6>
+                        <p class="xx-small text-secondary mb-3">Supports JPG, PNG, WEBP (Max 5MB)</p>
+                        <input type="file" id="inventoryFile" class="d-none" accept="image/*">
+                        <button class="btn btn-neon btn-sm" onclick="document.getElementById('inventoryFile').click()">Browse Files</button>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div id="status-badge" class="glass-card text-center p-2 bg-dark d-flex align-items-center justify-content-center">
-                        <span class="small text-light-50">Waiting for data...</span>
+                <div class="col-md-6">
+                    <h6 class="text-secondary small text-uppercase mb-3">Or Choose Sample Image</h6>
+                    <div class="row g-2">
+                        {% for i in range(1, 5) %}
+                        <div class="col-3">
+                            <div class="sample-box" onclick="runSample({{ i }})">
+                                <img src="{{ url_for('static', filename='sample_images/sample' ~ i ~ '.jpg') }}" class="img-fluid rounded">
+                                <div class="sample-overlay"><i class="fas fa-play"></i></div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <div id="update-form" class="mt-4" style="display:none;">
-                <h6 class="text-info border-bottom pb-2">Sync with Database</h6>
-                <div class="mb-3">
-                    <label class="small text-light-50">Select Product to Update</label>
-                    <select id="product-select" class="form-select bg-dark text-white border-secondary">
-                        {% for product in products %}
-                        <option value="{{ product.id }}">{{ product.product_name }} (Current: {{ product.stock_quantity }})</option>
-                        {% endfor %}
-                    </select>
+            <div id="detectionResult" class="mt-4 d-none">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <img id="annotatedPreview" class="img-fluid rounded border border-info shadow-lg">
+                    </div>
+                    <div class="col-md-5">
+                        <div class="p-4 bg-dark rounded border border-secondary">
+                            <h5 class="text-info mb-3">AI Detection Analysis</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary">Detected Boxes:</span>
+                                <h3 id="detCount" class="text-white mb-0">0</h3>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary">Avg Confidence:</span>
+                                <span id="detConf" class="badge bg-success">0%</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-secondary">Proc. Time:</span>
+                                <span id="detTime" class="text-info small fw-bold">0ms</span>
+                            </div>
+                            <div class="progress mb-4" style="height: 5px;">
+                                <div id="detBar" class="progress-bar bg-info" style="width: 0%"></div>
+                            </div>
+                            <button class="btn btn-outline-info w-100 btn-sm">Save to Audit Log</button>
+                        </div>
+                    </div>
                 </div>
-                <button id="update-btn" class="btn btn-info w-100">Update Inventory Level</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETECTION HISTORY -->
+    <div class="col-md-12">
+        <div class="glass-card">
+            <h5 class="text-info mb-4"><i class="fas fa-history me-2"></i> Recent Detection History</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover small">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Date</th>
+                            <th>Boxes</th>
+                            <th>Confidence</th>
+                            <th class="text-end">View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in history %}
+                        <tr>
+                            <td><img src="{{ url_for('static', filename='detections/' ~ h.annotated_path) }}" width="40" class="rounded"></td>
+                            <td>{{ h.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td class="text-info fw-bold">{{ h.box_count }}</td>
+                            <td>{{ (h.average_confidence * 100)|round(1) }}%</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link p-0 text-info" data-bs-toggle="modal" data-bs-target="#viewDetModal{{ h.id }}"><i class="fas fa-external-link-alt"></i></button>
+                            </td>
+                        </tr>
+
+                        <!-- Det View Modal -->
+                        <div class="modal fade" id="viewDetModal{{ h.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content glass-card p-0 border-info">
+                                    <div class="modal-header border-secondary">
+                                        <h5 class="modal-title text-info">Detection Archive #{{ h.id }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="{{ url_for('static', filename='detections/' ~ h.annotated_path) }}" class="img-fluid rounded border border-secondary mb-3">
+                                        <div class="row g-2 text-start">
+                                            <div class="col-md-3">
+                                                <small class="text-secondary d-block">Boxes Found</small>
+                                                <h4 class="text-white">{{ h.box_count }}</h4>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-secondary d-block">Confidence</small>
+                                                <h4 class="text-success">{{ (h.average_confidence * 100)|round(1) }}%</h4>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-secondary d-block">Latency</small>
+                                                <h4 class="text-info">{{ h.processing_time|round(0) }}ms</h4>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-secondary d-block">Date</small>
+                                                <span class="text-white small">{{ h.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-secondary py-4">No detection history available.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<div class="glass-card mt-4">
-    <h5 class="text-info mb-3">Inventory Table Summary</h5>
-    <div class="table-responsive">
-        <table class="table table-dark table-striped table-hover small">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Current Stock</th>
-                    <th>Last Monitored</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in products %}
-                <tr>
-                    <td>{{ p.product_name }}</td>
-                    <td>{{ p.stock_quantity }}</td>
-                    <td>{{ p.last_updated.strftime('%Y-%m-%d %H:%M') if p.last_updated else 'Never' }}</td>
-                    <td>
-                        {% if p.stock_quantity < 10 %}
-                        <span class="badge bg-danger">Low Stock</span>
-                        {% else %}
-                        <span class="badge bg-success">Normal</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<!-- ADD PRODUCT MODAL -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card p-0 border-info">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-info">Add Enterprise Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('user.add_product') }}" method="POST">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small text-secondary">Product Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-secondary">Category</label>
+                            <input type="text" name="category" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-secondary">Supplier</label>
+                            <input type="text" name="supplier" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-secondary">Initial Quantity</label>
+                            <input type="number" name="quantity" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-secondary">Unit Price (₹)</label>
+                            <input type="number" step="0.01" name="price" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-secondary">Description</label>
+                            <textarea name="description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-neon btn-sm">Save Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <style>
-    #video { transform: scaleX(-1); }
+    .xx-small { font-size: 0.65rem; }
+    .border-dashed { border-style: dashed !important; }
+    .sample-box { position: relative; cursor: pointer; transition: 0.3s; overflow: hidden; border-radius: 5px; }
+    .sample-box:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--neon-blue); }
+    .sample-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,210,255,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; color: white; }
+    .sample-box:hover .sample-overlay { opacity: 1; }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const processedImg = document.getElementById('processed-img');
-    const countValue = document.getElementById('count-value');
-    const updateForm = document.getElementById('update-form');
-    const productSelect = document.getElementById('product-select');
-    const updateBtn = document.getElementById('update-btn');
-    const statusBadge = document.getElementById('status-badge');
+    function runSample(id) {
+        const resultPanel = document.getElementById('detectionResult');
+        resultPanel.classList.remove('d-none');
+        resultPanel.scrollIntoView({ behavior: 'smooth' });
 
-    // Access Webcam
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(err => { console.error("Error accessing webcam:", err); });
-
-    captureBtn.addEventListener('click', () => {
-        const context = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const imageData = canvas.toDataURL('image/jpeg');
-
-        captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing...';
-        captureBtn.disabled = true;
-
-        // Send to backend
-        fetch('/process_inventory', {
+        fetch('/inventory/detect_sample', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageData })
+            body: JSON.stringify({ filename: `sample${id}.jpg` })
         })
         .then(res => res.json())
         .then(data => {
-            captureBtn.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Monitor Shelf';
-            captureBtn.disabled = false;
-
-            processedImg.src = data.processed_image;
-            processedImg.style.display = 'block';
-            document.getElementById('placeholder-text').style.display = 'none';
-            countValue.innerText = data.count;
-            updateForm.style.display = 'block';
-
-            statusBadge.innerHTML = data.count < 10 ?
-                '<span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</span>' :
-                '<span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Stock Healthy</span>';
-        })
-        .catch(err => {
-            console.error(err);
-            captureBtn.disabled = false;
-            captureBtn.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Monitor Shelf';
+            document.getElementById('annotatedPreview').src = "/static/detections/" + data.annotated;
+            document.getElementById('detCount').innerText = data.count;
+            document.getElementById('detConf').innerText = (data.confidence * 100).toFixed(1) + "%";
+            document.getElementById('detTime').innerText = data.proc_time + "ms";
+            document.getElementById('detBar').style.width = (data.confidence * 100) + "%";
         });
-    });
+    }
 
-    updateBtn.addEventListener('click', () => {
-        const productId = productSelect.value;
-        const quantity = countValue.innerText;
+    document.getElementById('inventoryFile').addEventListener('change', function() {
+        const formData = new FormData();
+        formData.append('file', this.files[0]);
 
-        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        document.getElementById('detectionResult').classList.remove('d-none');
+        document.getElementById('detCount').innerText = "...";
 
-        fetch('/update_inventory', {
+        fetch('/inventory/detect', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, quantity: quantity })
+            body: formData
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success) {
-                alert('Inventory database updated successfully!');
-                location.reload();
-            }
+            document.getElementById('annotatedPreview').src = "/static/detections/" + data.annotated;
+            document.getElementById('detCount').innerText = data.count;
+            document.getElementById('detConf').innerText = (data.confidence * 100).toFixed(1) + "%";
+            document.getElementById('detTime').innerText = data.proc_time + "ms";
+            document.getElementById('detBar').style.width = (data.confidence * 100) + "%";
         });
     });
 </script>

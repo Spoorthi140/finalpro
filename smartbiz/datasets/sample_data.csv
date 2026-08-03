@@ -1,11 +1,21 @@
-Product_Name,Price,Marketing,Stock,Sales,Profit
-Soft Drink A,1.5,500.0,200,450,675.0
-Snack Pack B,2.0,300.0,150,300,600.0
-Dairy Milk C,3.5,800.0,80,200,700.0
-Grocery Item D,5.0,100.0,500,100,500.0
-Soft Drink E,1.8,600.0,180,500,900.0
-Snack Pack F,2.5,400.0,120,350,875.0
-Dairy Cheese G,4.5,900.0,60,150,675.0
-Grocery Oil H,12.0,200.0,100,40,480.0
-Soft Drink I,1.2,450.0,300,600,720.0
-Snack Pack J,1.8,250.0,200,400,720.0
+Product Name,Category,Price,Marketing Spend,Stock Quantity,Sales,Revenue,Profit,Date
+Soft Drink A,Beverages,25,500,200,450,11250,2250,2024-01-01
+Snack Pack B,Snacks,40,300,150,300,12000,2400,2024-01-01
+Dairy Milk C,Dairy,60,800,80,200,12000,3600,2024-01-01
+Grocery Item D,Grocery,100,100,500,100,10000,1500,2024-01-01
+Soft Drink E,Beverages,30,600,180,500,15000,3000,2024-02-01
+Snack Pack F,Snacks,45,400,120,350,15750,3150,2024-02-01
+Dairy Cheese G,Dairy,150,900,60,150,22500,6750,2024-02-01
+Grocery Oil H,Grocery,200,200,100,40,8000,1200,2024-02-01
+Soft Drink I,Beverages,20,450,300,600,12000,1800,2024-03-01
+Snack Pack J,Snacks,35,250,200,400,14000,2800,2024-03-01
+Soft Drink A,Beverages,28,550,180,480,13440,2688,2024-04-01
+Snack Pack B,Snacks,42,320,140,310,13020,2604,2024-04-01
+Dairy Milk C,Dairy,65,850,70,210,13650,4095,2024-04-01
+Grocery Item D,Grocery,105,120,450,110,11550,1732,2024-04-01
+Soft Drink E,Beverages,32,620,160,520,16640,3328,2024-05-01
+Snack Pack F,Snacks,48,420,110,360,17280,3456,2024-05-01
+Dairy Cheese G,Dairy,160,950,50,160,25600,7680,2024-05-01
+Grocery Oil H,Grocery,210,220,90,45,9450,1417,2024-05-01
+Soft Drink I,Beverages,22,480,280,630,13860,2079,2024-06-01
+Snack Pack J,Snacks,38,280,190,420,15960,3192,2024-06-01

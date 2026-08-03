@@ -1,0 +1,36 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="glass-card p-4">
+            <h2 class="text-white mb-4">Add New User</h2>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Full Name</label>
+                    <input type="text" name="name" class="form-control bg-dark text-white border-secondary" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Email Address</label>
+                    <input type="email" name="email" class="form-control bg-dark text-white border-secondary" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Initial Password</label>
+                    <input type="password" name="password" class="form-control bg-dark text-white border-secondary" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Role</label>
+                    <select name="role" class="form-select bg-dark text-white border-secondary">
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">Create User</button>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
