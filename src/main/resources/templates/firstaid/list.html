@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">First Aid Guides - CareBeforeCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d32f2f; /* Professional medical red */
+            --secondary-color: #f5f5f5; /* Light gray background */
+            --accent-color: #1976d2; /* Professional blue for accents */
+            --text-color: #333333; /* Dark gray for text */
+            --border-color: #e0e0e0; /* Light border color */
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #b71c1c 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .guide-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .guide-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-color);
+        }
+
+        .guide-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .category-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .navbar {
+            background-color: white !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            border-radius: 4px;
+            margin: 0 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-color);
+            color: white !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .input-group-text {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .form-control {
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.15);
+        }
+
+        footer {
+            background: #1a1a1a !important;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .difficulty-basic {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .difficulty-intermediate {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .difficulty-advanced {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .guide-description {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .emergency-tag {
+            background: #ff5252;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/firstaid}">First Aid</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/symptoms}">Symptoms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/medications}">Medications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment}">Health Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment/history}">Assessment History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/about}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-first-aid me-3"></i>First Aid Guides
+                    </h1>
+                    <p class="lead mb-0">Professional medical procedures and life-saving techniques</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <i class="fas fa-first-aid" style="font-size: 5rem; opacity: 0.9;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Search Box -->
+        <div class="search-box">
+            <div class="row">
+                <div class="col-md-8">
+                    <form th:action="@{/firstaid/search}" method="get" class="d-flex">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="keyword" class="form-control"
+                                   placeholder="Search first aid guides..." th:value="${searchKeyword}">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-grid">
+                        <a th:href="@{/firstaid}" class="btn btn-outline-primary">
+                            <i class="fas fa-sync-alt me-2"></i>View All Guides
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guides List -->
+        <div class="row">
+            <div th:each="guide : ${guides}" class="col-lg-6 mb-4">
+                <div class="guide-card">
+                    <div class="p-4">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="guide-icon me-3">
+                                <i class="fas fa-first-aid"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <h5 class="mb-1" th:text="${guide.title}">Guide Title</h5>
+                                    <span th:if="${guide.severity == 'Critical'}" class="emergency-tag">Emergency</span>
+                                </div>
+                                <span class="category-badge" th:text="${guide.category}">Category</span>
+                            </div>
+                        </div>
+
+                        <p class="guide-description mb-3" th:text="${guide.description}">
+                            Guide description will appear here. This is a brief overview of the first aid procedure.
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <span th:text="${guide.estimatedTime != null ? guide.estimatedTime : '5-10 mins'}">Time</span>
+                                </small>
+                                <small class="ms-3" th:classappend="${guide.difficulty == 'Basic' ? 'difficulty-basic' : (guide.difficulty == 'Intermediate' ? 'difficulty-intermediate' : 'difficulty-advanced')}">
+                                    <i class="fas fa-signal me-1"></i>
+                                    <span th:text="${guide.difficulty != null ? guide.difficulty : 'Easy'}">Difficulty</span>
+                                </small>
+                            </div>
+                            <a th:href="@{/firstaid/{id}(id=${guide.id})}" class="btn btn-primary">
+                                <i class="fas fa-eye me-1"></i>View Guide
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${guides.empty}" class="text-center py-5">
+            <i class="fas fa-first-aid fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No first aid guides found</h4>
+            <p class="text-muted" th:if="${searchKeyword}">No results found for "<span th:text="${searchKeyword}"></span>"</p>
+            <a th:href="@{/firstaid}" class="btn btn-primary mt-3">
+                <i class="fas fa-sync-alt me-2"></i>View All Guides
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ambulance me-2"></i>Pre-Hospital Care Platform</h5>
+                    <p class="mb-0">Your trusted companion for emergency medical guidance.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <strong><i class="fas fa-phone me-1"></i>Emergency:</strong> Call 108 immediately<br>
+                        <small>Educational purposes only. Seek professional medical help in emergencies.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results - CareBeforeCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            border: none;
+            overflow: hidden;
+            position: relative;
+        }
+        .badge-large {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 20px auto;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .low-risk-theme .score-circle {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 4px solid #81c784;
+        }
+        .moderate-risk-theme .score-circle {
+            background-color: #fffde7;
+            color: #f57f17;
+            border: 4px solid #fff176;
+        }
+        .high-risk-theme .score-circle {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 4px solid #e57373;
+        }
+        .info-disclaimer {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            border-top: 1px solid #f1f3f5;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+        .progress-height {
+            height: 25px;
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/firstaid}">First Aid</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/symptoms}">Symptoms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/medications}">Medications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/assessment}">Health Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment/history}">Assessment History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/about}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="hero-section text-center py-4 mb-5" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
+        <div class="container hero-content">
+            <h1 class="display-6 fw-bold mb-2"><i class="fas fa-clipboard-check me-3"></i>Assessment Result</h1>
+            <p class="lead mb-0">Customized decision analysis output.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5" th:if="${result != null}">
+        <div class="row justify-content-center">
+            <div class="col-lg-8" th:classappend="${result.riskLevel == 'LOW RISK' ? 'low-risk-theme' : (result.riskLevel == 'MODERATE RISK' ? 'moderate-risk-theme' : 'high-risk-theme')}">
+
+                <div class="result-card p-4 p-md-5 text-center">
+
+                    <!-- Date and Time of Assessment -->
+                    <div class="mb-3 text-muted">
+                        <i class="far fa-calendar-alt me-2"></i>Assessment Date:
+                        <strong th:text="${#temporals.format(result.assessmentDate, 'yyyy-MM-dd HH:mm:ss')}">2026-08-07 12:00:00</strong>
+                    </div>
+
+                    <!-- High Risk Alert Indicator -->
+                    <div th:if="${result.riskLevel == 'HIGH RISK'}" class="mb-4">
+                        <div class="text-danger mb-2">
+                            <i class="fas fa-exclamation-triangle fa-4x animate__animated animate__pulse animate__infinite"></i>
+                        </div>
+                        <h4 class="text-danger fw-bold">CRITICAL WARNING</h4>
+                    </div>
+
+                    <!-- Risk Level Badge -->
+                    <div class="mb-3">
+                        <span th:if="${result.riskLevel == 'LOW RISK'}" class="badge-large bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>LOW RISK
+                        </span>
+                        <span th:if="${result.riskLevel == 'MODERATE RISK'}" class="badge-large bg-warning text-dark">
+                            <i class="fas fa-exclamation-circle me-2"></i>MODERATE RISK
+                        </span>
+                        <span th:if="${result.riskLevel == 'HIGH RISK'}" class="badge-large bg-danger text-white">
+                            <i class="fas fa-exclamation-triangle me-2"></i>HIGH RISK
+                        </span>
+                    </div>
+
+                    <!-- Risk Score -->
+                    <div class="my-4">
+                        <p class="text-muted mb-1 fw-bold">Clinical Risk Score</p>
+                        <div class="score-circle">
+                            <span th:text="${result.riskScore}">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Progress Bar -->
+                    <div class="my-4 mx-md-5">
+                        <div class="d-flex justify-content-between mb-1 small text-muted">
+                            <span>Mild Symptoms (0)</span>
+                            <span class="fw-bold">Score Progress: <span th:text="${result.riskScore}">0</span> / 26</span>
+                            <span>Severe Symptoms (26)</span>
+                        </div>
+                        <div class="progress progress-height">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 th:style="'width: ' + (${result.riskScore} * 100 / 26) + '%'"
+                                 th:classappend="${result.riskLevel == 'LOW RISK' ? 'bg-success' : (result.riskLevel == 'MODERATE RISK' ? 'bg-warning' : 'bg-danger')}"
+                                 th:aria-valuenow="${result.riskScore}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="26">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advice & Recommendation -->
+                    <div class="card p-4 bg-light border-0 rounded-3 my-4 text-start">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-user-md me-2 text-primary"></i>Health Advice & Recommendations</h5>
+                        <p class="fs-5 mb-0" th:text="${result.recommendation}">Recommendation details go here.</p>
+                    </div>
+
+                    <!-- Emergency Instruction card for High/Moderate risks -->
+                    <div th:if="${result.riskLevel == 'HIGH RISK'}" class="alert alert-danger text-start mt-4">
+                        <h5 class="fw-bold"><i class="fas fa-phone-alt me-2 animate__animated animate__shakeX animate__infinite"></i>Emergency Recommendation:</h5>
+                        <p class="mb-0 fs-6">Please visit the nearest emergency room or hospital immediately, or dial <strong>108</strong> for emergency services without delay.</p>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-3">
+                        <a th:href="@{/assessment}" class="btn btn-outline-primary btn-lg rounded-pill">
+                            <i class="fas fa-redo me-2"></i>New Assessment
+                        </a>
+                        <a th:href="@{/assessment/history}" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="fas fa-history me-2"></i>View History
+                        </a>
+                    </div>
+
+                    <!-- Informational Disclaimer -->
+                    <div class="info-disclaimer">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span>This assessment is intended for informational purposes only and should not replace professional medical advice.</span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ambulance me-2"></i>CareBeforeCare</h5>
+                    <p class="mb-0">Pre-Hospital Care Platform</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <strong>Emergency:</strong> Call 108 immediately<br>
+                        <small>Educational platform - Not a substitute for professional medical care</small>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - CareBeforeCare Pre-Hospital Care Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+       :root {
+    --primary-color: #2a6ecc;
+    --primary-dark: #1a5ab3;
+    --primary-light: #4a8ae8;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #e63946;
+    --warning-color: #ff9e1f;
+    --info-color: #17a2b8;
+    --teal-color: #20c997;
+    --indigo-color: #5a67d8;
+    --light-bg: #f8fafc;
+    --dark-bg: #1e2a3a;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+    overflow-x: hidden;
+    background-color: var(--light-bg);
+}
+
+/* Enhanced Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 6rem 0 5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: bottom;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.glowing-text {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+    from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+    to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.5); }
+}
+
+.hero-graphic {
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Enhanced Quick Action Buttons */
+.quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.quick-action-btn:hover::before {
+    left: 100%;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.emergency-btn {
+    background: var(--danger-color);
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    animation: pulse-emergency 2s infinite;
+}
+
+@keyframes pulse-emergency {
+    0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(230, 57, 70, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+}
+
+/* Enhanced Emergency Contact Section */
+.emergency-contact {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffd54f;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.emergency-contact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: var(--danger-color);
+}
+
+/* Enhanced Section Titles */
+.section-title {
+    text-align: center;
+    margin: 3rem 0 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+/* Enhanced Feature Cards */
+.feature-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    border-left: 4px solid var(--primary-color);
+    overflow: hidden;
+    position: relative;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--hover-shadow);
+}
+
+.feature-icon {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+.btn-outline-teal {
+    color: var(--teal-color);
+    border-color: var(--teal-color);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-teal:hover {
+    background-color: var(--teal-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3);
+}
+
+/* Enhanced Stats Section */
+.stats-section {
+    background: linear-gradient(135deg, var(--light-bg) 0%, #e9ecef 100%);
+    padding: 4rem 0;
+    border-radius: 15px;
+    margin: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%232a6ecc" fill-opacity="0.03" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: bottom;
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    display: block;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Resource Cards */
+.resource-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.resource-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(42, 110, 204, 0.03) 0%, rgba(42, 110, 204, 0.08) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.resource-card:hover::before {
+    opacity: 1;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+}
+
+/* Enhanced Footer */
+footer {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #2d3748 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.02" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: bottom;
+}
+
+/* Enhanced Navigation */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    position: relative;
+    font-weight: 500;
+    margin: 0 0.2rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 80%;
+}
+
+/* Color-specific styles for resource cards */
+.resource-card:nth-child(1) {
+    border-left-color: var(--danger-color);
+}
+
+.resource-card:nth-child(2) {
+    border-left-color: var(--info-color);
+}
+
+.resource-card:nth-child(3) {
+    border-left-color: var(--warning-color);
+}
+
+.resource-card:nth-child(4) {
+    border-left-color: var(--teal-color);
+}
+
+/* Button color variations */
+.btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success {
+    background: var(--teal-color);
+    border-color: var(--teal-color);
+}
+
+.btn-info {
+    background: var(--info-color);
+    border-color: var(--info-color);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 4rem 0 3rem;
+        text-align: center;
+    }
+
+    .quick-action-btn {
+        width: 100%;
+        justify-content: center;
+        margin: 0.25rem 0;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+    }
+
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Scroll animations */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/firstaid}">First Aid</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/symptoms}">Symptoms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/medications}">Medications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment}">Health Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment/history}">Assessment History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/about}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="hero-content">
+                        <h1 class="display-4 fw-bold mb-4 glow-text">
+                            <i class="fas fa-ambulance me-3"></i>CareBeforeCare Platform
+                        </h1>
+                        <p class="lead mb-4 fs-5">Your comprehensive emergency medical care companion. Quick access to first aid guides, symptom assessment, and medication information when every second counts.</p>
+                        <div class="d-flex flex-wrap">
+                            <a th:href="@{/firstaid}" class="quick-action-btn">
+                                <i class="fas fa-first-aid me-2"></i>First Aid Guides
+                            </a>
+                            <a th:href="@{/symptoms}" class="quick-action-btn" style="background: var(--success-color);">
+                                <i class="fas fa-stethoscope me-2"></i>Symptom Checker
+                            </a>
+                            <a th:href="@{/medications}" class="quick-action-btn" style="background: var(--purple-color);">
+                                <i class="fas fa-pills me-2"></i>Medications
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="hero-graphic">
+                        <i class="fas fa-heartbeat" style="font-size: 8rem; opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Contact Section -->
+    <div class="container">
+        <div class="emergency-contact">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Emergency Alert</h3>
+                    <p class="mb-0">For life-threatening emergencies, chest pain, difficulty breathing, severe bleeding, or loss of consciousness</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <a href="tel:108" class="quick-action-btn emergency-btn">
+                        <i class="fas fa-phone me-2"></i>Call 108 NOW
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="container">
+        <h2 class="section-title">Emergency Medical Resources</h2>
+        <div class="row g-4">
+            <!-- First Aid Card -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-first-aid fa-3x"></i>
+                    </div>
+                    <h4>First Aid Guides</h4>
+                    <p class="text-muted">Step-by-step emergency procedures for CPR, choking, bleeding, burns, and more. Quick reference when seconds matter.</p>
+                    <div class="mt-3">
+                        <a th:href="@{/firstaid}" class="btn btn-primary">View Guides</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptoms Card -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon text-success">
+                        <i class="fas fa-stethoscope fa-3x"></i>
+                    </div>
+                    <h4>Symptom Checker</h4>
+                    <p class="text-muted">Identify symptoms and get immediate first aid guidance. Understand warning signs and when to seek medical help.</p>
+                    <div class="mt-3">
+                        <a th:href="@{/symptoms}" class="btn btn-success">Check Symptoms</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medications Card -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon text-purple">
+                        <i class="fas fa-pills fa-3x"></i>
+                    </div>
+                    <h4>Medications Guide</h4>
+                    <p class="text-muted">Comprehensive information about emergency medications, dosage, side effects, and precautions.</p>
+                    <div class="mt-3">
+                        <a th:href="@{/medications}" class="btn btn-outline-purple">View Medications</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="container">
+        <div class="stats-section">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <span class="stat-number" th:text="${guideCount != null ? guideCount : '2+'}">2+</span>
+                    <p class="text-muted">First Aid Procedures</p>
+                </div>
+                <div class="col-md-3">
+                    <span class="stat-number" th:text="${symptomCount != null ? symptomCount : '2+'}">2+</span>
+                    <p class="text-muted">Symptoms Database</p>
+                </div>
+                <div class="col-md-3">
+                    <span class="stat-number" th:text="${medicationCount != null ? medicationCount : '1+'}">1+</span>
+                    <p class="text-muted">Medications Guide</p>
+                </div>
+                <div class="col-md-3">
+                    <span class="stat-number">24/7</span>
+                    <p class="text-muted">Available Resources</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Resources Section -->
+    <section class="container">
+        <h2 class="section-title">Quick Emergency Resources</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="resource-card">
+                    <h5><i class="fas fa-heartbeat text-danger me-2"></i>Cardiac Emergency</h5>
+                    <p class="mb-2">CPR instructions, chest pain management, AED usage</p>
+                    <a th:href="@{/firstaid/category/CARDIAC}" class="btn btn-sm btn-outline-danger">View Cardiac Guides</a>
+                </div>
+
+                <div class="resource-card">
+                    <h5><i class="fas fa-lungs text-info me-2"></i>Breathing Emergency</h5>
+                    <p class="mb-2">Choking relief, asthma attack, allergic reactions</p>
+                    <a th:href="@{/firstaid/category/RESPIRATORY}" class="btn btn-sm btn-outline-info">View Breathing Guides</a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="resource-card">
+                    <h5><i class="fas fa-tint text-warning me-2"></i>Trauma & Bleeding</h5>
+                    <p class="mb-2">Bleeding control, wound care, fracture management</p>
+                    <a th:href="@{/firstaid/category/TRAUMA}" class="btn btn-sm btn-outline-warning">View Trauma Guides</a>
+                </div>
+
+                <div class="resource-card">
+                    <h5><i class="fas fa-burn text-success me-2"></i>Burns & Environmental</h5>
+                    <p class="mb-2">Burn treatment, heat stroke, hypothermia</p>
+                    <a th:href="@{/firstaid/category/BURN}" class="btn btn-sm btn-outline-success">View Burn Guides</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Preparedness Section -->
+    <section class="container mt-5">
+        <div class="feature-card p-4" style="border-left-color: var(--pink-color); background: linear-gradient(135deg, #fff5f5 0%, #ffeaea 100%);">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3><i class="fas fa-first-aid me-2"></i>Be Prepared for Emergencies</h3>
+                    <p class="mb-0">Learn essential first aid skills that could save a life. Our comprehensive guides are designed for quick understanding and immediate action.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <a th:href="@{/firstaid}" class="quick-action-btn emergency-btn">
+                        <i class="fas fa-graduation-cap me-2"></i>Learn First Aid
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ambulance me-2"></i>Pre-Hospital Care Platform</h5>
+                    <p class="mb-0">Your trusted companion for emergency medical guidance and first aid procedures.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <strong><i class="fas fa-phone me-1"></i>Emergency:</strong> Call 108 immediately<br>
+                        <small>This information is for educational purposes only. Always seek professional medical help in emergencies.</small>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
