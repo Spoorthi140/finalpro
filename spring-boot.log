@@ -1,0 +1,335 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------< com.pharmacy:inventory-management >------------------
+[INFO] Building inventory-management 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] >>> spring-boot:3.2.0:run (default-cli) > test-compile @ inventory-management >>>
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ inventory-management ---
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] Copying 6 resources from src/main/resources to target/classes
+[INFO]
+[INFO] --- compiler:3.11.0:compile (default-compile) @ inventory-management ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 41 source files with javac [debug release 17] to target/classes
+[INFO] /app/src/main/java/com/pharmacy/inventory/exception/GlobalExceptionHandler.java: /app/src/main/java/com/pharmacy/inventory/exception/GlobalExceptionHandler.java uses unchecked or unsafe operations.
+[INFO] /app/src/main/java/com/pharmacy/inventory/exception/GlobalExceptionHandler.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ inventory-management ---
+[INFO] skip non existing resourceDirectory /app/src/test/resources
+[INFO]
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ inventory-management ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 1 source file with javac [debug release 17] to target/test-classes
+[INFO]
+[INFO] <<< spring-boot:3.2.0:run (default-cli) < test-compile @ inventory-management <<<
+[INFO]
+[INFO]
+[INFO] --- spring-boot:3.2.0:run (default-cli) @ inventory-management ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2026-08-13T16:27:15.795Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Starting InventoryManagementApplication using Java 21.0.10 with PID 2921750 (/app/target/classes started by jules in /app)
+2026-08-13T16:27:15.796Z DEBUG 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Running with Spring Boot v3.2.0, Spring v6.1.1
+2026-08-13T16:27:15.797Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-08-13T16:27:15.848Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-13T16:27:15.848Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-13T16:27:16.581Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-13T16:27:16.660Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 72 ms. Found 4 JPA repository interfaces.
+2026-08-13T16:27:17.262Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8088 (http)
+2026-08-13T16:27:17.273Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-13T16:27:17.274Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-08-13T16:27:17.315Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-08-13T16:27:17.317Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1467 ms
+2026-08-13T16:27:17.350Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-13T16:27:17.532Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:pharmacydb user=SA
+2026-08-13T16:27:17.533Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-13T16:27:17.546Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:pharmacydb'
+2026-08-13T16:27:17.667Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-13T16:27:17.714Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
+2026-08-13T16:27:17.761Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-13T16:27:18.001Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-13T16:27:18.043Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-13T16:27:18.947Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate:
+    drop table if exists categories cascade
+Hibernate:
+    drop table if exists medications cascade
+Hibernate:
+    drop table if exists suppliers cascade
+Hibernate:
+    create table categories (
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        description varchar(500),
+        name varchar(255) not null unique,
+        primary key (id)
+    )
+Hibernate:
+    create table medications (
+        expiration_date date,
+        is_deleted boolean,
+        low_stock_threshold integer,
+        price numeric(10,2) not null,
+        quantity integer not null,
+        category_id bigint,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        supplier_id bigint,
+        updated_at timestamp(6),
+        description varchar(1000),
+        batch_number varchar(255),
+        manufacturer varchar(255),
+        name varchar(255) not null,
+        type varchar(255),
+        primary key (id)
+    )
+Hibernate:
+    create table suppliers (
+        active boolean default true not null,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        address varchar(500),
+        contact_person varchar(255),
+        email varchar(255) not null unique,
+        name varchar(255) not null,
+        phone varchar(255) not null,
+        primary key (id)
+    )
+Hibernate:
+    alter table if exists medications
+       add constraint FKmf1t7pw4h0df5jr8gld0uf05k
+       foreign key (category_id)
+       references categories
+Hibernate:
+    alter table if exists medications
+       add constraint FK94rldjohkfmifdk13m2i03g70
+       foreign key (supplier_id)
+       references suppliers
+2026-08-13T16:27:19.014Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-13T16:27:19.393Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-13T16:27:20.491Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-13T16:27:20.512Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-08-13T16:27:20.832Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-08-13T16:27:20.861Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8088 (http) with context path ''
+2026-08-13T16:27:20.869Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Started InventoryManagementApplication in 5.442 seconds (process running for 5.86)
+2026-08-13T16:29:40.196Z  INFO 2921750 --- [pharmacy-inventory-management] [nio-8088-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-13T16:29:40.197Z  INFO 2921750 --- [pharmacy-inventory-management] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-13T16:29:40.198Z  INFO 2921750 --- [pharmacy-inventory-management] [nio-8088-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-08-13T16:36:46.726Z  INFO 2921750 --- [pharmacy-inventory-management] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 49 class path changes (0 additions, 41 deletions, 8 modifications)
+2026-08-13T16:36:46.754Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+Hibernate:
+    drop table if exists categories cascade
+Hibernate:
+    drop table if exists medications cascade
+Hibernate:
+    drop table if exists suppliers cascade
+2026-08-13T16:36:46.772Z  WARN 2921750 --- [pharmacy-inventory-management] [       Thread-5] o.s.b.f.support.DisposableBeanAdapter    : Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2026-08-13T16:36:46.773Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-08-13T16:36:46.776Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2026-08-13T16:36:47.030Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Starting InventoryManagementApplication using Java 21.0.10 with PID 2921750 (/app/target/classes started by jules in /app)
+2026-08-13T16:36:47.031Z DEBUG 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Running with Spring Boot v3.2.0, Spring v6.1.1
+2026-08-13T16:36:47.031Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-08-13T16:36:47.281Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-13T16:36:47.295Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 13 ms. Found 1 JPA repository interface.
+2026-08-13T16:36:47.473Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8088 (http)
+2026-08-13T16:36:47.474Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-13T16:36:47.475Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-08-13T16:36:47.496Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-08-13T16:36:47.496Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 457 ms
+2026-08-13T16:36:47.515Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-08-13T16:36:47.524Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:pharmacydb user=SA
+2026-08-13T16:36:47.524Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-08-13T16:36:47.525Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:pharmacydb'
+2026-08-13T16:36:47.564Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-13T16:36:47.567Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-13T16:36:47.575Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-13T16:36:47.576Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-13T16:36:47.769Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate:
+    drop table if exists categories cascade
+Hibernate:
+    drop table if exists medications cascade
+Hibernate:
+    drop table if exists suppliers cascade
+Hibernate:
+    create table categories (
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        description varchar(500),
+        name varchar(255) not null unique,
+        primary key (id)
+    )
+Hibernate:
+    create table medications (
+        expiration_date date,
+        is_deleted boolean,
+        low_stock_threshold integer,
+        price numeric(10,2) not null,
+        quantity integer not null,
+        category_id bigint,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        supplier_id bigint,
+        updated_at timestamp(6),
+        description varchar(1000),
+        batch_number varchar(255),
+        manufacturer varchar(255),
+        name varchar(255) not null,
+        type varchar(255),
+        primary key (id)
+    )
+Hibernate:
+    create table suppliers (
+        active boolean default true not null,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        address varchar(500),
+        contact_person varchar(255),
+        email varchar(255) not null unique,
+        name varchar(255) not null,
+        phone varchar(255) not null,
+        primary key (id)
+    )
+Hibernate:
+    alter table if exists medications
+       add constraint FKmf1t7pw4h0df5jr8gld0uf05k
+       foreign key (category_id)
+       references categories
+Hibernate:
+    alter table if exists medications
+       add constraint FK94rldjohkfmifdk13m2i03g70
+       foreign key (supplier_id)
+       references suppliers
+2026-08-13T16:36:47.807Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-13T16:36:47.854Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-13T16:36:47.867Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-08-13T16:36:48.386Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-08-13T16:36:48.408Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8088 (http) with context path ''
+2026-08-13T16:36:48.413Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Started InventoryManagementApplication in 1.453 seconds (process running for 573.403)
+2026-08-13T16:36:48.417Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-13T16:36:49.800Z  INFO 2921750 --- [pharmacy-inventory-management] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 41 class path changes (41 additions, 0 deletions, 0 modifications)
+2026-08-13T16:36:49.810Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+Hibernate:
+    drop table if exists categories cascade
+Hibernate:
+    drop table if exists medications cascade
+Hibernate:
+    drop table if exists suppliers cascade
+2026-08-13T16:36:49.823Z  WARN 2921750 --- [pharmacy-inventory-management] [       Thread-7] o.s.b.f.support.DisposableBeanAdapter    : Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2026-08-13T16:36:49.824Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-08-13T16:36:49.827Z  INFO 2921750 --- [pharmacy-inventory-management] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2026-08-13T16:36:50.026Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Starting InventoryManagementApplication using Java 21.0.10 with PID 2921750 (/app/target/classes started by jules in /app)
+2026-08-13T16:36:50.027Z DEBUG 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Running with Spring Boot v3.2.0, Spring v6.1.1
+2026-08-13T16:36:50.027Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-08-13T16:36:50.213Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-13T16:36:50.231Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 17 ms. Found 4 JPA repository interfaces.
+2026-08-13T16:36:50.368Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8088 (http)
+2026-08-13T16:36:50.369Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-13T16:36:50.369Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-08-13T16:36:50.389Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-08-13T16:36:50.390Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 359 ms
+2026-08-13T16:36:50.415Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-08-13T16:36:50.430Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:pharmacydb user=SA
+2026-08-13T16:36:50.432Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-08-13T16:36:50.433Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:pharmacydb'
+2026-08-13T16:36:50.472Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-13T16:36:50.474Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-13T16:36:50.477Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-13T16:36:50.479Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-13T16:36:50.660Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate:
+    drop table if exists categories cascade
+Hibernate:
+    drop table if exists medications cascade
+Hibernate:
+    drop table if exists suppliers cascade
+Hibernate:
+    create table categories (
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        description varchar(500),
+        name varchar(255) not null unique,
+        primary key (id)
+    )
+Hibernate:
+    create table medications (
+        expiration_date date,
+        is_deleted boolean,
+        low_stock_threshold integer,
+        price numeric(10,2) not null,
+        quantity integer not null,
+        category_id bigint,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        supplier_id bigint,
+        updated_at timestamp(6),
+        description varchar(1000),
+        batch_number varchar(255),
+        manufacturer varchar(255),
+        name varchar(255) not null,
+        type varchar(255),
+        primary key (id)
+    )
+Hibernate:
+    create table suppliers (
+        active boolean default true not null,
+        created_at timestamp(6),
+        id bigint generated by default as identity,
+        updated_at timestamp(6),
+        address varchar(500),
+        contact_person varchar(255),
+        email varchar(255) not null unique,
+        name varchar(255) not null,
+        phone varchar(255) not null,
+        primary key (id)
+    )
+Hibernate:
+    alter table if exists medications
+       add constraint FKmf1t7pw4h0df5jr8gld0uf05k
+       foreign key (category_id)
+       references categories
+Hibernate:
+    alter table if exists medications
+       add constraint FK94rldjohkfmifdk13m2i03g70
+       foreign key (supplier_id)
+       references suppliers
+2026-08-13T16:36:50.668Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-13T16:36:51.495Z  WARN 2921750 --- [pharmacy-inventory-management] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-13T16:36:51.503Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-08-13T16:36:51.676Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-08-13T16:36:51.705Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8088 (http) with context path ''
+2026-08-13T16:36:51.710Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] c.p.i.InventoryManagementApplication     : Started InventoryManagementApplication in 1.735 seconds (process running for 576.701)
+2026-08-13T16:36:51.711Z  INFO 2921750 --- [pharmacy-inventory-management] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
