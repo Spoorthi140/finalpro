@@ -5,10 +5,6 @@ DELETE FROM categories;
 DELETE FROM suppliers;
 DELETE FROM users;
 
--- Insert seed Admin user (password: Admin123! hashed with BCrypt)
-INSERT INTO users (id, full_name, email, password, role, created_at) VALUES
-(1, 'Dr. Sarah Johnson', 'admin@pharmacare.com', '$2a$10$wT5UfT7Y12mN/Q0Zl1C7UeM.J4P9Jk2X7n9/p8R7a7s8t9u0v1w2x', 'ADMIN', CURRENT_TIMESTAMP);
-
 -- Insert 20 sample categories
 INSERT INTO categories (id, name, description, created_at, updated_at) VALUES
 (1, 'Analgesics', 'Pain relief medications used to treat headaches, muscle aches, arthritis, and other pains', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

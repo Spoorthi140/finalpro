@@ -36,13 +36,9 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Email is already registered");
         }
 
-        // Role decision: first account registered is ADMIN, subsequent accounts are PHARMACIST
-        long userCount = userRepository.count();
-        String role = (userCount == 0) ? "ADMIN" : "PHARMACIST";
-
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
-        User user = new User(request.getFullName().trim(), normalizedEmail, hashedPassword, role);
+        User user = new User(request.getFullName().trim(), normalizedEmail, hashedPassword, "USER");
         User savedUser = userRepository.save(user);
 
         return convertToResponse(savedUser);
