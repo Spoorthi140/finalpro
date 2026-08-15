@@ -967,61 +967,241 @@
         // Create global instance
         const pharmaCareAPI = new PharmaCareDataService();
 
-        // Enhanced API Service with Mock Backend Integration
+        // Real Backend REST API Integration
         const apiService = {
             async getMedications() {
+                try {
+                    const res = await fetch('/api/medications');
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        return json.data.map(m => ({
+                            ...m,
+                            quantity: m.stockQuantity !== undefined ? m.stockQuantity : m.quantity,
+                            price: m.unitPrice !== undefined ? m.unitPrice : m.price,
+                            reorderLevel: m.lowStockThreshold !== undefined ? m.lowStockThreshold : 10,
+                            expiryDate: m.expiryDate || m.expirationDate,
+                            genericName: m.genericName || m.name
+                        }));
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch medications from REST API", e);
+                }
                 return pharmaCareAPI.getMedications();
             },
 
             async createMedication(medication) {
+                try {
+                    const reqBody = {
+                        name: medication.name,
+                        description: medication.description || '',
+                        stockQuantity: parseInt(medication.quantity || medication.stockQuantity || 0),
+                        unitPrice: parseFloat(medication.price || medication.unitPrice || 0),
+                        expiryDate: medication.expiryDate || medication.expirationDate || null,
+                        lowStockThreshold: parseInt(medication.reorderLevel || medication.lowStockThreshold || 10),
+                        manufacturer: medication.manufacturer || '',
+                        batchNumber: medication.batchNumber || '',
+                        type: medication.type || 'TABLET',
+                        categoryId: medication.categoryId ? parseInt(medication.categoryId) : null,
+                        supplierId: medication.supplierId ? parseInt(medication.supplierId) : null
+                    };
+                    const res = await fetch('/api/medications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqBody)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        return json.data;
+                    }
+                } catch (e) {
+                    console.error("Failed to create medication via REST API", e);
+                }
                 return pharmaCareAPI.createMedication(medication);
             },
 
             async updateMedication(id, medication) {
+                try {
+                    const reqBody = {
+                        name: medication.name,
+                        description: medication.description || '',
+                        stockQuantity: parseInt(medication.quantity || medication.stockQuantity || 0),
+                        unitPrice: parseFloat(medication.price || medication.unitPrice || 0),
+                        expiryDate: medication.expiryDate || medication.expirationDate || null,
+                        lowStockThreshold: parseInt(medication.reorderLevel || medication.lowStockThreshold || 10),
+                        manufacturer: medication.manufacturer || '',
+                        batchNumber: medication.batchNumber || '',
+                        type: medication.type || 'TABLET',
+                        categoryId: medication.categoryId ? parseInt(medication.categoryId) : null,
+                        supplierId: medication.supplierId ? parseInt(medication.supplierId) : null
+                    };
+                    const res = await fetch(`/api/medications/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqBody)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        return json.data;
+                    }
+                } catch (e) {
+                    console.error("Failed to update medication via REST API", e);
+                }
                 return pharmaCareAPI.updateMedication(id, medication);
             },
 
             async deleteMedication(id) {
+                try {
+                    const res = await fetch(`/api/medications/${id}`, { method: 'DELETE' });
+                    const json = await res.json();
+                    if (json.success) return { success: true };
+                } catch (e) {
+                    console.error("Failed to delete medication via REST API", e);
+                }
                 return pharmaCareAPI.deleteMedication(id);
             },
 
             async getCategories() {
+                try {
+                    const res = await fetch('/api/categories');
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) return json.data;
+                } catch (e) {
+                    console.error("Failed to fetch categories from REST API", e);
+                }
                 return pharmaCareAPI.getCategories();
             },
 
             async createCategory(category) {
+                try {
+                    const res = await fetch('/api/categories', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(category)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                } catch (e) {
+                    console.error("Failed to create category via REST API", e);
+                }
                 return pharmaCareAPI.createCategory(category);
             },
 
             async updateCategory(id, category) {
+                try {
+                    const res = await fetch(`/api/categories/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(category)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                } catch (e) {
+                    console.error("Failed to update category via REST API", e);
+                }
                 return pharmaCareAPI.updateCategory(id, category);
             },
 
             async deleteCategory(id) {
+                try {
+                    const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+                    const json = await res.json();
+                    if (json.success) return { success: true };
+                } catch (e) {
+                    console.error("Failed to delete category via REST API", e);
+                }
                 return pharmaCareAPI.deleteCategory(id);
             },
 
             async getSuppliers() {
+                try {
+                    const res = await fetch('/api/suppliers');
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) return json.data;
+                } catch (e) {
+                    console.error("Failed to fetch suppliers from REST API", e);
+                }
                 return pharmaCareAPI.getSuppliers();
             },
 
             async createSupplier(supplier) {
+                try {
+                    const res = await fetch('/api/suppliers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(supplier)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                } catch (e) {
+                    console.error("Failed to create supplier via REST API", e);
+                }
                 return pharmaCareAPI.createSupplier(supplier);
             },
 
             async updateSupplier(id, supplier) {
+                try {
+                    const res = await fetch(`/api/suppliers/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(supplier)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                } catch (e) {
+                    console.error("Failed to update supplier via REST API", e);
+                }
                 return pharmaCareAPI.updateSupplier(id, supplier);
             },
 
             async deleteSupplier(id) {
+                try {
+                    const res = await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
+                    const json = await res.json();
+                    if (json.success) return { success: true };
+                } catch (e) {
+                    console.error("Failed to delete supplier via REST API", e);
+                }
                 return pharmaCareAPI.deleteSupplier(id);
             },
 
             async getSales() {
+                try {
+                    const res = await fetch('/api/sales');
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        return json.data.map(s => ({
+                            id: s.id,
+                            date: s.saleDate || s.date,
+                            medicationId: s.medicationId,
+                            medicationName: s.medicationName || 'Medication #' + s.medicationId,
+                            quantity: s.quantity,
+                            revenue: s.totalPrice || s.revenue
+                        }));
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch sales from REST API", e);
+                }
                 return pharmaCareAPI.getSales();
             },
 
             async createSale(sale) {
+                try {
+                    const reqBody = {
+                        medicationId: parseInt(sale.medicationId),
+                        quantity: parseInt(sale.quantity),
+                        unitPrice: sale.unitPrice || sale.price || 0,
+                        saleDate: sale.date || new Date().toISOString().split('T')[0]
+                    };
+                    const res = await fetch('/api/sales', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqBody)
+                    });
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                } catch (e) {
+                    console.error("Failed to create sale via REST API", e);
+                }
                 return pharmaCareAPI.createSale(sale);
             }
         };
@@ -1643,7 +1823,7 @@
                                             <div className="small text-white-50 text-uppercase fw-bold">This Month Revenue</div>
                                             <div className="stat-number">₹{Number(reportData.thisMonthRevenue).toFixed(2)}</div>
                                         </div>
-                                        <i className="bi bi-currency-dollar display-6 opacity-75"></i>
+                                        <i className="bi bi-currency-rupee display-6 opacity-75"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1993,18 +2173,21 @@
 
             const startCamera = async () => {
                 try {
-                    setCameraActive(true);
                     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     streamRef.current = stream;
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                    }
+                    setCameraActive(true);
                 } catch (err) {
                     console.error("Camera access error:", err);
                     addToast("Could not access camera. Please upload an image instead.", "warning");
                     setCameraActive(false);
                 }
             };
+
+            useEffect(() => {
+                if (cameraActive && videoRef.current && streamRef.current) {
+                    videoRef.current.srcObject = streamRef.current;
+                }
+            }, [cameraActive]);
 
             const stopCamera = () => {
                 if (streamRef.current) {
@@ -3985,10 +4168,10 @@
                             <div className="card-body">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div className="stat-number">${stats.monthlyRevenue}</div>
+                                        <div className="stat-number">₹{stats.monthlyRevenue}</div>
                                         <div className="stat-label">Monthly Revenue</div>
                                     </div>
-                                    <i className="bi bi-currency-dollar display-6 opacity-75"></i>
+                                    <i className="bi bi-currency-rupee display-6 opacity-75"></i>
                                 </div>
                                 <div className="mt-3">
                                     <small><i className="bi bi-arrow-up-circle-fill text-success me-1"></i> 8% from last month</small>

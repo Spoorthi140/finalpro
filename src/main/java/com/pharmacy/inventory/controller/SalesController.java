@@ -18,6 +18,17 @@ public class SalesController {
     @Autowired
     private SaleService saleService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<java.util.List<Sale>>> getAllSales() {
+        try {
+            java.util.List<Sale> sales = saleService.getAllSales();
+            return ResponseEntity.ok(ApiResponse.success("Sales retrieved successfully", sales));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to retrieve sales: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/reports")
     public ResponseEntity<ApiResponse<SalesReportResponse>> getSalesReport() {
         try {
