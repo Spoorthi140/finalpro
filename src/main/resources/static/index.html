@@ -1093,8 +1093,233 @@
             return { addToast, ToastContainer };
         }
 
+        // Login Component
+        function Login({ onLoginSuccess, onNavigateToRegister, addToast }) {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setLoading(true);
+
+                try {
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        addToast('Welcome back, ' + data.data.fullName + '!', 'success');
+                        onLoginSuccess(data.data);
+                    } else {
+                        setError('Invalid email or password.');
+                    }
+                } catch (err) {
+                    setError('Invalid email or password.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="container mt-5 fade-in">
+                    <div className="row justify-content-center">
+                        <div className="col-md-5 col-lg-4">
+                            <div className="card shadow-lg border-0 rounded-4">
+                                <div className="card-body p-4 text-center">
+                                    <div className="mb-3 text-primary">
+                                        <i className="bi bi-capsule-pill display-4"></i>
+                                    </div>
+                                    <h3 className="fw-bold text-primary mb-1">PharmaCare</h3>
+                                    <p className="text-muted small mb-4">Pharmacy Inventory Management System</p>
+
+                                    <h5 className="fw-bold text-dark mb-3">Welcome Back</h5>
+
+                                    {error && (
+                                        <div className="alert alert-danger py-2 small fw-semibold text-center mb-3" role="alert">
+                                            {error}
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="mb-3 text-start">
+                                            <label className="form-label small fw-bold">Email Address</label>
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                placeholder="name@example.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-4 text-start">
+                                            <label className="form-label small fw-bold">Password</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="••••••••"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <button type="submit" className="btn btn-primary w-100 py-2 rounded-3 mb-3" disabled={loading}>
+                                            {loading ? 'Logging in...' : 'Login'}
+                                        </button>
+                                    </form>
+
+                                    <div className="small text-muted mt-2">
+                                        Don't have an account?{' '}
+                                        <a href="#register" className="text-primary fw-bold text-decoration-none" onClick={(e) => { e.preventDefault(); onNavigateToRegister(); }}>
+                                            Register
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Register Component
+        function Register({ onRegisterSuccess, onNavigateToLogin, addToast }) {
+            const [fullName, setFullName] = useState('');
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [confirmPassword, setConfirmPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+
+                if (password !== confirmPassword) {
+                    setError('Password and Confirm Password do not match');
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    const res = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fullName, email, password, confirmPassword })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        addToast('Account created successfully!', 'success');
+                        onRegisterSuccess(data.data);
+                    } else {
+                        setError(data.message || 'Registration failed');
+                    }
+                } catch (err) {
+                    setError('Registration failed: ' + err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="container mt-5 fade-in">
+                    <div className="row justify-content-center">
+                        <div className="col-md-6 col-lg-5">
+                            <div className="card shadow-lg border-0 rounded-4">
+                                <div className="card-body p-4 text-center">
+                                    <div className="mb-2 text-primary">
+                                        <i className="bi bi-person-plus-fill display-5"></i>
+                                    </div>
+                                    <h3 className="fw-bold text-primary mb-1">PharmaCare</h3>
+                                    <h5 className="fw-bold text-dark mb-4">Create Your PharmaCare Account</h5>
+
+                                    {error && (
+                                        <div className="alert alert-danger py-2 small fw-semibold text-center mb-3" role="alert">
+                                            {error}
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="mb-3 text-start">
+                                            <label className="form-label small fw-bold">Full Name *</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="John Doe"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-3 text-start">
+                                            <label className="form-label small fw-bold">Email Address *</label>
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                placeholder="name@example.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-3 text-start">
+                                            <label className="form-label small fw-bold">Password *</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="At least 6 characters"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                minLength="6"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-4 text-start">
+                                            <label className="form-label small fw-bold">Confirm Password *</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="Repeat password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <button type="submit" className="btn btn-primary w-100 py-2 rounded-3 mb-3" disabled={loading}>
+                                            {loading ? 'Creating Account...' : 'Register'}
+                                        </button>
+                                    </form>
+
+                                    <div className="small text-muted mt-2">
+                                        Already have an account?{' '}
+                                        <a href="#login" className="text-primary fw-bold text-decoration-none" onClick={(e) => { e.preventDefault(); onNavigateToLogin(); }}>
+                                            Login
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // Enhanced Navigation Component
-        function Navigation({ currentView, onViewChange }) {
+        function Navigation({ currentView, onViewChange, currentUser, onLogout }) {
             const navItems = [
                 { id: 'dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
                 { id: 'medications', label: 'Medicines', icon: 'bi-capsule' },
@@ -1137,10 +1362,13 @@
                                 <div className="user-avatar">
                                     <i className="bi bi-person-fill"></i>
                                 </div>
-                                <div>
-                                    <div className="fw-bold">Dr. Sarah Johnson</div>
-                                    <small>Pharmacy Manager</small>
+                                <div className="me-3">
+                                    <div className="fw-bold">{currentUser ? currentUser.fullName : 'User'}</div>
+                                    <small className="badge bg-light text-dark">{currentUser ? currentUser.role : 'PHARMACIST'}</small>
                                 </div>
+                                <button className="btn btn-sm btn-outline-light ms-2" onClick={onLogout} title="Logout">
+                                    <i className="bi bi-box-arrow-right me-1"></i> Logout
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -4103,19 +4331,32 @@
 
         // Main App Component
         function App() {
+            const [currentUser, setCurrentUser] = useState(null);
+            const [authChecked, setAuthLoaded] = useState(false);
             const [currentView, setCurrentView] = useState('dashboard');
-            const [appLoaded, setAppLoaded] = useState(false);
             const { addToast, ToastContainer } = useToast();
 
-            // Initialize app
+            // Check session on mount
             useEffect(() => {
-                // Simulate app loading
-                setTimeout(() => {
-                    setAppLoaded(true);
-                }, 1500);
+                const checkAuth = async () => {
+                    try {
+                        const res = await fetch('/api/auth/me');
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.success) {
+                                setCurrentUser(data.data);
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Session check failed');
+                    } finally {
+                        setAuthLoaded(true);
+                    }
+                };
+                checkAuth();
             }, []);
 
-            // Simple routing based on hash
+            // Routing based on hash
             useEffect(() => {
                 const handleHashChange = () => {
                     const hash = window.location.hash.replace('#', '') || 'dashboard';
@@ -4127,6 +4368,16 @@
 
                 return () => window.removeEventListener('hashchange', handleHashChange);
             }, []);
+
+            const handleLogout = async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    setCurrentUser(null);
+                    addToast('Logged out successfully', 'info');
+                } catch (err) {
+                    setCurrentUser(null);
+                }
+            };
 
             const handleFloatingAction = (action) => {
                 switch(action) {
@@ -4166,11 +4417,45 @@
                 }
             };
 
-            const renderView = () => {
-                if (!appLoaded) {
-                    return null;
+            if (!authChecked) {
+                return (
+                    <div className="loading-screen">
+                        <div className="spinner-border mb-3" style={{width: '3rem', height: '3rem'}}></div>
+                        <h3>PharmaCare Inventory System</h3>
+                        <p>Checking authentication state...</p>
+                    </div>
+                );
+            }
+
+            // Unauthenticated Flow
+            if (!currentUser) {
+                if (currentView === 'register') {
+                    return (
+                        <div>
+                            <Register
+                                onRegisterSuccess={(user) => { setCurrentUser(user); setCurrentView('dashboard'); }}
+                                onNavigateToLogin={() => setCurrentView('login')}
+                                addToast={addToast}
+                            />
+                            <ToastContainer />
+                        </div>
+                    );
                 }
 
+                return (
+                    <div>
+                        <Login
+                            onLoginSuccess={(user) => { setCurrentUser(user); setCurrentView('dashboard'); }}
+                            onNavigateToRegister={() => setCurrentView('register')}
+                            addToast={addToast}
+                        />
+                        <ToastContainer />
+                    </div>
+                );
+            }
+
+            // Authenticated Flow (Protected Views)
+            const renderView = () => {
                 switch (currentView) {
                     case 'medications':
                         return <Medications addToast={addToast} />;
@@ -4190,19 +4475,9 @@
                 }
             };
 
-            if (!appLoaded) {
-                return (
-                    <div className="loading-screen">
-                        <div className="spinner-border mb-3" style={{width: '3rem', height: '3rem'}}></div>
-                        <h3>PharmaCare Inventory System</h3>
-                        <p>Initializing your pharmacy management dashboard...</p>
-                    </div>
-                );
-            }
-
             return (
                 <div>
-                    <Navigation currentView={currentView} onViewChange={setCurrentView} />
+                    <Navigation currentView={currentView} onViewChange={setCurrentView} currentUser={currentUser} onLogout={handleLogout} />
                     {renderView()}
                     <FloatingActionButton currentView={currentView} onAction={handleFloatingAction} />
                     <ToastContainer />
