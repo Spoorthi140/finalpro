@@ -1521,7 +1521,7 @@
                         data: {
                             labels: data.dailySales.map(d => new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
                             datasets: [{
-                                label: 'Daily Sales ($)',
+                                label: 'Daily Sales (₹)',
                                 data: data.dailySales.map(d => d.total),
                                 borderColor: '#4361ee',
                                 backgroundColor: 'rgba(67, 97, 238, 0.15)',
@@ -1549,7 +1549,7 @@
                         data: {
                             labels: data.monthlySales.map(m => m.month),
                             datasets: [{
-                                label: 'Monthly Revenue ($)',
+                                label: 'Monthly Revenue (₹)',
                                 data: data.monthlySales.map(m => m.revenue),
                                 backgroundColor: '#4cc9f0',
                                 borderColor: '#4361ee',
@@ -1628,7 +1628,7 @@
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="small text-white-50 text-uppercase fw-bold">Today Sales</div>
-                                            <div className="stat-number">${Number(reportData.todaySales).toFixed(2)}</div>
+                                            <div className="stat-number">₹{Number(reportData.todaySales).toFixed(2)}</div>
                                         </div>
                                         <i className="bi bi-calendar-check display-6 opacity-75"></i>
                                     </div>
@@ -1641,7 +1641,7 @@
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="small text-white-50 text-uppercase fw-bold">This Month Revenue</div>
-                                            <div className="stat-number">${Number(reportData.thisMonthRevenue).toFixed(2)}</div>
+                                            <div className="stat-number">₹{Number(reportData.thisMonthRevenue).toFixed(2)}</div>
                                         </div>
                                         <i className="bi bi-currency-dollar display-6 opacity-75"></i>
                                     </div>
@@ -1718,7 +1718,7 @@
                                                         <td>{tx.date}</td>
                                                         <td className="fw-bold">{tx.medicationName}</td>
                                                         <td className="text-center">{tx.quantity}</td>
-                                                        <td className="text-end fw-bold text-success">${Number(tx.revenue).toFixed(2)}</td>
+                                                        <td className="text-end fw-bold text-success">₹{Number(tx.revenue).toFixed(2)}</td>
                                                     </tr>
                                                 ))}
                                                 {reportData.recentTransactions.length === 0 && (
@@ -2210,7 +2210,7 @@
                                                         <strong>Manufacturer:</strong> {scannedMedication.manufacturer || 'N/A'}
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <strong>Price:</strong> ${Number(scannedMedication.price || scannedMedication.unitPrice || 0).toFixed(2)}
+                                                        <strong>Price:</strong> ₹{Number(scannedMedication.price || scannedMedication.unitPrice || 0).toFixed(2)}
                                                     </div>
                                                     <div className="col-md-6">
                                                         <strong>Stock Quantity:</strong> {scannedMedication.quantity || scannedMedication.stockQuantity || 0}
@@ -2473,7 +2473,7 @@
                         <div className="col-md-3">
                             <div className="card revenue-card dashboard-card">
                                 <div className="card-body text-center py-3">
-                                    <div className="h4 mb-1">${medications.reduce((sum, med) => sum + (med.price * med.quantity), 0).toFixed(2)}</div>
+                                    <div className="h4 mb-1">₹{medications.reduce((sum, med) => sum + (med.price * med.quantity), 0).toFixed(2)}</div>
                                     <small className="text-white-50">Total Inventory Value</small>
                                 </div>
                             </div>
@@ -2530,7 +2530,7 @@
                                                         <td>
                                                             <code>{med.barcode}</code>
                                                         </td>
-                                                        <td>${med.price}</td>
+                                                        <td>₹{Number(med.price).toFixed(2)}</td>
                                                         <td>
                                                             <span className={isLowStock || isOutOfStock ? 'stock-low' : 'stock-ok'}>
                                                                 {med.quantity}
@@ -3276,7 +3276,7 @@
                             <div className="card category-card dashboard-card">
                                 <div className="card-body text-center py-3">
                                     <div className="h4 mb-1">
-                                        ${categoriesWithStats.reduce((sum, cat) => sum + (cat.totalValue || 0), 0).toFixed(2)}
+                                        ₹{categoriesWithStats.reduce((sum, cat) => sum + (cat.totalValue || 0), 0).toFixed(2)}
                                     </div>
                                     <small className="text-white-50">Total Inventory Value</small>
                                 </div>
@@ -3312,7 +3312,7 @@
                                                     </td>
                                                     <td>
                                                         <span className="fw-bold text-success">
-                                                            ${category.totalValue ? category.totalValue.toFixed(2) : '0.00'}
+                                                            ₹{category.totalValue ? category.totalValue.toFixed(2) : '0.00'}
                                                         </span>
                                                     </td>
                                                     <td>
@@ -3489,7 +3489,7 @@
                         data: {
                             labels: labels.map(date => new Date(date).toLocaleDateString()),
                             datasets: [{
-                                label: 'Daily Revenue ($)',
+                                label: 'Daily Revenue (₹)',
                                 data: salesTrend,
                                 backgroundColor: '#4361ee',
                                 borderColor: '#3a0ca3',
@@ -3553,7 +3553,7 @@
                         <div className="col-md-4">
                             <div className="card stat-card dashboard-card h-100">
                                 <div className="card-body text-center d-flex flex-column justify-content-center">
-                                    <div className="display-4 fw-bold mb-2">${analyticsData.totalRevenue.toLocaleString()}</div>
+                                    <div className="display-4 fw-bold mb-2">₹{analyticsData.totalRevenue.toLocaleString()}</div>
                                     <div className="h5">Total Revenue</div>
                                     <div className="mt-2">
                                         <span className="badge bg-success">
@@ -3578,7 +3578,7 @@
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <span className="health-label fw-bold">{category.name}</span>
-                                                    <div className="text-muted small">${category.revenue.toLocaleString()}</div>
+                                                    <div className="text-muted small">₹{category.revenue.toLocaleString()}</div>
                                                 </div>
                                                 <span className={`badge ${category.growth > 10 ? 'bg-success' : 'bg-warning'}`}>
                                                     {category.growth.toFixed(1)}% growth
@@ -3610,7 +3610,7 @@
                                     </div>
                                     <div className="health-indicator">
                                         <span className="health-label">Average Inventory Value</span>
-                                        <span className="health-value text-primary">$45,230</span>
+                                        <span className="health-value text-primary">₹45,230</span>
                                     </div>
                                 </div>
                             </div>
@@ -4044,7 +4044,7 @@
                                                             </span>
                                                         </div>
                                                         <div className="text-end">
-                                                            <div className="fw-bold">${med.price}</div>
+                                                            <div className="fw-bold">₹{Number(med.price).toFixed(2)}</div>
                                                             <small className="text-muted">Qty: {med.quantity}</small>
                                                         </div>
                                                     </div>
@@ -4079,7 +4079,7 @@
                                                         </span>
                                                     </div>
                                                     <div className="text-end">
-                                                        <div className="fw-bold text-success">${med.price}</div>
+                                                        <div className="fw-bold text-success">₹{Number(med.price).toFixed(2)}</div>
                                                         <small className="text-muted">Stock: {med.quantity}</small>
                                                     </div>
                                                 </div>
@@ -4231,7 +4231,7 @@
                     };
 
                     await apiService.createSale(saleData);
-                    addToast(`Bill generated successfully for ${med.name}! Total: $${(med.price * quantity).toFixed(2)}`, "success");
+                    addToast(`Bill generated successfully for ${med.name}! Total: ₹${(med.price * quantity).toFixed(2)}`, "success");
                     setSelectedMedId("");
                     setQuantity(1);
                     loadData();
@@ -4261,7 +4261,7 @@
                                                 <option value="">-- Select Medication --</option>
                                                 {medications.map(med => (
                                                     <option key={med.id} value={med.id} disabled={med.quantity === 0}>
-                                                        {med.name} (${Number(med.price).toFixed(2)}) - Stock: {med.quantity}
+                                                        {med.name} (₹{Number(med.price).toFixed(2)}) - Stock: {med.quantity}
                                                     </option>
                                                 ))}
                                             </select>
@@ -4309,7 +4309,7 @@
                                                         <td>{sale.date}</td>
                                                         <td className="fw-bold">{sale.medicationName}</td>
                                                         <td className="text-center">{sale.quantity}</td>
-                                                        <td className="text-end fw-bold text-success">${Number(sale.revenue).toFixed(2)}</td>
+                                                        <td className="text-end fw-bold text-success">₹{Number(sale.revenue).toFixed(2)}</td>
                                                     </tr>
                                                 ))}
                                                 {sales.length === 0 && (
