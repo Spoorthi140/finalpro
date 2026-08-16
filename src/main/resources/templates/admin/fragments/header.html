@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <header th:fragment="header">
+        <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" th:href="@{/admin/dashboard}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare Admin
+            </a>
+            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fas fa-home me-1"></i>Back to Site
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${guide.title + ' - First Aid Guide'}">First Aid Guide Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d32f2f; /* Professional medical red */
+            --secondary-color: #b71c1c; /* Darker red for gradient */
+            --warning-color: #ff9800; /* Orange for warnings */
+            --danger-color: #f44336; /* Red for danger elements */
+            --light-color: #f5f5f5; /* Light gray */
+            --dark-color: #333333; /* Dark gray for text */
+        }
+
+        .guide-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 50px 0;
+            margin-bottom: 40px;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .info-badge {
+            background: var(--light-color);
+            color: var(--dark-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border: 1px solid #dee2e6;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .related-guide-card {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .related-guide-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .step-content {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: white !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .nav-link {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            border-radius: 4px;
+            margin: 0 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-color);
+            color: white !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .breadcrumb-item.active {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/firstaid}">First Aid</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/symptoms}">Symptoms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/medications}">Medications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment}">Health Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment/history}">Assessment History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/about}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Guide Header -->
+    <section class="guide-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}" class="text-white">Home</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/firstaid}" class="text-white">First Aid</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page" th:text="${guide.title}">Guide</li>
+                </ol>
+            </nav>
+
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-3" th:text="${guide.title}">First Aid Guide Title</h1>
+                    <p class="lead mb-4" th:text="${guide.description}">Guide description will appear here.</p>
+
+                    <div class="d-flex flex-wrap">
+                        <span class="info-badge">
+                            <i class="fas fa-tag me-2"></i>
+                            <span th:text="${guide.category}">Category</span>
+                        </span>
+                        <span class="info-badge" th:if="${guide.difficulty}">
+                            <i class="fas fa-signal me-2"></i>
+                            <span th:text="${guide.difficulty}">Difficulty</span>
+                        </span>
+                        <span class="info-badge" th:if="${guide.estimatedTime}">
+                            <i class="fas fa-clock me-2"></i>
+                            <span th:text="${guide.estimatedTime}">Time</span>
+                        </span>
+                        <span class="info-badge" th:if="${guide.severity}">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${guide.severity}">Severity</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="hero-graphic">
+                        <i class="fas fa-first-aid" style="font-size: 6rem; opacity: 0.9;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Emergency Alert -->
+                <div class="alert alert-danger mb-4">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Emergency Notice</h5>
+                    <p class="mb-0">If the situation is life-threatening, call emergency services (108) immediately before attempting any first aid procedures.</p>
+                </div>
+
+                <!-- Equipment Needed -->
+                <div th:if="${guide.equipmentNeeded}" class="alert alert-info mb-4">
+                    <h6><i class="fas fa-tools me-2"></i>Equipment Needed</h6>
+                    <p class="mb-0" th:text="${guide.equipmentNeeded}">List of required equipment</p>
+                </div>
+
+                <!-- Steps Section -->
+                <div class="step-card">
+                    <h3 class="mb-4">
+                        <i class="fas fa-list-ol me-2 text-primary"></i>
+                        Step-by-Step Procedure
+                    </h3>
+
+                    <div th:if="${guide.steps}">
+                        <!-- Option 1: Display as pre-formatted text with line breaks -->
+                        <div class="step-content" th:text="${guide.steps}"></div>
+                    </div>
+
+                    <div th:unless="${guide.steps}">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <p>No detailed steps available for this guide.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="step-card" style="border-left-color: var(--warning-color);">
+                    <h5 class="text-warning">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Important Notes
+                    </h5>
+                    <ul class="mb-0">
+                        <li>Always ensure your own safety before providing first aid</li>
+                        <li>Wear gloves if available to prevent infection</li>
+                        <li>Continue monitoring the person's condition</li>
+                        <li>Seek professional medical help as soon as possible</li>
+                        <li>Do not move the person unless absolutely necessary</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="step-card mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-bolt me-2 text-primary"></i>
+                        Quick Actions
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="tel:108" class="btn btn-danger">
+                            <i class="fas fa-phone me-2"></i>Call Emergency (108)
+                        </a>
+                        <a th:href="@{/firstaid}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to All Guides
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Related Guides -->
+                <div th:if="${relatedGuides != null and !relatedGuides.empty}" class="step-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-link me-2 text-primary"></i>
+                        Related Guides
+                    </h5>
+                    <div th:each="relatedGuide : ${relatedGuides}">
+                        <div class="related-guide-card">
+                            <h6 class="mb-2" th:text="${relatedGuide.title}">Related Guide</h6>
+                            <p class="text-muted small mb-2" th:text="${#strings.abbreviate(relatedGuide.description, 80)}">Description</p>
+                            <a th:href="@{/firstaid/{id}(id=${relatedGuide.id})}" class="btn btn-sm btn-outline-primary">
+                                View Guide
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts -->
+                <div class="step-card" style="border-left-color: var(--danger-color);">
+                    <h5 class="text-danger">
+                        <i class="fas fa-phone-alt me-2"></i>
+                        Emergency Contacts
+                    </h5>
+                    <div class="mt-3">
+                        <a href="tel:108" class="btn btn-danger w-100 mb-2">
+                            <i class="fas fa-ambulance me-2"></i>108 - Emergency
+                        </a>
+                        <a href="tel:102" class="btn btn-warning w-100">
+                            <i class="fas fa-ambulance me-2"></i>102 - Ambulance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ambulance me-2"></i>Pre-Hospital Care Platform</h5>
+                    <p class="mb-0">Your trusted companion for emergency medical guidance.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <strong><i class="fas fa-phone me-1"></i>Emergency:</strong> Call 108 immediately<br>
+                        <small>Educational purposes only. Seek professional medical help in emergencies.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

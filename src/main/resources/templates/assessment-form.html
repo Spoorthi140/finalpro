@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk Assessment - CareBeforeCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            border: none;
+            overflow: hidden;
+            border-top: 5px solid var(--primary-color);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .section-header {
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ambulance me-2"></i>CareBeforeCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/firstaid}">First Aid</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/symptoms}">Symptoms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/medications}">Medications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/assessment}">Health Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/assessment/history}">Assessment History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/about}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
+        <div class="container hero-content">
+            <h1 class="display-5 fw-bold mb-3"><i class="fas fa-heartbeat me-3"></i>Health Risk Assessment</h1>
+            <p class="lead mb-0">Fill out this short symptom-based questionnaire to instantly receive your clinical risk evaluation and customized advice.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Display main error warning if present -->
+                <div th:if="${ageError != null || temperatureError != null || heartRateError != null || genderError != null}" class="alert alert-danger mb-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Please correct the validation errors below and re-submit the questionnaire.</strong>
+                </div>
+
+                <div class="form-card p-4 p-md-5">
+                    <form th:action="@{/assessment}" th:object="${assessmentDTO}" method="post" id="assessmentForm">
+
+                        <!-- Demographics Section -->
+                        <div class="section-header">
+                            <i class="fas fa-user-circle me-2"></i>1. Demographic Information
+                        </div>
+
+                        <div class="row mb-4">
+                            <!-- Age -->
+                            <div class="col-md-6 mb-3">
+                                <label for="age" class="form-label"><i class="fas fa-calendar-alt text-primary me-2"></i>Age</label>
+                                <input type="number" id="age" name="age" th:field="*{age}" class="form-control" placeholder="e.g. 45" required min="1" max="150">
+                                <div class="text-danger mt-1 small" th:if="${ageError}" th:text="${ageError}"></div>
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label"><i class="fas fa-venus-mars text-primary me-2"></i>Gender</label>
+                                <select id="gender" name="gender" th:field="*{gender}" class="form-select" required onchange="togglePregnancyRow()">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="text-danger mt-1 small" th:if="${genderError}" th:text="${genderError}"></div>
+                            </div>
+                        </div>
+
+                        <!-- Vital Signs Section -->
+                        <div class="section-header">
+                            <i class="fas fa-stethoscope me-2"></i>2. Vital Signs
+                        </div>
+
+                        <div class="row mb-4">
+                            <!-- Temperature -->
+                            <div class="col-md-6 mb-3">
+                                <label for="temperature" class="form-label"><i class="fas fa-thermometer-half text-danger me-2"></i>Body Temperature (°C)</label>
+                                <input type="number" step="0.1" id="temperature" name="temperature" th:field="*{temperature}" class="form-control" placeholder="e.g. 37.0" required min="30.0" max="45.0">
+                                <div class="text-danger mt-1 small" th:if="${temperatureError}" th:text="${temperatureError}"></div>
+                                <small class="text-muted">Must be between 30°C and 45°C.</small>
+                            </div>
+
+                            <!-- Heart Rate -->
+                            <div class="col-md-6 mb-3">
+                                <label for="heartRate" class="form-label"><i class="fas fa-heartbeat text-danger me-2"></i>Heart Rate (BPM)</label>
+                                <input type="number" id="heartRate" name="heartRate" th:field="*{heartRate}" class="form-control" placeholder="e.g. 80" required min="20" max="250">
+                                <div class="text-danger mt-1 small" th:if="${heartRateError}" th:text="${heartRateError}"></div>
+                                <small class="text-muted">Must be between 20 BPM and 250 BPM.</small>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms Checklist Section -->
+                        <div class="section-header">
+                            <i class="fas fa-clipboard-list me-2"></i>3. Symptoms & Medical History Checklist
+                        </div>
+
+                        <!-- Symptoms Inputs -->
+                        <div class="mb-4">
+                            <div class="card p-3 mb-3 bg-light border-0">
+                                <div class="row">
+                                    <!-- Difficulty Breathing -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-lungs text-info me-2"></i>Difficulty Breathing?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="breathingYes" th:field="*{difficultyBreathing}" value="true" required>
+                                            <label class="form-check-label" for="breathingYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="breathingNo" th:field="*{difficultyBreathing}" value="false">
+                                            <label class="form-check-label" for="breathingNo">No</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Chest Pain -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-heart-broken text-danger me-2"></i>Chest Pain?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="chestPainYes" th:field="*{chestPain}" value="true" required>
+                                            <label class="form-check-label" for="chestPainYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="chestPainNo" th:field="*{chestPain}" value="false">
+                                            <label class="form-check-label" for="chestPainNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card p-3 mb-3 bg-light border-0">
+                                <div class="row">
+                                    <!-- Severe Bleeding -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-tint text-danger me-2"></i>Severe Bleeding?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="bleedingYes" th:field="*{bleeding}" value="true" required>
+                                            <label class="form-check-label" for="bleedingYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="bleedingNo" th:field="*{bleeding}" value="false">
+                                            <label class="form-check-label" for="bleedingNo">No</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Loss of Consciousness -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-bed text-warning me-2"></i>Loss of Consciousness?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="unconsciousYes" th:field="*{unconscious}" value="true" required>
+                                            <label class="form-check-label" for="unconsciousYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="unconsciousNo" th:field="*{unconscious}" value="false">
+                                            <label class="form-check-label" for="unconsciousNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card p-3 mb-3 bg-light border-0">
+                                <div class="row">
+                                    <!-- Persistent Vomiting -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-comment-slash text-warning me-2"></i>Persistent Vomiting?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="vomitingYes" th:field="*{vomiting}" value="true" required>
+                                            <label class="form-check-label" for="vomitingYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="vomitingNo" th:field="*{vomiting}" value="false">
+                                            <label class="form-check-label" for="vomitingNo">No</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Severe Headache -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-brain text-purple me-2"></i>Severe Headache?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="headacheYes" th:field="*{headache}" value="true" required>
+                                            <label class="form-check-label" for="headacheYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="headacheNo" th:field="*{headache}" value="false">
+                                            <label class="form-check-label" for="headacheNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card p-3 mb-3 bg-light border-0">
+                                <div class="row">
+                                    <!-- Diabetes -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-capsules text-success me-2"></i>Diabetes History?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="diabetesYes" th:field="*{diabetes}" value="true" required>
+                                            <label class="form-check-label" for="diabetesYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="diabetesNo" th:field="*{diabetes}" value="false">
+                                            <label class="form-check-label" for="diabetesNo">No</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- High Blood Pressure -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label d-block"><i class="fas fa-heart text-info me-2"></i>High Blood Pressure?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="bpYes" th:field="*{bloodPressure}" value="true" required>
+                                            <label class="form-check-label" for="bpYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="bpNo" th:field="*{bloodPressure}" value="false">
+                                            <label class="form-check-label" for="bpNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pregnant Row (Only Display if Female) -->
+                            <div class="card p-3 mb-3 bg-light border-0" id="pregnantRow" style="display: none;">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="form-label d-block"><i class="fas fa-baby-carriage text-pink me-2"></i>Are you pregnant?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="pregnantYes" th:field="*{pregnant}" value="true">
+                                            <label class="form-check-label" for="pregnantYes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="pregnantNo" th:field="*{pregnant}" value="false">
+                                            <label class="form-check-label" for="pregnantNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-poll-h me-2"></i>Calculate Health Risk Level
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ambulance me-2"></i>CareBeforeCare</h5>
+                    <p class="mb-0">Pre-Hospital Care Platform</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <strong>Emergency:</strong> Call 108 immediately<br>
+                        <small>Educational platform - Not a substitute for professional medical care</small>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePregnancyRow() {
+            var genderSelect = document.getElementById("gender");
+            var pregnantRow = document.getElementById("pregnantRow");
+            var pregnantYes = document.getElementById("pregnantYes");
+            var pregnantNo = document.getElementById("pregnantNo");
+
+            if (genderSelect.value === "Female") {
+                pregnantRow.style.display = "block";
+                // Set default to No if not checked
+                if (!pregnantYes.checked && !pregnantNo.checked) {
+                    pregnantNo.checked = true;
+                }
+            } else {
+                pregnantRow.style.display = "none";
+                pregnantYes.checked = false;
+                pregnantNo.checked = false;
+            }
+        }
+
+        // Run on load in case of validation redirect
+        window.onload = function() {
+            togglePregnancyRow();
+        }
+    </script>
+</body>
+</html>

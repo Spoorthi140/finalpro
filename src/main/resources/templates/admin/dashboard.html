@@ -1,0 +1,489 @@
+<!-- templates/admin/dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CareBeforeCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --purple-color: #6f42c1;
+            --pink-color: #d63384;
+        }
+
+        .sidebar {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+        }
+
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: #34495e;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-primary .stat-number { color: var(--primary-color); }
+        .stat-card-success .stat-number { color: var(--success-color); }
+        .stat-card-purple .stat-number { color: var(--purple-color); }
+        .stat-card-danger .stat-number { color: var(--danger-color); }
+        .stat-card-warning .stat-number { color: #d4a373; }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.85;
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .btn-purple {
+            background: var(--purple-color);
+            border-color: var(--purple-color);
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #5a2d91;
+            border-color: #5a2d91;
+            color: white;
+        }
+
+        .btn-outline-purple {
+            border-color: var(--purple-color);
+            color: var(--purple-color);
+        }
+
+        .btn-outline-purple:hover {
+            background: var(--purple-color);
+            color: white;
+        }
+
+        .top-bar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 2rem;
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        .section-header-admin {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="sidebar p-0">
+                <div class="p-4">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-ambulance fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="mb-0">CareBeforeCare</h4>
+                        <small class="text-muted">Admin Panel</small>
+                    </div>
+
+                    <hr class="my-4 bg-secondary">
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{/admin/dashboard}">
+                                <i class="fas fa-tachometer-alt me-3"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/first-aid-guides}">
+                                <i class="fas fa-first-aid me-3"></i>First Aid Guides
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/symptoms}">
+                                <i class="fas fa-stethoscope me-3"></i>Symptoms
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/medications}">
+                                <i class="fas fa-pills me-3"></i>Medications
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="mt-5 pt-4 border-top border-secondary">
+                        <form th:action="@{/logout}" method="post" class="d-grid">
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content p-0">
+                <!-- Top Bar -->
+                <div class="top-bar">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">Admin Dashboard</h3>
+                            <small class="text-muted">Manage your medical content and review diagnostics</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-3 text-muted">
+                                <i class="fas fa-user-shield me-2"></i>Welcome, Admin
+                            </span>
+                            <a th:href="@{/}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                <i class="fas fa-external-link-alt me-1"></i>View Site
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Content -->
+                <div class="content-area">
+                    <!-- Flash Messages -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Resources Statistics Section -->
+                    <div class="section-header-admin">
+                        <i class="fas fa-folder-open me-2 text-primary"></i>Content Resources Statistics
+                    </div>
+                    <div class="row mb-4">
+                        <!-- First Aid Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="stat-card stat-card-primary">
+                                <i class="fas fa-first-aid stat-icon text-primary"></i>
+                                <span class="stat-number" th:text="${firstAidCount}">0</span>
+                                <h6 class="text-muted mb-3">First Aid Guides</h6>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/first-aid-guides}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-cog me-2"></i>Manage Guides
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="stat-card stat-card-success">
+                                <i class="fas fa-stethoscope stat-icon text-success"></i>
+                                <span class="stat-number" th:text="${symptomsCount}">0</span>
+                                <h6 class="text-muted mb-3">Symptoms</h6>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/symptoms}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-cog me-2"></i>Manage Symptoms
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medications Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="stat-card stat-card-purple">
+                                <i class="fas fa-pills stat-icon text-purple"></i>
+                                <span class="stat-number" th:text="${medicationsCount}">0</span>
+                                <h6 class="text-muted mb-3">Medications</h6>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/medications}" class="btn btn-sm btn-purple">
+                                        <i class="fas fa-cog me-2"></i>Manage Medications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Risk Assessment Statistics Section -->
+                    <div class="section-header-admin">
+                        <i class="fas fa-heartbeat me-2 text-danger"></i>Health Risk Assessment Statistics
+                    </div>
+                    <div class="row mb-5">
+                        <!-- Total Assessments Card -->
+                        <div class="col-md-3 mb-4">
+                            <div class="stat-card stat-card-primary">
+                                <i class="fas fa-notes-medical stat-icon text-primary"></i>
+                                <span class="stat-number" th:text="${totalAssessments}">0</span>
+                                <h6 class="text-muted mb-0">Total Assessments</h6>
+                            </div>
+                        </div>
+
+                        <!-- High Risk Cases Card -->
+                        <div class="col-md-3 mb-4">
+                            <div class="stat-card stat-card-danger">
+                                <i class="fas fa-exclamation-triangle stat-icon text-danger"></i>
+                                <span class="stat-number" th:text="${highRiskCount}">0</span>
+                                <h6 class="text-muted mb-0">High Risk Cases</h6>
+                            </div>
+                        </div>
+
+                        <!-- Moderate Risk Cases Card -->
+                        <div class="col-md-3 mb-4">
+                            <div class="stat-card stat-card-warning">
+                                <i class="fas fa-exclamation-circle stat-icon text-warning"></i>
+                                <span class="stat-number" th:text="${moderateRiskCount}">0</span>
+                                <h6 class="text-muted mb-0">Moderate Risk Cases</h6>
+                            </div>
+                        </div>
+
+                        <!-- Low Risk Cases Card -->
+                        <div class="col-md-3 mb-4">
+                            <div class="stat-card stat-card-success">
+                                <i class="fas fa-check-circle stat-icon text-success"></i>
+                                <span class="stat-number" th:text="${lowRiskCount}">0</span>
+                                <h6 class="text-muted mb-0">Low Risk Cases</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Assessments Table Section -->
+                    <div class="row mb-5">
+                        <div class="col-12">
+                            <div class="quick-action-card">
+                                <h4 class="mb-4 text-primary">
+                                    <i class="fas fa-notes-medical me-2"></i>Recent Health Risk Assessments
+                                </h4>
+
+                                <div th:if="${#lists.isEmpty(recentAssessments)}" class="text-center py-4">
+                                    <i class="fas fa-folder-open fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">No health assessments submitted yet.</p>
+                                </div>
+
+                                <div th:if="${not #lists.isEmpty(recentAssessments)}" class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date &amp; Time</th>
+                                                <th>Demographics</th>
+                                                <th>Vitals</th>
+                                                <th>Risk Score</th>
+                                                <th>Risk Level</th>
+                                                <th>Recommendation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="assessment : ${recentAssessments}">
+                                                <td class="font-monospace text-nowrap" th:text="${#temporals.format(assessment.assessmentDate, 'yyyy-MM-dd HH:mm')}">Date</td>
+                                                <td>
+                                                    <span th:text="${assessment.age} + ' yrs'">Age</span>
+                                                    <span class="badge bg-light text-dark ms-1" th:text="${assessment.gender}">Gender</span>
+                                                </td>
+                                                <td>
+                                                    <small>
+                                                        <i class="fas fa-thermometer-half text-danger"></i> <span th:text="${assessment.temperature} + '°C'">37°C</span><br>
+                                                        <i class="fas fa-heartbeat text-primary"></i> <span th:text="${assessment.heartRate} + ' BPM'">72 BPM</span>
+                                                    </small>
+                                                </td>
+                                                <td class="fw-bold" th:text="${assessment.riskScore}">Score</td>
+                                                <td>
+                                                    <span th:if="${assessment.riskLevel == 'LOW RISK'}" class="badge bg-success text-white">LOW RISK</span>
+                                                    <span th:if="${assessment.riskLevel == 'MODERATE RISK'}" class="badge bg-warning text-dark">MODERATE RISK</span>
+                                                    <span th:if="${assessment.riskLevel == 'HIGH RISK'}" class="badge bg-danger text-white">HIGH RISK</span>
+                                                </td>
+                                                <td>
+                                                    <small class="text-truncate d-inline-block" style="max-width: 250px;" th:text="${assessment.recommendation}" th:title="${assessment.recommendation}"></small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-5">
+                        <div class="col-12">
+                            <div class="quick-action-card">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-bolt me-2 text-warning"></i>Quick Actions
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <a th:href="@{/admin/first-aid-guides/create}" class="btn btn-primary w-100 h-100 py-3">
+                                            <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
+                                            Add First Aid Guide
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a th:href="@{/admin/symptoms/create}" class="btn btn-success w-100 h-100 py-3">
+                                            <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
+                                            Add Symptom
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a th:href="@{/admin/medications/create}" class="btn btn-purple w-100 h-100 py-3">
+                                            <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
+                                            Add Medication
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a th:href="@{/}" class="btn btn-info w-100 h-100 py-3" target="_blank">
+                                            <i class="fas fa-eye fa-2x mb-2"></i><br>
+                                            View Public Site
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links & System Information -->
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="quick-action-card">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-info-circle me-2 text-info"></i>System Information
+                                </h5>
+                                <div class="mb-3">
+                                    <strong>Platform Status:</strong>
+                                    <span class="badge bg-success ms-2">Operational</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Total Content Items:</strong>
+                                    <span class="badge bg-primary ms-2" th:text="${firstAidCount + symptomsCount + medicationsCount}">0</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Total Risk Assessments:</strong>
+                                    <span class="badge bg-secondary ms-2" th:text="${totalAssessments}">0</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Last Updated:</strong>
+                                    <span class="text-muted ms-2">Just now</span>
+                                </div>
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Tip:</strong> All changes made here are immediately visible to public users.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="quick-action-card">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-link me-2 text-primary"></i>Quick Links
+                                </h5>
+                                <div class="list-group list-group-flush">
+                                    <a th:href="@{/firstaid}" class="list-group-item list-group-item-action" target="_blank">
+                                        <i class="fas fa-first-aid me-2 text-primary"></i>Public First Aid Guides
+                                    </a>
+                                    <a th:href="@{/symptoms}" class="list-group-item list-group-item-action" target="_blank">
+                                        <i class="fas fa-stethoscope me-2 text-success"></i>Public Symptoms Checker
+                                    </a>
+                                    <a th:href="@{/medications}" class="list-group-item list-group-item-action" target="_blank">
+                                        <i class="fas fa-pills me-2 text-purple"></i>Public Medications Guide
+                                    </a>
+                                    <a th:href="@{/assessment}" class="list-group-item list-group-item-action" target="_blank">
+                                        <i class="fas fa-heartbeat me-2 text-danger"></i>Take Health Assessment
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Notice -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-warning">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Important Notice
+                                </h5>
+                                <p class="mb-0">
+                                    This admin panel allows you to manage all medical content. Please ensure all information is accurate and up-to-date.
+                                    For emergency medical situations, always direct users to call 108 immediately.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

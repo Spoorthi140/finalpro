@@ -1,0 +1,187 @@
+<!-- templates/admin/first-aid-guides/form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">First Aid Guide Form - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-center mb-4">
+                        <i class="fas fa-ambulance me-2"></i>Admin Panel
+                    </h4>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/dashboard}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{/admin/first-aid-guides}">
+                                <i class="fas fa-first-aid me-2"></i>First Aid Guides
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/symptoms}">
+                                <i class="fas fa-stethoscope me-2"></i>Symptoms
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/medications}">
+                                <i class="fas fa-pills me-2"></i>Medications
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <form th:action="@{/admin/logout}" method="post">
+                                <button type="submit" class="nav-link border-0 bg-transparent text-start w-100">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content p-0">
+                <nav class="navbar navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <span class="navbar-brand mb-0 h1" th:text="${pageTitle}">First Aid Guide Form</span>
+                        <div>
+                            <a th:href="@{/admin/first-aid-guides}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="p-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/admin/first-aid-guides/save}" th:object="${guide}" method="post">
+                                <input type="hidden" th:field="*{id}" />
+                                <input type="hidden" th:field="*{createdAt}" />
+                                <input type="hidden" th:field="*{updatedAt}" />
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="title" class="form-label">Guide Title *</label>
+                                        <input type="text" class="form-control" id="title" th:field="*{title}"
+                                               required placeholder="Enter guide title">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="category" class="form-label">Category *</label>
+                                        <select class="form-select" id="category" th:field="*{category}" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Emergency">Emergency</option>
+                                            <option value="Injury">Injury</option>
+                                            <option value="Environmental">Environmental</option>
+                                            <option value="Neurological">Neurological</option>
+                                            <option value="Cardiac">Cardiac</option>
+                                            <option value="Respiratory">Respiratory</option>
+                                            <option value="Allergy">Allergy</option>
+                                            <option value="Toxicology">Toxicology</option>
+                                            <option value="Dental">Dental</option>
+                                            <option value="ENT">ENT</option>
+                                            <option value="Ophthalmological">Ophthalmological</option>
+                                            <option value="Dermatological">Dermatological</option>
+                                            <option value="Musculoskeletal">Musculoskeletal</option>
+                                            <option value="Metabolic">Metabolic</option>
+                                            <option value="Trauma">Trauma</option>
+                                            <option value="Marine">Marine</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="severity" class="form-label">Severity *</label>
+                                        <select class="form-select" id="severity" th:field="*{severity}" required>
+                                            <option value="">Select Severity</option>
+                                            <option value="LOW">Low</option>
+                                            <option value="MEDIUM">Medium</option>
+                                            <option value="HIGH">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="difficulty" class="form-label">Difficulty *</label>
+                                        <select class="form-select" id="difficulty" th:field="*{difficulty}" required>
+                                            <option value="">Select Difficulty</option>
+                                            <option value="EASY">Easy</option>
+                                            <option value="MODERATE">Moderate</option>
+                                            <option value="DIFFICULT">Difficult</option>
+                                            <option value="Basic">Basic</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="estimatedTime" class="form-label">Estimated Time *</label>
+                                        <input type="text" class="form-control" id="estimatedTime" th:field="*{estimatedTime}"
+                                               required placeholder="e.g., 15 minutes, 30+ minutes">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description *</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}"
+                                              rows="3" required placeholder="Brief description of the first aid guide"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="steps" class="form-label">Steps *</label>
+                                    <textarea class="form-control" id="steps" th:field="*{steps}"
+                                              rows="6" required placeholder="Step-by-step instructions for the first aid procedure. Use line breaks for each step."></textarea>
+                                    <div class="form-text">Enter each step on a new line. Use numbers or bullet points.</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="equipmentNeeded" class="form-label">Equipment Needed</label>
+                                    <input type="text" class="form-control" id="equipmentNeeded" th:field="*{equipmentNeeded}"
+                                           placeholder="e.g., Bandages, Gloves, Ice pack">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority</label>
+                                    <select class="form-select" id="priority" th:field="*{priority}">
+                                        <option value="">Select Priority</option>
+                                        <option value="Standard">Standard</option>
+                                        <option value="Urgent">Urgent</option>
+                                        <option value="Immediate">Immediate</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="icon" class="form-label">Icon</label>
+                                    <input type="text" class="form-control" id="icon" th:field="*{icon}"
+                                           placeholder="e.g., heart, alert, brain, eye">
+                                    <div class="form-text">Enter a simple icon name (heart, alert, brain, eye, etc.)</div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/admin/first-aid-guides}" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${guide.id != null} ? 'Update Guide' : 'Create Guide'">Save Guide</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

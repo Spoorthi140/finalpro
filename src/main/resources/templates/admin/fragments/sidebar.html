@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <nav th:fragment="sidebar" id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/first-aid-guides}">
+                        <i class="fas fa-first-aid me-2"></i>
+                        First Aid Guides
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/symptoms}">
+                        <i class="fas fa-stethoscope me-2"></i>
+                        Symptoms
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/medications}">
+                        <i class="fas fa-pills me-2"></i>
+                        Medications
+                    </a>
+                </li>
+                <li class="nav-item mt-4">
+                    <form th:action="@{/logout}" method="post" class="d-grid">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</body>
+</html>
