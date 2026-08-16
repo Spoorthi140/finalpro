@@ -107,10 +107,18 @@
         .chart-container {
             background: white;
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.08);
             margin-bottom: 25px;
             border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
         }
 
         .welcome-header {
@@ -1274,7 +1282,7 @@
         }
 
         // Login Component
-        function Login({ onLoginSuccess, onNavigateToRegister, addToast }) {
+        function Login({ onLoginSuccess, onNavigateToRegister, addToast, successMessage }) {
             const [email, setEmail] = useState('');
             const [password, setPassword] = useState('');
             const [error, setError] = useState('');
@@ -1319,6 +1327,12 @@
                                     <p className="text-muted small mb-4">Pharmacy Inventory Management System</p>
 
                                     <h5 className="fw-bold text-dark mb-3">Welcome Back</h5>
+
+                                    {successMessage && (
+                                        <div className="alert alert-success py-2 small fw-semibold text-center mb-3" role="alert">
+                                            {successMessage}
+                                        </div>
+                                    )}
 
                                     {error && (
                                         <div className="alert alert-danger py-2 small fw-semibold text-center mb-3" role="alert">
@@ -1399,8 +1413,8 @@
                     const data = await res.json();
 
                     if (res.ok && data.success) {
-                        addToast('Account created successfully!', 'success');
-                        onRegisterSuccess(data.data);
+                        addToast('Registration successful. Please login.', 'success');
+                        onRegisterSuccess();
                     } else {
                         setError(data.message || 'Registration failed');
                     }
@@ -1712,6 +1726,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: true, position: 'top' },
                                 title: { display: true, text: 'Daily Sales Trend' }
@@ -1739,6 +1754,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: true, position: 'top' },
                                 title: { display: true, text: 'Monthly Revenue' }
@@ -1765,6 +1781,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: true, position: 'bottom' },
                                 title: { display: true, text: 'Top Selling Medicines' }
@@ -3937,6 +3954,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: 'bottom',
@@ -4010,6 +4028,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: 'top',
@@ -4515,7 +4534,8 @@
         function App() {
             const [currentUser, setCurrentUser] = useState(null);
             const [authChecked, setAuthLoaded] = useState(false);
-            const [currentView, setCurrentView] = useState('dashboard');
+            const [currentView, setCurrentView] = useState('login');
+            const [loginSuccessMessage, setLoginSuccessMessage] = useState('');
             const { addToast, ToastContainer } = useToast();
 
             // Check session on mount
@@ -4525,12 +4545,18 @@
                         const res = await fetch('/api/auth/me');
                         if (res.ok) {
                             const data = await res.json();
-                            if (data.success) {
+                            if (data.success && data.data) {
                                 setCurrentUser(data.data);
+                                setCurrentView('dashboard');
+                            } else {
+                                setCurrentView('login');
                             }
+                        } else {
+                            setCurrentView('login');
                         }
                     } catch (e) {
                         console.log('Session check failed');
+                        setCurrentView('login');
                     } finally {
                         setAuthLoaded(true);
                     }
@@ -4541,23 +4567,34 @@
             // Routing based on hash
             useEffect(() => {
                 const handleHashChange = () => {
-                    const hash = window.location.hash.replace('#', '') || 'dashboard';
-                    setCurrentView(hash);
+                    const hash = window.location.hash.replace('#', '');
+                    if (!currentUser) {
+                        if (hash === 'register') {
+                            setCurrentView('register');
+                        } else {
+                            setCurrentView('login');
+                        }
+                    } else {
+                        setCurrentView(hash || 'dashboard');
+                    }
                 };
 
                 window.addEventListener('hashchange', handleHashChange);
                 handleHashChange();
 
                 return () => window.removeEventListener('hashchange', handleHashChange);
-            }, []);
+            }, [currentUser]);
 
             const handleLogout = async () => {
                 try {
                     await fetch('/api/auth/logout', { method: 'POST' });
-                    setCurrentUser(null);
-                    addToast('Logged out successfully', 'info');
                 } catch (err) {
+                    console.error('Logout failed:', err);
+                } finally {
                     setCurrentUser(null);
+                    window.location.hash = '#login';
+                    setCurrentView('login');
+                    addToast('Logged out successfully', 'info');
                 }
             };
 
@@ -4615,8 +4652,15 @@
                     return (
                         <div>
                             <Register
-                                onRegisterSuccess={(user) => { setCurrentUser(user); setCurrentView('dashboard'); }}
-                                onNavigateToLogin={() => setCurrentView('login')}
+                                onRegisterSuccess={() => {
+                                    setLoginSuccessMessage("Registration successful. Please login.");
+                                    window.location.hash = '#login';
+                                    setCurrentView('login');
+                                }}
+                                onNavigateToLogin={() => {
+                                    window.location.hash = '#login';
+                                    setCurrentView('login');
+                                }}
                                 addToast={addToast}
                             />
                             <ToastContainer />
@@ -4627,9 +4671,19 @@
                 return (
                     <div>
                         <Login
-                            onLoginSuccess={(user) => { setCurrentUser(user); setCurrentView('dashboard'); }}
-                            onNavigateToRegister={() => setCurrentView('register')}
+                            onLoginSuccess={(user) => {
+                                setCurrentUser(user);
+                                setLoginSuccessMessage('');
+                                window.location.hash = '#dashboard';
+                                setCurrentView('dashboard');
+                            }}
+                            onNavigateToRegister={() => {
+                                setLoginSuccessMessage('');
+                                window.location.hash = '#register';
+                                setCurrentView('register');
+                            }}
                             addToast={addToast}
+                            successMessage={loginSuccessMessage}
                         />
                         <ToastContainer />
                     </div>
