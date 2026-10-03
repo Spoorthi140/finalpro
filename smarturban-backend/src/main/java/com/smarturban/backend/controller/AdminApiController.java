@@ -70,7 +70,7 @@ public class AdminApiController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            if (user.getRole() == null) user.setRole("ROLE_CITIZEN");
+            user.setRole("ROLE_CITIZEN"); // Force citizen role for user creation endpoint
             User created = userService.createUserByAdmin(user);
             return ResponseEntity.ok(created);
         } catch (Exception e) {
@@ -82,6 +82,9 @@ public class AdminApiController {
     public ResponseEntity<?> toggleUserStatus(@PathVariable("id") Long id) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot disable the primary administrator account"));
+        }
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
         return ResponseEntity.ok(user);
@@ -89,6 +92,11 @@ public class AdminApiController {
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
+        User user = userService.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot delete the primary administrator account"));
+        }
         userService.deleteUser(id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
@@ -106,7 +114,8 @@ public class AdminApiController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String status = (String) body.get("status");
-        Long departmentId = body.get("departmentId") != null ? Long.valueOf(body.get("departmentId").toString()) : null;
+        Long departmentId = body.get("departmentId") != null && !body.get("departmentId").toString().isEmpty()
+                ? Long.valueOf(body.get("departmentId").toString()) : null;
         String remarks = (String) body.get("remarks");
 
         String adminName = userDetails != null ? userDetails.getFullName() : "Administrator";
@@ -126,6 +135,23 @@ public class AdminApiController {
         return ResponseEntity.ok(categoryService.saveCategory(category));
     }
 
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable("id") Long id, @RequestBody Category categoryDetails) {
+        Category category = categoryService.getCategoryById(id);
+        category.setName(categoryDetails.getName());
+        category.setDescription(categoryDetails.getDescription());
+        category.setEnabled(categoryDetails.isEnabled());
+        return ResponseEntity.ok(categoryService.saveCategory(category));
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) {
+        Category category = categoryService.getCategoryById(id);
+        category.setEnabled(false);
+        categoryService.saveCategory(category);
+        return ResponseEntity.ok(Map.of("message", "Category disabled successfully"));
+    }
+
     // Department Management APIs
     @GetMapping("/departments")
     public ResponseEntity<List<Department>> getDepartments() {
@@ -135,5 +161,22 @@ public class AdminApiController {
     @PostMapping("/departments")
     public ResponseEntity<Department> saveDepartment(@RequestBody Department department) {
         return ResponseEntity.ok(departmentService.saveDepartment(department));
+    }
+
+    @PutMapping("/departments/{id}")
+    public ResponseEntity<?> updateDepartment(@PathVariable("id") Long id, @RequestBody Department departmentDetails) {
+        Department department = departmentService.getDepartmentById(id);
+        department.setName(departmentDetails.getName());
+        department.setDescription(departmentDetails.getDescription());
+        department.setEnabled(departmentDetails.isEnabled());
+        return ResponseEntity.ok(departmentService.saveDepartment(department));
+    }
+
+    @DeleteMapping("/departments/{id}")
+    public ResponseEntity<?> deleteDepartment(@PathVariable("id") Long id) {
+        Department department = departmentService.getDepartmentById(id);
+        department.setEnabled(false);
+        departmentService.saveDepartment(department);
+        return ResponseEntity.ok(Map.of("message", "Department disabled successfully"));
     }
 }

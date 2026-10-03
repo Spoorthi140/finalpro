@@ -36,6 +36,14 @@
         <activity android:name=".ComplaintDetailActivity" />
         <activity android:name=".ProfileActivity" />
 
+        <!-- Native Admin Activities -->
+        <activity android:name=".AdminDashboardActivity" />
+        <activity android:name=".AdminComplaintsActivity" />
+        <activity android:name=".AdminComplaintDetailActivity" />
+        <activity android:name=".AdminUsersActivity" />
+        <activity android:name=".AdminCategoriesActivity" />
+        <activity android:name=".AdminDepartmentsActivity" />
+
     </application>
 
 </manifest>

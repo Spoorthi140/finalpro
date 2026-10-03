@@ -40,26 +40,26 @@ public class DataInitializer {
                 departmentRepository.save(new Department("Storm Water Drainage Department", "Handles municipal drainage systems and flood prevention."));
             }
 
-            // Seed Default Admin User
-            if (!userRepository.existsByEmail("admin@smarturban.gov")) {
+            // Seed Fixed Admin Account: admin@smarturban.com / Admin@123
+            if (!userRepository.existsByEmail("admin@smarturban.com")) {
                 User admin = new User(
                         "System Administrator",
-                        "admin@smarturban.gov",
+                        "admin@smarturban.com",
                         "9876543210",
-                        passwordEncoder.encode("admin123"),
+                        passwordEncoder.encode("Admin@123"),
                         "SmartUrban HQ, City Center",
                         "ROLE_ADMIN"
                 );
                 userRepository.save(admin);
             }
 
-            // Seed Sample Citizen User
-            if (!userRepository.existsByEmail("citizen@smarturban.gov")) {
+            // Seed Sample Citizen Account
+            if (!userRepository.existsByEmail("citizen@smarturban.com")) {
                 User citizen = new User(
                         "John Citizen",
-                        "citizen@smarturban.gov",
+                        "citizen@smarturban.com",
                         "9123456789",
-                        passwordEncoder.encode("citizen123"),
+                        passwordEncoder.encode("Citizen@123"),
                         "123 MG Road, Sector 4",
                         "ROLE_CITIZEN"
                 );

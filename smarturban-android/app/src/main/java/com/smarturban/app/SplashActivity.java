@@ -1,6 +1,7 @@
 package com.smarturban.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,8 +15,19 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-            startActivity(intent);
+            SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+            String token = pref.getString("token", "");
+            String role = pref.getString("role", "");
+
+            if (!token.isEmpty()) {
+                if ("ROLE_ADMIN".equals(role)) {
+                    startActivity(new Intent(SplashActivity.this, AdminDashboardActivity.class));
+                } else {
+                    startActivity(new Intent(SplashActivity.this, DashboardActivity.class));
+                }
+            } else {
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            }
             finish();
         }, 2000);
     }

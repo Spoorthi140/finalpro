@@ -61,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                             String token = responseJson.optString("token");
                             String userEmail = responseJson.optString("email");
                             String fullName = responseJson.optString("fullName");
+                            String role = responseJson.optString("role", "ROLE_CITIZEN");
                             long userId = responseJson.optLong("id");
 
                             SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
@@ -68,13 +69,19 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("token", token);
                             editor.putString("email", userEmail);
                             editor.putString("fullName", fullName);
+                            editor.putString("role", role);
                             editor.putLong("userId", userId);
                             editor.apply();
 
                             Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
 
-                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                            startActivity(intent);
+                            if ("ROLE_ADMIN".equals(role)) {
+                                Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                startActivity(intent);
+                            }
                             finish();
                         } catch (Exception e) {
                             Toast.makeText(LoginActivity.this, "Error parsing login response", Toast.LENGTH_SHORT).show();
