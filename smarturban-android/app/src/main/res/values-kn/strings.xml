@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">SmartUrban</string>
+    <string name="welcome_smarturban">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್‌ಗೆ ಸ್ವಾಗತ</string>
+    <string name="tagline">ಸ್ಮಾರ್ಟ್ ನಗರ ಮೂಲಸೌಕರ್ಯ ದೂರು ಟ್ರ್ಯಾಕಿಂಗ್ ವ್ಯವಸ್ಥೆ</string>
+
+    <!-- Auth Strings -->
+    <string name="login_title">ನಾಗರಿಕ ಲಾಗಿನ್</string>
+    <string name="register_title">ನಾಗರಿಕ ನೋಂದಣಿ</string>
+    <string name="email">ಇಮೇಲ್ ವಿಳಾಸ</string>
+    <string name="password">ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="confirm_password">ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ</string>
+    <string name="full_name">ಪೂರ್ಣ ಹೆಸರು</string>
+    <string name="phone">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
+    <string name="address">ವಿಳಾಸ</string>
+    <string name="login_btn">ಸೈನ್ ಇನ್</string>
+    <string name="register_btn">ಖಾತೆ ನೋಂದಾಯಿಸಿ</string>
+    <string name="dont_have_account">ಖಾತೆ ಇಲ್ಲವೇ? ಇಲ್ಲಿ ನೋಂದಾಯಿಸಿ</string>
+    <string name="already_have_account">ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಲಾಗಿದೆಯೇ? ಲಾಗಿನ್ ಮಾಡಿ</string>
+
+    <!-- Dashboard Strings -->
+    <string name="dashboard_title">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ನಾಗರಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="submit_complaint">ದೂರು ಸಲ್ಲಿಸಿ</string>
+    <string name="my_complaints">ನನ್ನ ದೂರುಗಳು</string>
+    <string name="complaint_history">ದೂರು ಇತಿಹಾಸ</string>
+    <string name="profile">ಬಳಕೆದಾರರ ಪ್ರೊಫೈಲ್</string>
+    <string name="logout">ನಿರ್ಗಮಿಸಿ (ಲಾಗ್‌ಔಟ್)</string>
+
+    <!-- Complaint Strings -->
+    <string name="complaint_title">ದೂರಿನ ಶೀರ್ಷಿಕೆ</string>
+    <string name="complaint_description">ದೂರಿನ ವಿವರಣೆ</string>
+    <string name="category">ಮೂಲಸೌಕರ್ಯ ವರ್ಗ</string>
+    <string name="location">ಜಿಪಿಎಸ್ ಸ್ಥಳ</string>
+    <string name="capture_location">ಜಿಪಿಎಸ್ ಸ್ಥಳ ಗ್ರಹಿಸಿ</string>
+    <string name="attach_image">ಚಿತ್ರವನ್ನು ಲಗತ್ತಿಸಿ (ಕ್ಯಾಮೆರಾ / ಗ್ಯಾಲರಿ)</string>
+    <string name="submit">ಸಮಸ್ಯೆಯನ್ನು ಸಲ್ಲಿಸಿ</string>
+    <string name="status">ಸ್ಥಿತಿ</string>
+    <string name="details">ದೂರಿನ ವಿವರಗಳು</string>
+    <string name="status_history">ಸ್ಥಿತಿ ಇತಿಹಾಸ</string>
+
+    <!-- Validation & Messages -->
+    <string name="field_required">ಈ ಕ್ಷೇತ್ರವು ಕಡ್ಡಾಯವಾಗಿದೆ</string>
+    <string name="password_mismatch">ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ</string>
+    <string name="invalid_email">ಅಮಾನ್ಯ ಇಮೇಲ್ ವಿನ್ಯಾಸ</string>
+    <string name="login_failed">ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ.</string>
+    <string name="registration_success">ನೋಂದಣಿ ಯಶಸ್ವಿಯಾಗಿದೆ!</string>
+    <string name="complaint_submitted">ದೂರು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಕೆಯಾಗಿದೆ!</string>
+</resources>

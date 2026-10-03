@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">SmartUrban</string>
+    <string name="welcome_smarturban">Welcome to SmartUrban</string>
+    <string name="tagline">Smart Urban Infrastructure Complaint Tracking System</string>
+
+    <!-- Auth Strings -->
+    <string name="login_title">Citizen Login</string>
+    <string name="register_title">Citizen Registration</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone">Phone Number</string>
+    <string name="address">Address</string>
+    <string name="login_btn">Sign In</string>
+    <string name="register_btn">Register Account</string>
+    <string name="dont_have_account">Don\'t have an account? Register here</string>
+    <string name="already_have_account">Already registered? Login here</string>
+
+    <!-- Dashboard Strings -->
+    <string name="dashboard_title">SmartUrban Citizen Dashboard</string>
+    <string name="submit_complaint">Submit Complaint</string>
+    <string name="my_complaints">My Complaints</string>
+    <string name="complaint_history">Complaint History</string>
+    <string name="profile">User Profile</string>
+    <string name="logout">Logout</string>
+
+    <!-- Complaint Strings -->
+    <string name="complaint_title">Complaint Title</string>
+    <string name="complaint_description">Complaint Description</string>
+    <string name="category">Infrastructure Category</string>
+    <string name="location">GPS Location</string>
+    <string name="capture_location">Capture GPS Location</string>
+    <string name="attach_image">Attach Image (Camera / Gallery)</string>
+    <string name="submit">Submit Issue</string>
+    <string name="status">Status</string>
+    <string name="details">Complaint Details</string>
+    <string name="status_history">Status Audit Trail</string>
+
+    <!-- Validation & Messages -->
+    <string name="field_required">This field is required</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="invalid_email">Invalid email format</string>
+    <string name="login_failed">Login failed. Check credentials.</string>
+    <string name="registration_success">Registration successful!</string>
+    <string name="complaint_submitted">Complaint submitted successfully!</string>
+</resources>

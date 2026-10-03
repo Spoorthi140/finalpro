@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/submit_complaint"
+            android:textColor="#0F172A"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/complaint_title"
+            android:textColor="#334155"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_title"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF"
+            android:paddingHorizontal="14dp"
+            android:hint="e.g. Broken Streetlight on 5th Avenue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category"
+            android:textColor="#334155"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/sp_category"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/complaint_description"
+            android:textColor="#334155"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_description"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF"
+            android:gravity="top"
+            android:padding="12dp"
+            android:hint="Provide details about the infrastructure problem..." />
+
+        <!-- GPS Location Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/location"
+            android:textColor="#334155"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_get_location"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/capture_location"
+            android:backgroundTint="#0284C7" />
+
+        <TextView
+            android:id="@+id/tv_location_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="#E2E8F0"
+            android:padding="12dp"
+            android:text="Location: Not captured yet"
+            android:textColor="#475569"
+            android:textSize="14sp" />
+
+        <!-- Image Upload Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/attach_image"
+            android:textColor="#334155"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_select_image"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="6dp"
+            android:text="Select Image (Camera/Gallery)"
+            android:backgroundTint="#475569" />
+
+        <ImageView
+            android:id="@+id/img_preview"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#CBD5E1" />
+
+        <Button
+            android:id="@+id/btn_submit"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="@string/submit"
+            android:textSize="16sp"
+            android:backgroundTint="#16A34A" />
+
+    </LinearLayout>
+</ScrollView>
