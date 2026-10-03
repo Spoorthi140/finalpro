@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
@@ -42,17 +44,54 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Save session details
-        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("email", email);
-        editor.putString("token", "sample_jwt_token_for_" + email);
-        editor.apply();
+        try {
+            JSONObject json = new JSONObject();
+            json.put("email", email);
+            json.put("password", password);
 
-        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
+            btnLogin.setEnabled(false);
 
-        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-        startActivity(intent);
-        finish();
+            HttpNetworkClient.sendJsonRequest(ApiConfig.LOGIN_URL, "POST", json.toString(), null, new HttpNetworkClient.ApiResponseCallback() {
+                @Override
+                public void onSuccess(int statusCode, String responseBody) {
+                    btnLogin.setEnabled(true);
+                    if (statusCode == 200 && responseBody != null) {
+                        try {
+                            JSONObject responseJson = new JSONObject(responseBody);
+                            String token = responseJson.optString("token");
+                            String userEmail = responseJson.optString("email");
+                            String fullName = responseJson.optString("fullName");
+                            long userId = responseJson.optLong("id");
+
+                            SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("token", token);
+                            editor.putString("email", userEmail);
+                            editor.putString("fullName", fullName);
+                            editor.putLong("userId", userId);
+                            editor.apply();
+
+                            Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } catch (Exception e) {
+                            Toast.makeText(LoginActivity.this, "Error parsing login response", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    btnLogin.setEnabled(true);
+                    Toast.makeText(LoginActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -1,12 +1,16 @@
 package com.smarturban.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +19,14 @@ public class MyComplaintsActivity extends AppCompatActivity {
 
     private ListView lvComplaints;
 
-    static class DummyComplaint {
+    static class ComplaintItem {
         long id;
         String title;
         String category;
         String status;
         String date;
 
-        DummyComplaint(long id, String title, String category, String status, String date) {
+        ComplaintItem(long id, String title, String category, String status, String date) {
             this.id = id;
             this.title = title;
             this.category = category;
@@ -38,18 +42,61 @@ public class MyComplaintsActivity extends AppCompatActivity {
 
         lvComplaints = findViewById(R.id.lv_complaints);
 
-        List<DummyComplaint> list = new ArrayList<>();
-        list.add(new DummyComplaint(1, "Large Pothole on Commercial Street", "Road Maintenance", "Submitted", "2026-10-03"));
-        list.add(new DummyComplaint(2, "Streetlight Not Working in Ward 12", "Streetlights", "In Progress", "2026-10-02"));
-        list.add(new DummyComplaint(3, "Garbage Overflow near Park Gate", "Sanitation/Garbage", "Resolved", "2026-09-28"));
+        loadComplaintsFromBackend();
+    }
 
-        ArrayAdapter<DummyComplaint> adapter = new ArrayAdapter<DummyComplaint>(this, 0, list) {
+    private void loadComplaintsFromBackend() {
+        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+        String jwtToken = pref.getString("token", "");
+
+        HttpNetworkClient.sendJsonRequest(ApiConfig.MY_COMPLAINTS_URL, "GET", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
+            @Override
+            public void onSuccess(int statusCode, String responseBody) {
+                if (statusCode == 200 && responseBody != null) {
+                    try {
+                        JSONArray array = new JSONArray(responseBody);
+                        List<ComplaintItem> list = new ArrayList<>();
+
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject obj = array.getJSONObject(i);
+                            long id = obj.getLong("id");
+                            String title = obj.getString("title");
+                            String status = obj.optString("status", "Submitted");
+                            String date = obj.optString("createdAt", "");
+                            if (date.length() >= 10) date = date.substring(0, 10);
+
+                            String category = "General";
+                            if (obj.has("category") && !obj.isNull("category")) {
+                                category = obj.getJSONObject("category").optString("name", "General");
+                            }
+
+                            list.add(new ComplaintItem(id, title, category, status, date));
+                        }
+
+                        displayComplaints(list);
+                    } catch (Exception e) {
+                        Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Error parsing complaints", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Failed to load complaints", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Network error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void displayComplaints(List<ComplaintItem> list) {
+        ArrayAdapter<ComplaintItem> adapter = new ArrayAdapter<ComplaintItem>(this, 0, list) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_complaint, parent, false);
                 }
-                DummyComplaint item = getItem(position);
+                ComplaintItem item = getItem(position);
 
                 TextView tvId = convertView.findViewById(R.id.tv_cmp_id);
                 TextView tvTitle = convertView.findViewById(R.id.tv_cmp_title);
@@ -72,13 +119,9 @@ public class MyComplaintsActivity extends AppCompatActivity {
         lvComplaints.setAdapter(adapter);
 
         lvComplaints.setOnItemClickListener((parent, view, position, id) -> {
-            DummyComplaint selected = list.get(position);
+            ComplaintItem selected = list.get(position);
             Intent intent = new Intent(MyComplaintsActivity.this, ComplaintDetailActivity.class);
             intent.putExtra("complaint_id", selected.id);
-            intent.putExtra("title", selected.title);
-            intent.putExtra("category", selected.category);
-            intent.putExtra("status", selected.status);
-            intent.putExtra("date", selected.date);
             startActivity(intent);
         });
     }

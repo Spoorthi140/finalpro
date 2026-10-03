@@ -8,6 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etFullName, etEmail, etPhone, etAddress, etPassword, etConfirmPassword;
@@ -30,9 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v -> handleRegistration());
 
-        tvLoginLink.setOnClickListener(v -> {
-            finish();
-        });
+        tvLoginLink.setOnClickListener(v -> finish());
     }
 
     private void handleRegistration() {
@@ -53,7 +53,43 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, R.string.registration_success, Toast.LENGTH_SHORT).show();
-        finish();
+        try {
+            JSONObject json = new JSONObject();
+            json.put("fullName", name);
+            json.put("email", email);
+            json.put("phone", phone);
+            json.put("address", address);
+            json.put("password", pwd);
+
+            btnRegister.setEnabled(false);
+
+            HttpNetworkClient.sendJsonRequest(ApiConfig.REGISTER_URL, "POST", json.toString(), null, new HttpNetworkClient.ApiResponseCallback() {
+                @Override
+                public void onSuccess(int statusCode, String responseBody) {
+                    btnRegister.setEnabled(true);
+                    if (statusCode == 200) {
+                        Toast.makeText(RegisterActivity.this, R.string.registration_success, Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        String errorMsg = "Registration failed";
+                        try {
+                            JSONObject errJson = new JSONObject(responseBody);
+                            if (errJson.has("message")) {
+                                errorMsg = errJson.getString("message");
+                            }
+                        } catch (Exception ignored) {}
+                        Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    btnRegister.setEnabled(true);
+                    Toast.makeText(RegisterActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
+        }
     }
 }

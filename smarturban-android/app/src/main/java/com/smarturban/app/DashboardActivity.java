@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONObject;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -24,11 +27,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnProfile = findViewById(R.id.btn_profile);
         btnLogout = findViewById(R.id.btn_logout);
 
-        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
-        String email = pref.getString("email", "citizen@smarturban.gov");
-
-        tvUserEmail.setText(email);
-        tvWelcomeUser.setText("Welcome Citizen");
+        loadUserProfile();
 
         btnSubmitComplaint.setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, SubmitComplaintActivity.class));
@@ -43,6 +42,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> {
+            SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();
             editor.clear();
             editor.apply();
@@ -51,6 +51,34 @@ public class DashboardActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        });
+    }
+
+    private void loadUserProfile() {
+        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+        String jwtToken = pref.getString("token", "");
+
+        HttpNetworkClient.sendJsonRequest(ApiConfig.PROFILE_URL, "GET", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
+            @Override
+            public void onSuccess(int statusCode, String responseBody) {
+                if (statusCode == 200 && responseBody != null) {
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        String fullName = json.optString("fullName", "Citizen");
+                        String email = json.optString("email", "");
+
+                        tvWelcomeUser.setText("Welcome, " + fullName);
+                        tvUserEmail.setText(email);
+                    } catch (Exception e) {
+                        // Keep defaults
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Fallback
+            }
         });
     }
 }
