@@ -1,5 +1,6 @@
 package com.smarturban.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,6 +34,11 @@ public class MyComplaintsActivity extends AppCompatActivity {
             this.status = status;
             this.date = date;
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
     }
 
     @Override
@@ -74,18 +80,12 @@ public class MyComplaintsActivity extends AppCompatActivity {
                         }
 
                         displayComplaints(list);
-                    } catch (Exception e) {
-                        Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Error parsing complaints", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Failed to load complaints", Toast.LENGTH_SHORT).show();
+                    } catch (Exception ignored) {}
                 }
             }
 
             @Override
-            public void onError(Exception e) {
-                Toast.makeText(MyComplaintsActivity.class.cast(MyComplaintsActivity.this), "Network error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            public void onError(Exception e) {}
         });
     }
 
@@ -107,7 +107,7 @@ public class MyComplaintsActivity extends AppCompatActivity {
                 if (item != null) {
                     tvId.setText("#CMP-" + item.id);
                     tvTitle.setText(item.title);
-                    tvCat.setText("Category: " + item.category);
+                    tvCat.setText(getString(R.string.category) + ": " + item.category);
                     tvStatus.setText(item.status);
                     tvDate.setText("Date: " + item.date);
                 }

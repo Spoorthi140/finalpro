@@ -1,11 +1,11 @@
 package com.smarturban.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONObject;
@@ -14,6 +14,11 @@ public class DashboardActivity extends AppCompatActivity {
 
     private TextView tvWelcomeUser, tvUserEmail;
     private Button btnSubmitComplaint, btnMyComplaints, btnProfile, btnLogout;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,21 +69,17 @@ public class DashboardActivity extends AppCompatActivity {
                 if (statusCode == 200 && responseBody != null) {
                     try {
                         JSONObject json = new JSONObject(responseBody);
-                        String fullName = json.optString("fullName", "Citizen");
+                        String fullName = json.optString("fullName", getString(R.string.welcome_citizen));
                         String email = json.optString("email", "");
 
-                        tvWelcomeUser.setText("Welcome, " + fullName);
+                        tvWelcomeUser.setText(fullName);
                         tvUserEmail.setText(email);
-                    } catch (Exception e) {
-                        // Keep defaults
-                    }
+                    } catch (Exception ignored) {}
                 }
             }
 
             @Override
-            public void onError(Exception e) {
-                // Fallback
-            }
+            public void onError(Exception e) {}
         });
     }
 }

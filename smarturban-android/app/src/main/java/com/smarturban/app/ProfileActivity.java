@@ -1,9 +1,13 @@
 package com.smarturban.app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +17,13 @@ public class ProfileActivity extends AppCompatActivity {
 
     private EditText etProfName, etProfEmail, etProfPhone, etProfAddress;
     private Button btnSaveProfile;
+    private RadioGroup rgLanguage;
+    private RadioButton rbEnglish, rbKannada;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +35,28 @@ public class ProfileActivity extends AppCompatActivity {
         etProfPhone = findViewById(R.id.et_prof_phone);
         etProfAddress = findViewById(R.id.et_prof_address);
         btnSaveProfile = findViewById(R.id.btn_save_profile);
+
+        rgLanguage = findViewById(R.id.rg_language);
+        rbEnglish = findViewById(R.id.rb_english);
+        rbKannada = findViewById(R.id.rb_kannada);
+
+        String currentLang = AppLocaleManager.getPersistedLanguage(this);
+        if ("kn".equalsIgnoreCase(currentLang)) {
+            rbKannada.setChecked(true);
+        } else {
+            rbEnglish.setChecked(true);
+        }
+
+        rgLanguage.setOnCheckedChangeListener((group, checkedId) -> {
+            String selectedLang = (checkedId == R.id.rb_kannada) ? "kn" : "en";
+            if (!selectedLang.equalsIgnoreCase(AppLocaleManager.getPersistedLanguage(this))) {
+                AppLocaleManager.setLocale(this, selectedLang);
+                Intent intent = new Intent(this, DashboardActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         loadProfileFromBackend();
 
@@ -45,15 +78,13 @@ public class ProfileActivity extends AppCompatActivity {
                         etProfPhone.setText(json.optString("phone", ""));
                         etProfAddress.setText(json.optString("address", ""));
                     } catch (Exception e) {
-                        Toast.makeText(ProfileActivity.this, "Error parsing profile data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileActivity.this, R.string.field_required, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
 
             @Override
-            public void onError(Exception e) {
-                Toast.makeText(ProfileActivity.this, "Network error loading profile", Toast.LENGTH_SHORT).show();
-            }
+            public void onError(Exception e) {}
         });
     }
 
@@ -83,21 +114,18 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onSuccess(int statusCode, String responseBody) {
                     btnSaveProfile.setEnabled(true);
                     if (statusCode == 200) {
-                        Toast.makeText(ProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileActivity.this, R.string.profile_updated, Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        Toast.makeText(ProfileActivity.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileActivity.this, R.string.field_required, Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     btnSaveProfile.setEnabled(true);
-                    Toast.makeText(ProfileActivity.this, "Network error updating profile", Toast.LENGTH_SHORT).show();
                 }
             });
-        } catch (Exception e) {
-            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
-        }
+        } catch (Exception ignored) {}
     }
 }

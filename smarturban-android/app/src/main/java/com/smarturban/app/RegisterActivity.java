@@ -1,6 +1,6 @@
 package com.smarturban.app;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +15,11 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etFullName, etEmail, etPhone, etAddress, etPassword, etConfirmPassword;
     private Button btnRegister;
     private TextView tvLoginLink;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,25 +76,17 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(RegisterActivity.this, R.string.registration_success, Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        String errorMsg = "Registration failed";
-                        try {
-                            JSONObject errJson = new JSONObject(responseBody);
-                            if (errJson.has("message")) {
-                                errorMsg = errJson.getString("message");
-                            }
-                        } catch (Exception ignored) {}
-                        Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegisterActivity.this, R.string.field_required, Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     btnRegister.setEnabled(true);
-                    Toast.makeText(RegisterActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (Exception e) {
-            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.field_required, Toast.LENGTH_SHORT).show();
         }
     }
 }

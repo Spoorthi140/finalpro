@@ -42,6 +42,11 @@ public class SubmitComplaintActivity extends AppCompatActivity {
     private List<String> categoryNames = new ArrayList<>();
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_submit_complaint);
@@ -64,7 +69,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } else {
-                Toast.makeText(this, "Camera unavailable", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.field_required, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -120,7 +125,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
         try {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager == null) {
-                Toast.makeText(this, "Location service unavailable on device", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.gps_disabled, Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -128,8 +133,8 @@ public class SubmitComplaintActivity extends AppCompatActivity {
             boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (!gpsEnabled && !networkEnabled) {
-                Toast.makeText(this, "Location services disabled. Please enable GPS in device settings.", Toast.LENGTH_LONG).show();
-                tvLocationDisplay.setText("Location: Disabled. Please enable GPS on device.");
+                Toast.makeText(this, R.string.gps_disabled, Toast.LENGTH_LONG).show();
+                tvLocationDisplay.setText(R.string.gps_disabled);
                 return;
             }
 
@@ -140,8 +145,8 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                         latitude = loc.getLatitude();
                         longitude = loc.getLongitude();
                         locationName = getAddressFromCoordinates(latitude, longitude);
-                        tvLocationDisplay.setText("Location: " + locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
-                        Toast.makeText(SubmitComplaintActivity.this, "Device GPS location captured successfully!", Toast.LENGTH_SHORT).show();
+                        tvLocationDisplay.setText(locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
+                        Toast.makeText(SubmitComplaintActivity.this, R.string.gps_captured, Toast.LENGTH_SHORT).show();
                     }
                 }
                 @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -163,16 +168,12 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                 latitude = lastKnown.getLatitude();
                 longitude = lastKnown.getLongitude();
                 locationName = getAddressFromCoordinates(latitude, longitude);
-                tvLocationDisplay.setText("Location: " + locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
-                Toast.makeText(this, "Device Location captured!", Toast.LENGTH_SHORT).show();
-            } else if (latitude == null) {
-                tvLocationDisplay.setText("Location: Obtaining GPS fix... Please ensure GPS is active.");
-                Toast.makeText(this, "Obtaining GPS fix... Please ensure location permissions and GPS are active.", Toast.LENGTH_LONG).show();
+                tvLocationDisplay.setText(locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
+                Toast.makeText(this, R.string.gps_captured, Toast.LENGTH_SHORT).show();
             }
 
         } catch (SecurityException ex) {
-            tvLocationDisplay.setText("Location permission required. Please grant location permissions.");
-            Toast.makeText(this, "Location permission required. Please grant location permissions.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.gps_disabled, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -188,7 +189,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                 return sb.length() > 0 ? sb.toString() : "GPS Location";
             }
         } catch (Exception ignored) {}
-        return "Coordinates (" + String.format("%.4f", lat) + ", " + String.format("%.4f", lng) + ")";
+        return "GPS (" + String.format("%.4f", lat) + ", " + String.format("%.4f", lng) + ")";
     }
 
     private void submitComplaintToBackend() {
@@ -201,7 +202,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
         }
 
         if (latitude == null || longitude == null) {
-            Toast.makeText(this, "GPS Location is required. Please tap 'Capture GPS Location'.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.field_required, Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -222,14 +223,13 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                             Toast.makeText(SubmitComplaintActivity.this, R.string.complaint_submitted, Toast.LENGTH_LONG).show();
                             finish();
                         } else {
-                            Toast.makeText(SubmitComplaintActivity.this, "Failed to submit complaint (" + statusCode + ")", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SubmitComplaintActivity.this, R.string.field_required, Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onError(Exception e) {
                         btnSubmit.setEnabled(true);
-                        Toast.makeText(SubmitComplaintActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

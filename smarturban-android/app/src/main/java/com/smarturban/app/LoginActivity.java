@@ -1,5 +1,6 @@
 package com.smarturban.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,6 +17,11 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin;
     private TextView tvRegisterLink;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,13 +84,13 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putLong("userId", userId);
                             editor.apply();
 
-                            Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
 
                             Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                             startActivity(intent);
                             finish();
                         } catch (Exception e) {
-                            Toast.makeText(LoginActivity.this, "Error parsing login response", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
@@ -94,11 +100,11 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(Exception e) {
                     btnLogin.setEnabled(true);
-                    Toast.makeText(LoginActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (Exception e) {
-            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.login_failed, Toast.LENGTH_SHORT).show();
         }
     }
 }

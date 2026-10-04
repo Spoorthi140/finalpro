@@ -24,18 +24,35 @@
     <string name="complaint_history">Complaint History</string>
     <string name="profile">User Profile</string>
     <string name="logout">Logout</string>
+    <string name="welcome_citizen">Welcome, Citizen</string>
 
-    <!-- Complaint Strings -->
+    <!-- Complaint Form Strings -->
     <string name="complaint_title">Complaint Title</string>
+    <string name="complaint_title_hint">e.g. Broken Streetlight on 5th Avenue</string>
     <string name="complaint_description">Complaint Description</string>
+    <string name="complaint_desc_hint">Provide details about the infrastructure problem...</string>
     <string name="category">Infrastructure Category</string>
-    <string name="location">GPS Location</string>
+    <string name="location">Location (OpenStreetMap)</string>
     <string name="capture_location">Capture GPS Location</string>
+    <string name="location_not_captured">Location: Not captured yet</string>
     <string name="attach_image">Attach Image (Camera / Gallery)</string>
+    <string name="select_image">Select Image (Camera/Gallery)</string>
     <string name="submit">Submit Issue</string>
     <string name="status">Status</string>
     <string name="details">Complaint Details</string>
     <string name="status_history">Status Audit Trail</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_title">Citizen Feedback &amp; Rating</string>
+    <string name="feedback_hint">Provide optional feedback comments...</string>
+    <string name="submit_feedback">Submit Feedback</string>
+
+    <!-- Language / Profile Strings -->
+    <string name="language_setting">Language / ಭಾಷೆ</string>
+    <string name="lang_english">English</string>
+    <string name="lang_kannada">ಕನ್ನಡ (Kannada)</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="profile_updated">Profile updated successfully</string>
 
     <!-- Validation & Messages -->
     <string name="field_required">This field is required</string>
@@ -44,4 +61,7 @@
     <string name="login_failed">Login failed. Check credentials.</string>
     <string name="registration_success">Registration successful!</string>
     <string name="complaint_submitted">Complaint submitted successfully!</string>
+    <string name="login_success">Login Successful</string>
+    <string name="gps_captured">GPS Location Captured</string>
+    <string name="gps_disabled">Location services disabled. Please enable GPS in device settings.</string>
 </resources>

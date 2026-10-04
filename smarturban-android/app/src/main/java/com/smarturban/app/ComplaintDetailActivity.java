@@ -1,5 +1,6 @@
 package com.smarturban.app;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -28,10 +29,14 @@ public class ComplaintDetailActivity extends AppCompatActivity {
     private Double longitude = null;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppLocaleManager.setLocale(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize osmdroid configuration
         Configuration.getInstance().load(getApplicationContext(), getSharedPreferences("osmdroid", MODE_PRIVATE));
 
         setContentView(R.layout.activity_complaint_detail);
@@ -85,30 +90,24 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                             longitude = obj.getDouble("longitude");
                             tvDetailLocation.setText(locName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
 
-                            // Setup OpenStreetMap
                             setupOpenStreetMap(latitude, longitude, obj.getString("title"));
                         } else {
-                            tvDetailLocation.setText(locName + " (Location coordinates unavailable)");
+                            tvDetailLocation.setText(locName);
                             mapView.setVisibility(View.GONE);
                         }
 
-                        // Show Feedback Section if complaint is Resolved
                         if ("Resolved".equalsIgnoreCase(status)) {
                             layoutFeedbackSection.setVisibility(View.VISIBLE);
                         } else {
                             layoutFeedbackSection.setVisibility(View.GONE);
                         }
 
-                    } catch (Exception e) {
-                        Toast.makeText(ComplaintDetailActivity.this, "Error parsing complaint details", Toast.LENGTH_SHORT).show();
-                    }
+                    } catch (Exception ignored) {}
                 }
             }
 
             @Override
-            public void onError(Exception e) {
-                Toast.makeText(ComplaintDetailActivity.this, "Error loading details", Toast.LENGTH_SHORT).show();
-            }
+            public void onError(Exception e) {}
         });
     }
 
@@ -152,7 +151,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         btnSubmitFeedback.setVisibility(View.GONE);
 
                         tvSubmittedFeedback.setVisibility(View.VISIBLE);
-                        tvSubmittedFeedback.setText("Submitted Rating: " + rating + " Stars\nComments: " + (comments.isEmpty() ? "None" : comments));
+                        tvSubmittedFeedback.setText("Rating: " + rating + " Stars\nComments: " + (comments.isEmpty() ? "None" : comments));
                     } catch (Exception ignored) {}
                 }
             }
@@ -185,22 +184,14 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                 public void onSuccess(int statusCode, String responseBody) {
                     btnSubmitFeedback.setEnabled(true);
                     if (statusCode == 200) {
-                        Toast.makeText(ComplaintDetailActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ComplaintDetailActivity.this, R.string.field_required, Toast.LENGTH_SHORT).show();
                         checkFeedback(complaintId);
-                    } else {
-                        String msg = "Failed to submit feedback";
-                        try {
-                            JSONObject err = new JSONObject(responseBody);
-                            if (err.has("message")) msg = err.getString("message");
-                        } catch (Exception ignored) {}
-                        Toast.makeText(ComplaintDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     btnSubmitFeedback.setEnabled(true);
-                    Toast.makeText(ComplaintDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (Exception ignored) {}
