@@ -28,6 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:hint="New Department Name"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:paddingHorizontal="12dp"
             android:background="#F1F5F9" />
 
@@ -37,6 +39,8 @@
             android:layout_height="46dp"
             android:layout_marginTop="8dp"
             android:hint="Description"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:paddingHorizontal="12dp"
             android:background="#F1F5F9" />
 
@@ -46,6 +50,7 @@
             android:layout_height="46dp"
             android:layout_marginTop="10dp"
             android:text="Add Department"
+            android:textColor="#FFFFFF"
             android:backgroundTint="#8B5CF6" />
     </LinearLayout>
 

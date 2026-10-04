@@ -11,6 +11,12 @@
         <item name="colorSecondaryVariant">#0F766E</item>
         <item name="colorOnSecondary">#FFFFFF</item>
 
+        <!-- Text and Input Default Colors for Light Backgrounds -->
+        <item name="android:textColorPrimary">#0F172A</item>
+        <item name="android:textColorSecondary">#475569</item>
+        <item name="android:textColorHint">#64748B</item>
+        <item name="android:editTextColor">#0F172A</item>
+
         <!-- Status bar color -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>

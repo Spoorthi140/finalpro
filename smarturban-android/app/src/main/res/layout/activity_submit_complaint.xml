@@ -34,6 +34,8 @@
             android:layout_marginBottom="16dp"
             android:background="#FFFFFF"
             android:paddingHorizontal="14dp"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:hint="e.g. Broken Streetlight on 5th Avenue" />
 
         <TextView
@@ -67,6 +69,8 @@
             android:background="#FFFFFF"
             android:gravity="top"
             android:padding="12dp"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:hint="Provide details about the infrastructure problem..." />
 
         <!-- GPS Location Section -->
@@ -83,7 +87,8 @@
             android:layout_height="46dp"
             android:layout_marginTop="6dp"
             android:text="@string/capture_location"
-            android:backgroundTint="#0284C7" />
+            android:backgroundTint="#0284C7"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/tv_location_display"
@@ -111,7 +116,8 @@
             android:layout_height="46dp"
             android:layout_marginTop="6dp"
             android:text="Select Image (Camera/Gallery)"
-            android:backgroundTint="#475569" />
+            android:backgroundTint="#475569"
+            android:textColor="#FFFFFF" />
 
         <ImageView
             android:id="@+id/img_preview"
@@ -129,7 +135,8 @@
             android:layout_height="54dp"
             android:text="@string/submit"
             android:textSize="16sp"
-            android:backgroundTint="#16A34A" />
+            android:backgroundTint="#16A34A"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 </ScrollView>

@@ -34,6 +34,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:hint="@string/full_name"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="textPersonName"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />
@@ -44,6 +46,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:hint="@string/email"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="textEmailAddress"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />
@@ -54,6 +58,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:hint="@string/phone"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="phone"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />
@@ -64,6 +70,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:hint="@string/address"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="textPostalAddress"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />
@@ -74,6 +82,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:hint="@string/password"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="textPassword"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />
@@ -84,6 +94,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:hint="@string/confirm_password"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:inputType="textPassword"
             android:paddingHorizontal="16dp"
             android:background="#FFFFFF" />

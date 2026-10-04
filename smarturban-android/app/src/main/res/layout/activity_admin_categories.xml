@@ -28,6 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:hint="New Category Name"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:paddingHorizontal="12dp"
             android:background="#F1F5F9" />
 
@@ -37,6 +39,8 @@
             android:layout_height="46dp"
             android:layout_marginTop="8dp"
             android:hint="Description"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:paddingHorizontal="12dp"
             android:background="#F1F5F9" />
 
@@ -46,6 +50,7 @@
             android:layout_height="46dp"
             android:layout_marginTop="10dp"
             android:text="Add Category"
+            android:textColor="#FFFFFF"
             android:backgroundTint="#6366F1" />
     </LinearLayout>
 

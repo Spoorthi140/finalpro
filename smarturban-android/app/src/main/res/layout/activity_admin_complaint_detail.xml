@@ -106,6 +106,8 @@
             android:background="#FFFFFF"
             android:gravity="top"
             android:padding="12dp"
+            android:textColor="#0F172A"
+            android:textColorHint="#64748B"
             android:hint="Enter administrative notes..." />
 
         <Button
@@ -114,6 +116,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:text="Save Complaint Updates"
+            android:textColor="#FFFFFF"
             android:backgroundTint="#0284C7" />
 
     </LinearLayout>
