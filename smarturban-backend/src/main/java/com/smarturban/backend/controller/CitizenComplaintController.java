@@ -2,24 +2,22 @@ package com.smarturban.backend.controller;
 
 import com.smarturban.backend.dto.ComplaintRequest;
 import com.smarturban.backend.entity.Complaint;
+import com.smarturban.backend.entity.ComplaintFeedback;
 import com.smarturban.backend.entity.ComplaintStatusHistory;
 import com.smarturban.backend.entity.User;
 import com.smarturban.backend.security.UserDetailsImpl;
-import com.smarturban.backend.service.AICategorizationService;
-import com.smarturban.backend.service.ComplaintService;
-import com.smarturban.backend.service.FileStorageService;
-import com.smarturban.backend.service.UserService;
+import com.smarturban.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/citizen")
@@ -37,6 +35,9 @@ public class CitizenComplaintController {
 
     @Autowired
     private AICategorizationService aiCategorizationService;
+
+    @Autowired
+    private FeedbackService feedbackService;
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -124,5 +125,27 @@ public class CitizenComplaintController {
     @GetMapping("/complaints/{id}/history")
     public ResponseEntity<List<ComplaintStatusHistory>> getComplaintHistory(@PathVariable("id") Long id) {
         return ResponseEntity.ok(complaintService.getComplaintHistory(id));
+    }
+
+    @PostMapping("/complaints/{id}/feedback")
+    public ResponseEntity<?> submitFeedback(@PathVariable("id") Long id,
+                                           @RequestBody Map<String, Object> request,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            User citizen = userService.findByEmail(userDetails.getUsername());
+            Integer rating = request.get("rating") != null ? Integer.valueOf(request.get("rating").toString()) : null;
+            String comments = (String) request.get("comments");
+
+            ComplaintFeedback feedback = feedbackService.submitFeedback(citizen, id, rating, comments);
+            return ResponseEntity.ok(feedback);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/complaints/{id}/feedback")
+    public ResponseEntity<?> getFeedback(@PathVariable("id") Long id) {
+        Optional<ComplaintFeedback> feedback = feedbackService.getFeedbackForComplaint(id);
+        return feedback.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

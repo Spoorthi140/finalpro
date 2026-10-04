@@ -29,6 +29,7 @@ public class CurrentUserController {
         profile.put("phone", user.getPhone());
         profile.put("address", user.getAddress());
         profile.put("role", user.getRole());
+        profile.put("fcmToken", user.getFcmToken());
         return ResponseEntity.ok(profile);
     }
 
@@ -42,5 +43,15 @@ public class CurrentUserController {
                 request.get("address")
         );
         return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<?> registerFcmToken(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                              @RequestBody Map<String, String> request) {
+        String token = request.get("fcmToken");
+        User user = userService.findByEmail(userDetails.getUsername());
+        user.setFcmToken(token);
+        userService.saveUser(user);
+        return ResponseEntity.ok(Map.of("message", "FCM device token registered successfully"));
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -32,6 +33,9 @@ public class AdminWebController {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+
+    @Autowired
+    private FeedbackService feedbackService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -131,10 +135,12 @@ public class AdminWebController {
         Complaint complaint = complaintService.getComplaintById(id);
         List<ComplaintStatusHistory> history = complaintService.getComplaintHistory(id);
         List<Department> departments = departmentService.getActiveDepartments();
+        Optional<ComplaintFeedback> feedback = feedbackService.getFeedbackForComplaint(id);
 
         model.addAttribute("complaint", complaint);
         model.addAttribute("history", history);
         model.addAttribute("departments", departments);
+        model.addAttribute("feedback", feedback.orElse(null));
 
         return "admin/complaint_detail";
     }

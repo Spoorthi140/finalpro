@@ -27,6 +27,9 @@ public class ComplaintService {
     @Autowired
     private ComplaintStatusHistoryRepository historyRepository;
 
+    @Autowired
+    private FcmNotificationService fcmNotificationService;
+
     @Transactional
     public Complaint createComplaint(User user, ComplaintRequest request, String imageUrl) {
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -97,6 +100,18 @@ public class ComplaintService {
                 remarks != null ? remarks : "Status updated by admin"
         );
         historyRepository.save(history);
+
+        // Trigger FCM Notification if status changed
+        if (newStatus != null && !newStatus.equalsIgnoreCase(oldStatus)) {
+            User citizen = updatedComplaint.getUser();
+            if (citizen != null && citizen.getFcmToken() != null) {
+                fcmNotificationService.sendStatusUpdateNotification(
+                        citizen.getFcmToken(),
+                        updatedComplaint.getTitle(),
+                        updatedComplaint.getStatus()
+                );
+            }
+        }
 
         return updatedComplaint;
     }

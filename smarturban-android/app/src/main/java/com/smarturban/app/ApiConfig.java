@@ -22,6 +22,7 @@ public class ApiConfig {
 
     // Citizen endpoints
     public static final String PROFILE_URL = BASE_URL + "users/me";
+    public static final String FCM_TOKEN_URL = BASE_URL + "users/fcm-token";
     public static final String SUBMIT_COMPLAINT_URL = BASE_URL + "citizen/complaints";
     public static final String MY_COMPLAINTS_URL = BASE_URL + "citizen/complaints";
 

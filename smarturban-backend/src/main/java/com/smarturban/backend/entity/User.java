@@ -30,6 +30,9 @@ public class User {
 
     private boolean enabled = true;
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -83,6 +86,9 @@ public class User {
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+    public String getFcmToken() { return fcmToken; }
+    public void setFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
