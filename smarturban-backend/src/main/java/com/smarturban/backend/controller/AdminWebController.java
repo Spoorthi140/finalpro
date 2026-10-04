@@ -91,8 +91,8 @@ public class AdminWebController {
     @PostMapping("/users/toggle/{id}")
     public String toggleUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         User user = userService.findById(id).orElseThrow();
-        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
-            redirectAttributes.addFlashAttribute("error", "Cannot disable primary administrator account.");
+        if ("ROLE_ADMIN".equals(user.getRole())) {
+            redirectAttributes.addFlashAttribute("error", "Cannot disable administrator accounts.");
             return "redirect:/admin/users";
         }
         user.setEnabled(!user.isEnabled());
@@ -105,8 +105,8 @@ public class AdminWebController {
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findById(id).orElseThrow();
-            if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
-                redirectAttributes.addFlashAttribute("error", "Cannot delete primary administrator account.");
+            if ("ROLE_ADMIN".equals(user.getRole())) {
+                redirectAttributes.addFlashAttribute("error", "Cannot delete administrator accounts.");
                 return "redirect:/admin/users";
             }
             userService.deleteUser(id);

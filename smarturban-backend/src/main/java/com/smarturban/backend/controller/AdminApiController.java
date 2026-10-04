@@ -2,7 +2,6 @@ package com.smarturban.backend.controller;
 
 import com.smarturban.backend.entity.*;
 import com.smarturban.backend.repository.*;
-import com.smarturban.backend.security.UserDetailsImpl;
 import com.smarturban.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -82,8 +81,8 @@ public class AdminApiController {
     public ResponseEntity<?> toggleUserStatus(@PathVariable("id") Long id) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Cannot disable the primary administrator account"));
+        if ("ROLE_ADMIN".equals(user.getRole())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot disable administrator accounts"));
         }
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
@@ -94,8 +93,8 @@ public class AdminApiController {
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Cannot delete the primary administrator account"));
+        if ("ROLE_ADMIN".equals(user.getRole())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot delete administrator accounts"));
         }
         userService.deleteUser(id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
@@ -111,7 +110,7 @@ public class AdminApiController {
     public ResponseEntity<?> updateComplaintStatus(
             @PathVariable("id") Long id,
             @RequestBody Map<String, Object> body,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+            @AuthenticationPrincipal com.smarturban.backend.security.UserDetailsImpl userDetails) {
 
         String status = (String) body.get("status");
         Long departmentId = body.get("departmentId") != null && !body.get("departmentId").toString().isEmpty()
