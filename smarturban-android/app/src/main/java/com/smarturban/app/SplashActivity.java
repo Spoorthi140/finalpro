@@ -17,14 +17,9 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
             String token = pref.getString("token", "");
-            String role = pref.getString("role", "");
 
             if (!token.isEmpty()) {
-                if ("ROLE_ADMIN".equals(role)) {
-                    startActivity(new Intent(SplashActivity.this, AdminDashboardActivity.class));
-                } else {
-                    startActivity(new Intent(SplashActivity.this, DashboardActivity.class));
-                }
+                startActivity(new Intent(SplashActivity.this, DashboardActivity.class));
             } else {
                 startActivity(new Intent(SplashActivity.this, LoginActivity.class));
             }

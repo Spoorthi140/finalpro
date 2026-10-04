@@ -4,7 +4,6 @@ import com.smarturban.backend.entity.*;
 import com.smarturban.backend.repository.*;
 import com.smarturban.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,34 +33,9 @@ public class AdminWebController {
     @Autowired
     private ComplaintRepository complaintRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @GetMapping("/login")
     public String loginPage() {
         return "admin/login";
-    }
-
-    @PostMapping("/login")
-    public String handleLogin(@RequestParam("email") String email,
-                              @RequestParam("password") String password,
-                              RedirectAttributes redirectAttributes,
-                              Model model) {
-        try {
-            User user = userService.findByEmail(email);
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                model.addAttribute("error", "Invalid email or password.");
-                return "admin/login";
-            }
-            if (!"ROLE_ADMIN".equals(user.getRole())) {
-                model.addAttribute("error", "Access denied: Account is not an administrator.");
-                return "admin/login";
-            }
-            return "redirect:/admin/dashboard";
-        } catch (Exception e) {
-            model.addAttribute("error", "Invalid credentials.");
-            return "admin/login";
-        }
     }
 
     @GetMapping({"", "/", "/dashboard"})
@@ -117,6 +91,10 @@ public class AdminWebController {
     @PostMapping("/users/toggle/{id}")
     public String toggleUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         User user = userService.findById(id).orElseThrow();
+        if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
+            redirectAttributes.addFlashAttribute("error", "Cannot disable primary administrator account.");
+            return "redirect:/admin/users";
+        }
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("success", "User status updated.");
@@ -126,6 +104,11 @@ public class AdminWebController {
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
+            User user = userService.findById(id).orElseThrow();
+            if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
+                redirectAttributes.addFlashAttribute("error", "Cannot delete primary administrator account.");
+                return "redirect:/admin/users";
+            }
             userService.deleteUser(id);
             redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
         } catch (Exception e) {
@@ -162,7 +145,7 @@ public class AdminWebController {
                                   @RequestParam(value = "departmentId", required = false) Long departmentId,
                                   @RequestParam(value = "remarks", required = false) String remarks,
                                   RedirectAttributes redirectAttributes) {
-        complaintService.updateComplaintStatusAndDepartment(id, status, departmentId, "Admin", remarks);
+        complaintService.updateComplaintStatusAndDepartment(id, status, departmentId, "Administrator", remarks);
         redirectAttributes.addFlashAttribute("success", "Complaint updated successfully.");
         return "redirect:/admin/complaints/" + id;
     }
