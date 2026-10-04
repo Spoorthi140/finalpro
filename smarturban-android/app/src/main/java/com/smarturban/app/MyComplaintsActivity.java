@@ -3,12 +3,16 @@ package com.smarturban.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,23 +22,13 @@ import java.util.List;
 
 public class MyComplaintsActivity extends AppCompatActivity {
 
-    private ListView lvComplaints;
+    private Button chipAll, chipPending, chipInProgress, chipResolved;
+    private LinearLayout containerMyComplaints;
+    private TextView tvEmptyMyComplaints;
+    private BottomNavigationView bottomNavigationView;
 
-    static class ComplaintItem {
-        long id;
-        String title;
-        String category;
-        String status;
-        String date;
-
-        ComplaintItem(long id, String title, String category, String status, String date) {
-            this.id = id;
-            this.title = title;
-            this.category = category;
-            this.status = status;
-            this.date = date;
-        }
-    }
+    private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, RESOLVED
+    private JSONArray allComplaintsArray = new JSONArray();
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -46,9 +40,89 @@ public class MyComplaintsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_complaints);
 
-        lvComplaints = findViewById(R.id.lv_complaints);
+        chipAll = findViewById(R.id.chip_filter_all);
+        chipPending = findViewById(R.id.chip_filter_pending);
+        chipInProgress = findViewById(R.id.chip_filter_in_progress);
+        chipResolved = findViewById(R.id.chip_filter_resolved);
+
+        containerMyComplaints = findViewById(R.id.container_my_complaints);
+        tvEmptyMyComplaints = findViewById(R.id.tv_empty_my_complaints);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_my_complaints);
+
+        setupBottomNavigation();
+
+        chipAll.setOnClickListener(v -> setFilter("ALL"));
+        chipPending.setOnClickListener(v -> setFilter("PENDING"));
+        chipInProgress.setOnClickListener(v -> setFilter("IN_PROGRESS"));
+        chipResolved.setOnClickListener(v -> setFilter("RESOLVED"));
 
         loadComplaintsFromBackend();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_complaints);
+        }
+        loadComplaintsFromBackend();
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigationView.setSelectedItemId(R.id.nav_complaints);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, DashboardActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_complaints) {
+                return true;
+            } else if (itemId == R.id.nav_notifications) {
+                ToastUtilShow("Notifications");
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void ToastUtilShow(String msg) {
+        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show();
+    }
+
+    private void setFilter(String filter) {
+        currentFilter = filter;
+        updateChipStyles();
+        renderComplaintsList();
+    }
+
+    private void updateChipStyles() {
+        resetChip(chipAll);
+        resetChip(chipPending);
+        resetChip(chipInProgress);
+        resetChip(chipResolved);
+
+        if ("ALL".equalsIgnoreCase(currentFilter)) {
+            setActiveChip(chipAll);
+        } else if ("PENDING".equalsIgnoreCase(currentFilter)) {
+            setActiveChip(chipPending);
+        } else if ("IN_PROGRESS".equalsIgnoreCase(currentFilter)) {
+            setActiveChip(chipInProgress);
+        } else if ("RESOLVED".equalsIgnoreCase(currentFilter)) {
+            setActiveChip(chipResolved);
+        }
+    }
+
+    private void resetChip(Button btn) {
+        btn.setBackgroundColor(Color.parseColor("#334155"));
+        btn.setTextColor(Color.parseColor("#94A3B8"));
+    }
+
+    private void setActiveChip(Button btn) {
+        btn.setBackgroundColor(Color.parseColor("#0284C7"));
+        btn.setTextColor(Color.parseColor("#FFFFFF"));
     }
 
     private void loadComplaintsFromBackend() {
@@ -60,26 +134,8 @@ public class MyComplaintsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, String responseBody) {
                 if (statusCode == 200 && responseBody != null) {
                     try {
-                        JSONArray array = new JSONArray(responseBody);
-                        List<ComplaintItem> list = new ArrayList<>();
-
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject obj = array.getJSONObject(i);
-                            long id = obj.getLong("id");
-                            String title = obj.getString("title");
-                            String status = obj.optString("status", "Submitted");
-                            String date = obj.optString("createdAt", "");
-                            if (date.length() >= 10) date = date.substring(0, 10);
-
-                            String category = "General";
-                            if (obj.has("category") && !obj.isNull("category")) {
-                                category = obj.getJSONObject("category").optString("name", "General");
-                            }
-
-                            list.add(new ComplaintItem(id, title, category, status, date));
-                        }
-
-                        displayComplaints(list);
+                        allComplaintsArray = new JSONArray(responseBody);
+                        renderComplaintsList();
                     } catch (Exception ignored) {}
                 }
             }
@@ -89,40 +145,77 @@ public class MyComplaintsActivity extends AppCompatActivity {
         });
     }
 
-    private void displayComplaints(List<ComplaintItem> list) {
-        ArrayAdapter<ComplaintItem> adapter = new ArrayAdapter<ComplaintItem>(this, 0, list) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_complaint, parent, false);
-                }
-                ComplaintItem item = getItem(position);
+    private void renderComplaintsList() {
+        containerMyComplaints.removeAllViews();
+        int count = 0;
 
-                TextView tvId = convertView.findViewById(R.id.tv_cmp_id);
-                TextView tvTitle = convertView.findViewById(R.id.tv_cmp_title);
-                TextView tvCat = convertView.findViewById(R.id.tv_cmp_category);
-                TextView tvStatus = convertView.findViewById(R.id.tv_cmp_status);
-                TextView tvDate = convertView.findViewById(R.id.tv_cmp_date);
+        try {
+            for (int i = 0; i < allComplaintsArray.length(); i++) {
+                JSONObject obj = allComplaintsArray.getJSONObject(i);
+                String status = obj.optString("status", "Submitted");
 
-                if (item != null) {
-                    tvId.setText("#CMP-" + item.id);
-                    tvTitle.setText(item.title);
-                    tvCat.setText(getString(R.string.category) + ": " + item.category);
-                    tvStatus.setText(item.status);
-                    tvDate.setText("Date: " + item.date);
+                boolean matches = false;
+                if ("ALL".equalsIgnoreCase(currentFilter)) {
+                    matches = true;
+                } else if ("PENDING".equalsIgnoreCase(currentFilter) && ("Submitted".equalsIgnoreCase(status) || "Under Review".equalsIgnoreCase(status))) {
+                    matches = true;
+                } else if ("IN_PROGRESS".equalsIgnoreCase(currentFilter) && ("In Progress".equalsIgnoreCase(status) || "Assigned".equalsIgnoreCase(status))) {
+                    matches = true;
+                } else if ("RESOLVED".equalsIgnoreCase(currentFilter) && "Resolved".equalsIgnoreCase(status)) {
+                    matches = true;
                 }
 
-                return convertView;
+                if (matches) {
+                    count++;
+                    renderComplaintItemCard(obj);
+                }
             }
-        };
+        } catch (Exception ignored) {}
 
-        lvComplaints.setAdapter(adapter);
+        if (count == 0) {
+            tvEmptyMyComplaints.setVisibility(View.VISIBLE);
+        } else {
+            tvEmptyMyComplaints.setVisibility(View.GONE);
+        }
+    }
 
-        lvComplaints.setOnItemClickListener((parent, view, position, id) -> {
-            ComplaintItem selected = list.get(position);
-            Intent intent = new Intent(MyComplaintsActivity.this, ComplaintDetailActivity.class);
-            intent.putExtra("complaint_id", selected.id);
-            startActivity(intent);
-        });
+    private void renderComplaintItemCard(JSONObject obj) {
+        try {
+            View cardView = LayoutInflater.from(this).inflate(R.layout.item_complaint, containerMyComplaints, false);
+
+            TextView tvId = cardView.findViewById(R.id.tv_cmp_id);
+            TextView tvTitle = cardView.findViewById(R.id.tv_cmp_title);
+            TextView tvCat = cardView.findViewById(R.id.tv_cmp_category);
+            TextView tvLocation = cardView.findViewById(R.id.tv_cmp_location);
+            TextView tvStatus = cardView.findViewById(R.id.tv_cmp_status);
+            TextView tvDate = cardView.findViewById(R.id.tv_cmp_date);
+
+            long cmpId = obj.getLong("id");
+            String title = obj.getString("title");
+            String status = obj.optString("status", "Submitted");
+            String locName = obj.optString("locationName", "Captured Location");
+            String date = obj.optString("createdAt", "");
+            if (date.length() >= 10) date = date.substring(0, 10);
+
+            String category = "General";
+            if (obj.has("category") && !obj.isNull("category")) {
+                category = obj.getJSONObject("category").optString("name", "General");
+            }
+
+            tvId.setText("#CMP-" + cmpId);
+            tvTitle.setText(title);
+            tvCat.setText(getString(R.string.category) + ": " + category);
+            tvLocation.setText("📍 " + locName);
+            tvStatus.setText(status);
+            tvDate.setText("📅 Date: " + date);
+
+            cardView.setOnClickListener(v -> {
+                Intent intent = new Intent(MyComplaintsActivity.this, ComplaintDetailActivity.class);
+                intent.putExtra("complaint_id", cmpId);
+                startActivity(intent);
+            });
+
+            containerMyComplaints.addView(cardView);
+        } catch (Exception ignored) {}
     }
 }

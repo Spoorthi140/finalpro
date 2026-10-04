@@ -1,25 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F8FAFC"
-    android:padding="16dp">
+    android:background="#F8FAFC">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:id="@+id/top_bar_my_complaints"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/my_complaints"
-        android:textColor="#0F172A"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:background="#0F172A"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <ListView
-        android:id="@+id/lv_complaints"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/my_complaints_title"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/my_complaints_subtitle"
+            android:textColor="#94A3B8"
+            android:textSize="13sp" />
+
+        <!-- Filter Chips Row -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/chip_filter_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/filter_all"
+                    android:textSize="12sp"
+                    android:backgroundTint="#0284C7"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/chip_filter_pending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/filter_pending"
+                    android:textSize="12sp"
+                    android:backgroundTint="#334155"
+                    android:textColor="#94A3B8" />
+
+                <Button
+                    android:id="@+id/chip_filter_in_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/filter_in_progress"
+                    android:textSize="12sp"
+                    android:backgroundTint="#334155"
+                    android:textColor="#94A3B8" />
+
+                <Button
+                    android:id="@+id/chip_filter_resolved"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/filter_resolved"
+                    android:textSize="12sp"
+                    android:backgroundTint="#334155"
+                    android:textColor="#94A3B8" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Scrollable Complaint List -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="#E2E8F0"
-        android:dividerHeight="1dp" />
+        android:layout_below="@id/top_bar_my_complaints"
+        android:layout_above="@+id/bottom_navigation_my_complaints"
+        android:fillViewport="true"
+        android:padding="16dp">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/container_my_complaints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/tv_empty_my_complaints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:padding="24dp"
+                android:gravity="center"
+                android:text="@string/no_complaints_matching"
+                android:textColor="#64748B"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Navigation Bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_my_complaints"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#FFFFFF"
+        app:elevation="8dp"
+        app:itemIconTint="#0284C7"
+        app:itemTextColor="#0F172A"
+        app:menu="@menu/bottom_nav_menu" />
+
+</RelativeLayout>
