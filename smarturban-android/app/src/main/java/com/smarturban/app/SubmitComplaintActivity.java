@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,6 +21,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SubmitComplaintActivity extends AppCompatActivity {
 
@@ -30,9 +33,9 @@ public class SubmitComplaintActivity extends AppCompatActivity {
     private TextView tvLocationDisplay;
     private ImageView imgPreview;
 
-    private Double latitude = 12.9716;
-    private Double longitude = 77.5946;
-    private String locationName = "MG Road, Bengaluru";
+    private Double latitude = null;
+    private Double longitude = null;
+    private String locationName = null;
     private byte[] imageBytes = null;
 
     private List<Long> categoryIds = new ArrayList<>();
@@ -116,28 +119,76 @@ public class SubmitComplaintActivity extends AppCompatActivity {
     private void captureGpsLocation() {
         try {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location loc) {
+            if (locationManager == null) {
+                Toast.makeText(this, "Location service unavailable on device", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (!gpsEnabled && !networkEnabled) {
+                Toast.makeText(this, "Location services disabled. Please enable GPS in device settings.", Toast.LENGTH_LONG).show();
+                tvLocationDisplay.setText("Location: Disabled. Please enable GPS on device.");
+                return;
+            }
+
+            LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location loc) {
+                    if (loc != null) {
                         latitude = loc.getLatitude();
                         longitude = loc.getLongitude();
-                        locationName = "GPS (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")";
-                        tvLocationDisplay.setText("Location: " + locationName);
-                        Toast.makeText(SubmitComplaintActivity.this, "GPS Location Captured", Toast.LENGTH_SHORT).show();
+                        locationName = getAddressFromCoordinates(latitude, longitude);
+                        tvLocationDisplay.setText("Location: " + locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
+                        Toast.makeText(SubmitComplaintActivity.this, "Device GPS location captured successfully!", Toast.LENGTH_SHORT).show();
                     }
-                    @Override public void onStatusChanged(String p, int s, Bundle e) {}
-                    @Override public void onProviderEnabled(String p) {}
-                    @Override public void onProviderDisabled(String p) {}
-                }, null);
-            } else {
-                tvLocationDisplay.setText("Location: " + locationName + " (" + latitude + ", " + longitude + ")");
-                Toast.makeText(this, "GPS Captured (Simulated/Coordinates set)", Toast.LENGTH_SHORT).show();
+                }
+                @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
+                @Override public void onProviderEnabled(String provider) {}
+                @Override public void onProviderDisabled(String provider) {}
+            };
+
+            if (gpsEnabled) {
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+            } else if (networkEnabled) {
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
             }
+
+            Location lastKnown = null;
+            if (gpsEnabled) lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnown == null && networkEnabled) lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            if (lastKnown != null && latitude == null) {
+                latitude = lastKnown.getLatitude();
+                longitude = lastKnown.getLongitude();
+                locationName = getAddressFromCoordinates(latitude, longitude);
+                tvLocationDisplay.setText("Location: " + locationName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
+                Toast.makeText(this, "Device Location captured!", Toast.LENGTH_SHORT).show();
+            } else if (latitude == null) {
+                tvLocationDisplay.setText("Location: Obtaining GPS fix... Please ensure GPS is active.");
+                Toast.makeText(this, "Obtaining GPS fix... Please ensure location permissions and GPS are active.", Toast.LENGTH_LONG).show();
+            }
+
         } catch (SecurityException ex) {
-            tvLocationDisplay.setText("Location: " + locationName + " (" + latitude + ", " + longitude + ")");
-            Toast.makeText(this, "Location Captured: " + locationName, Toast.LENGTH_SHORT).show();
+            tvLocationDisplay.setText("Location permission required. Please grant location permissions.");
+            Toast.makeText(this, "Location permission required. Please grant location permissions.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private String getAddressFromCoordinates(double lat, double lng) {
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                StringBuilder sb = new StringBuilder();
+                if (address.getLocality() != null) sb.append(address.getLocality()).append(", ");
+                if (address.getAdminArea() != null) sb.append(address.getAdminArea());
+                return sb.length() > 0 ? sb.toString() : "GPS Location";
+            }
+        } catch (Exception ignored) {}
+        return "Coordinates (" + String.format("%.4f", lat) + ", " + String.format("%.4f", lng) + ")";
     }
 
     private void submitComplaintToBackend() {
@@ -146,6 +197,11 @@ public class SubmitComplaintActivity extends AppCompatActivity {
 
         if (title.isEmpty() || desc.isEmpty()) {
             Toast.makeText(this, R.string.field_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (latitude == null || longitude == null) {
+            Toast.makeText(this, "GPS Location is required. Please tap 'Capture GPS Location'.", Toast.LENGTH_LONG).show();
             return;
         }
 

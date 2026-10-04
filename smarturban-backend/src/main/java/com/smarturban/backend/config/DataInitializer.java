@@ -6,6 +6,7 @@ import com.smarturban.backend.entity.User;
 import com.smarturban.backend.repository.CategoryRepository;
 import com.smarturban.backend.repository.DepartmentRepository;
 import com.smarturban.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class DataInitializer {
+
+    @Value("${admin.email:admin@smarturban.com}")
+    private String adminEmail;
+
+    @Value("${admin.password:Admin@123}")
+    private String adminPassword;
+
+    @Value("${admin.full-name:System Administrator}")
+    private String adminFullName;
+
+    @Value("${admin.phone:9876543210}")
+    private String adminPhone;
 
     @Bean
     public CommandLineRunner initData(
@@ -40,13 +53,13 @@ public class DataInitializer {
                 departmentRepository.save(new Department("Storm Water Drainage Department", "Handles municipal drainage systems and flood prevention."));
             }
 
-            // Seed Fixed Admin Account: admin@smarturban.com / Admin@123
-            if (!userRepository.existsByEmail("admin@smarturban.com")) {
+            // Seed Configured Admin Account
+            if (!userRepository.existsByEmail(adminEmail)) {
                 User admin = new User(
-                        "System Administrator",
-                        "admin@smarturban.com",
-                        "9876543210",
-                        passwordEncoder.encode("Admin@123"),
+                        adminFullName,
+                        adminEmail,
+                        adminPhone,
+                        passwordEncoder.encode(adminPassword),
                         "SmartUrban HQ, City Center",
                         "ROLE_ADMIN"
                 );
@@ -60,7 +73,7 @@ public class DataInitializer {
                         "citizen@smarturban.com",
                         "9123456789",
                         passwordEncoder.encode("Citizen@123"),
-                        "123 MG Road, Sector 4",
+                        "123 City Sector 4",
                         "ROLE_CITIZEN"
                 );
                 userRepository.save(citizen);

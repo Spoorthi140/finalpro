@@ -1,8 +1,16 @@
 package com.smarturban.app;
 
 public class ApiConfig {
-    // Centralized backend API base URL
-    public static final String BASE_URL = "http://10.0.2.2:8080/api/";
+    /**
+     * Centralized PC/Backend Host configuration.
+     * Change SERVER_HOST to your PC's LAN IP address (e.g. "192.168.1.100") when testing on a physical Android phone,
+     * or keep "10.0.2.2" when testing on the Android Studio emulator.
+     */
+    public static final String SERVER_HOST = "10.0.2.2";
+    public static final String SERVER_PORT = "8080";
+
+    // Centralized Base API URL
+    public static final String BASE_URL = "http://" + SERVER_HOST + ":" + SERVER_PORT + "/api/";
 
     // Auth endpoints
     public static final String LOGIN_URL = BASE_URL + "auth/login";
