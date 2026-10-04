@@ -65,19 +65,6 @@ public class DataInitializer {
                 );
                 userRepository.save(admin);
             }
-
-            // Seed Sample Citizen Account
-            if (!userRepository.existsByEmail("citizen@smarturban.com")) {
-                User citizen = new User(
-                        "John Citizen",
-                        "citizen@smarturban.com",
-                        "9123456789",
-                        passwordEncoder.encode("Citizen@123"),
-                        "123 City Sector 4",
-                        "ROLE_CITIZEN"
-                );
-                userRepository.save(citizen);
-            }
         };
     }
 }
