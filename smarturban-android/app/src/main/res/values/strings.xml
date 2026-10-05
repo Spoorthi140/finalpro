@@ -20,6 +20,15 @@
     <!-- Dashboard Strings -->
     <string name="dashboard_title">SmartUrban Citizen Dashboard</string>
     <string name="hello_citizen">Hello, Citizen 👋</string>
+    <string name="welcome_citizen">Citizen</string>
+    <string name="category">Category</string>
+    <string name="complaint_title">Complaint Title</string>
+    <string name="status">Status</string>
+    <string name="complaint_description">Complaint Description</string>
+    <string name="location">Location</string>
+    <string name="status_history">Status History</string>
+    <string name="profile">Profile</string>
+    <string name="location_not_captured">Location not captured</string>
     <string name="welcome_dashboard">Welcome to SmartUrban Complaint Dashboard</string>
     <string name="overview_heading">Your Complaints Overview</string>
     <string name="stat_total">Total</string>

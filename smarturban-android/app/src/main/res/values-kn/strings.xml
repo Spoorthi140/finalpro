@@ -20,6 +20,15 @@
     <!-- Dashboard Strings -->
     <string name="dashboard_title">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ನಾಗರಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
     <string name="hello_citizen">ನಮಸ್ಕಾರ, ನಾಗರಿಕ 👋</string>
+    <string name="welcome_citizen">ನಾಗರಿಕ</string>
+    <string name="category">ವರ್ಗ</string>
+    <string name="complaint_title">ದೂರಿನ ಶೀರ್ಷಿಕೆ</string>
+    <string name="status">ಸ್ಥಿತಿ</string>
+    <string name="complaint_description">ದೂರಿನ ವಿವರಣೆ</string>
+    <string name="location">ಸ್ಥಳ</string>
+    <string name="status_history">ಸ್ಥಿತಿ ಇತಿಹಾಸ</string>
+    <string name="profile">ಪ್ರೊಫೈಲ್</string>
+    <string name="location_not_captured">ಸ್ಥಳ ಸೆರೆಹಿಡಿಯಲಾಗಿಲ್ಲ</string>
     <string name="welcome_dashboard">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ದೂರು ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಸ್ವಾಗತ</string>
     <string name="overview_heading">ನಿಮ್ಮ ದೂರುಗಳ ವಿವರಣೆ</string>
     <string name="stat_total">ಒಟ್ಟು</string>
