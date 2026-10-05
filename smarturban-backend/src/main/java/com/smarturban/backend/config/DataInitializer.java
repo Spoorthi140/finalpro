@@ -62,7 +62,7 @@ public class DataInitializer {
                 categoryRepository.save(new Category("Sanitation/Garbage", "Uncollected garbage, overflow bins, and street cleaning issues.", saniDept));
                 categoryRepository.save(new Category("Water Supply", "Water leakage, contamination, or low pressure supply.", waterDept));
                 categoryRepository.save(new Category("Drainage", "Blocked drains, overflowing sewage, and open gutters.", drainDept));
-                categoryRepository.save(new Category("Other Urban Infrastructure", "Parks, bus shelters, public toilets, and other civic infrastructure.", roadDept));
+                categoryRepository.save(new Category("Other Urban Infrastructure", "Parks, bus shelters, public toilets, and other civic infrastructure.", null));
             }
 
             // Seed Configured Admin Account

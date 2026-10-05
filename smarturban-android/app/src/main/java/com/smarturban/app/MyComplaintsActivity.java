@@ -213,7 +213,10 @@ public class MyComplaintsActivity extends AppCompatActivity {
             long cmpId = obj.getLong("id");
             String title = obj.getString("title");
             String status = obj.optString("status", "Submitted");
-            String locName = obj.optString("locationName", "Captured Location");
+            String locName = obj.optString("locationName", "Location unavailable");
+            if (locName == null || locName.trim().isEmpty() || "null".equalsIgnoreCase(locName)) {
+                locName = "Location unavailable";
+            }
             String date = obj.optString("createdAt", "");
             if (date.length() >= 10) date = date.substring(0, 10);
 

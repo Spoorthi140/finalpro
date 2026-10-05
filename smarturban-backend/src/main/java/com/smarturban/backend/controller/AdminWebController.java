@@ -198,7 +198,7 @@ public class AdminWebController {
                                   @RequestParam("isValidDuplicate") boolean isValidDuplicate,
                                   RedirectAttributes redirectAttributes) {
         complaintService.adminReviewDuplicate(id, isValidDuplicate);
-        String msg = isValidDuplicate ? "Complaint flagged as Valid Duplicate and rejected." : "Duplicate warning dismissed.";
+        String msg = isValidDuplicate ? "Complaint marked as Confirmed Duplicate for administrative review." : "Duplicate warning dismissed.";
         redirectAttributes.addFlashAttribute("success", msg);
         return "redirect:/admin/complaints/" + id;
     }

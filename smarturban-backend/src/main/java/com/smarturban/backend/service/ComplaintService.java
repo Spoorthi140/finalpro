@@ -196,11 +196,7 @@ public class ComplaintService {
         Complaint complaint = getComplaintById(complaintId);
         complaint.setDuplicateReviewed(true);
         complaint.setIsValidDuplicate(isValidDuplicate);
-        if (isValidDuplicate) {
-            complaint.setStatus("Rejected"); // Automatically flag confirmed duplicate as resolved/rejected
-        } else {
-            complaint.setIsPossibleDuplicate(false); // Clear duplicate warning if dismissed
-        }
+        // Record review confirmation without automatically rejecting/deleting the complaint
         return complaintRepository.save(complaint);
     }
 }

@@ -65,14 +65,16 @@ public class LocationRoutingEngine {
         // 2. Category Default Department Fallback
         if (categoryName != null) {
             Optional<Category> catOpt = categoryRepository.findByName(categoryName);
-            if (catOpt.isPresent() && catOpt.get().getDefaultDepartment() != null) {
-                return new RoutingResult(catOpt.get().getDefaultDepartment(), "CATEGORY_BASED", null);
+            if (catOpt.isPresent()) {
+                Department defaultDept = catOpt.get().getDefaultDepartment();
+                if (defaultDept != null) {
+                    return new RoutingResult(defaultDept, "CATEGORY_BASED", null);
+                }
             }
         }
 
-        // 3. System Fallback
-        Department fallbackDept = departmentRepository.findAll().stream().findFirst().orElse(null);
-        return new RoutingResult(fallbackDept, "CATEGORY_BASED", null);
+        // 3. System Fallback - Leave unassigned if no category default department is configured
+        return new RoutingResult(null, "UNASSIGNED", null);
     }
 
     /**

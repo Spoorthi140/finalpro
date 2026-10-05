@@ -127,7 +127,7 @@
                                             <div class="mt-2" th:unless="${complaint.duplicateReviewed}">
                                                 <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline me-2">
                                                     <input type="hidden" name="isValidDuplicate" value="true">
-                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-check me-1"></i> Confirm Valid Duplicate (Reject)</button>
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-check me-1"></i> Confirm Valid Duplicate</button>
                                                 </form>
                                                 <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline">
                                                     <input type="hidden" name="isValidDuplicate" value="false">
