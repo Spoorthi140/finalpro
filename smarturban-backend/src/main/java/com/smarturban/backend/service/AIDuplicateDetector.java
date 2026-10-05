@@ -20,21 +20,23 @@ public class AIDuplicateDetector {
         private final boolean possibleDuplicate;
         private final double similarityScore;
         private final Complaint relatedComplaint;
+        private final String warningReason;
 
-        public DuplicateDetectionResult(boolean possibleDuplicate, double similarityScore, Complaint relatedComplaint) {
+        public DuplicateDetectionResult(boolean possibleDuplicate, double similarityScore, Complaint relatedComplaint, String warningReason) {
             this.possibleDuplicate = possibleDuplicate;
             this.similarityScore = similarityScore;
             this.relatedComplaint = relatedComplaint;
+            this.warningReason = warningReason;
         }
 
         public boolean isPossibleDuplicate() { return possibleDuplicate; }
         public double getSimilarityScore() { return similarityScore; }
         public Complaint getRelatedComplaint() { return relatedComplaint; }
+        public String getWarningReason() { return warningReason; }
     }
 
     /**
-     * Checks if a new complaint submission is a possible duplicate of existing active complaints.
-     * Evaluates Cosine Text Similarity and Geo-Proximity (< 0.5 km).
+     * Semantic text similarity using term frequency vector space model & geographic proximity calculation.
      */
     public DuplicateDetectionResult checkForDuplicates(String title, String description, Long categoryId, Double latitude, Double longitude) {
         List<Complaint> candidates = complaintRepository.findByCategoryId(categoryId);
@@ -42,11 +44,12 @@ public class AIDuplicateDetector {
             candidates = complaintRepository.findAll();
         }
 
-        String newText = ((title != null ? title : "") + " " + (description != null ? description : "")).toLowerCase(Locale.ROOT);
+        String newText = (title != null ? title : "") + " " + (description != null ? description : "");
         List<String> newTokens = mlClassifier.tokenizeAndClean(newText);
 
         Complaint highestMatchComplaint = null;
         double maxSimilarity = 0.0;
+        String matchReason = "No duplicate detected";
 
         for (Complaint existing : candidates) {
             // Exclude resolved or rejected complaints from duplicate matching
@@ -54,10 +57,10 @@ public class AIDuplicateDetector {
                 continue;
             }
 
-            // Check Geographic Proximity
+            double distanceKm = -1.0;
             boolean isGeographicallyNearby = false;
             if (latitude != null && longitude != null && existing.getLatitude() != null && existing.getLongitude() != null) {
-                double distanceKm = LocationRoutingEngine.calculateHaversineDistance(
+                distanceKm = LocationRoutingEngine.calculateHaversineDistance(
                         latitude, longitude, existing.getLatitude(), existing.getLongitude());
                 if (distanceKm <= 0.5) { // Within 500 meters
                     isGeographicallyNearby = true;
@@ -66,42 +69,66 @@ public class AIDuplicateDetector {
                 }
             }
 
-            // Compute Text Jaccard & Token Similarity
-            String existingText = ((existing.getTitle() != null ? existing.getTitle() : "") + " " + (existing.getDescription() != null ? existing.getDescription() : "")).toLowerCase(Locale.ROOT);
+            // Compute Vector Space Cosine Semantic Text Similarity
+            String existingText = (existing.getTitle() != null ? existing.getTitle() : "") + " " + (existing.getDescription() != null ? existing.getDescription() : "");
             List<String> existingTokens = mlClassifier.tokenizeAndClean(existingText);
 
-            double textSimilarity = computeJaccardSimilarity(newTokens, existingTokens);
+            double textSimilarity = computeVectorCosineSimilarity(newTokens, existingTokens);
 
-            // Total Weighted Similarity Score
-            double compositeSimilarity = isGeographicallyNearby ? (textSimilarity * 0.6 + 0.4) : textSimilarity;
+            // Composite Weighted Similarity Score incorporating text semantics & geo-proximity
+            double compositeSimilarity;
+            String reasonSignal;
+
+            if (isGeographicallyNearby) {
+                compositeSimilarity = (textSimilarity * 0.6) + 0.4;
+                reasonSignal = String.format(Locale.ROOT, "High text similarity (%.0f%%) and close GPS proximity (%.2f km)", textSimilarity * 100, distanceKm);
+            } else {
+                compositeSimilarity = textSimilarity;
+                reasonSignal = String.format(Locale.ROOT, "High semantic text similarity (%.0f%%)", textSimilarity * 100);
+            }
 
             if (compositeSimilarity > maxSimilarity) {
                 maxSimilarity = compositeSimilarity;
                 highestMatchComplaint = existing;
+                matchReason = reasonSignal;
             }
         }
 
         // Clean round to 2 decimal places
         maxSimilarity = Math.round(maxSimilarity * 100.0) / 100.0;
 
-        boolean isPossibleDuplicate = maxSimilarity >= 0.55 && highestMatchComplaint != null;
+        boolean isPossibleDuplicate = maxSimilarity >= 0.50 && highestMatchComplaint != null;
 
-        return new DuplicateDetectionResult(isPossibleDuplicate, maxSimilarity, highestMatchComplaint);
+        return new DuplicateDetectionResult(isPossibleDuplicate, maxSimilarity, highestMatchComplaint, matchReason);
     }
 
-    private double computeJaccardSimilarity(List<String> listA, List<String> listB) {
-        if (listA.isEmpty() || listB.isEmpty()) return 0.0;
+    private double computeVectorCosineSimilarity(List<String> tokensA, List<String> tokensB) {
+        if (tokensA.isEmpty() || tokensB.isEmpty()) return 0.0;
 
-        Set<String> setA = new HashSet<>(listA);
-        Set<String> setB = new HashSet<>(listB);
+        Map<String, Integer> tfA = new HashMap<>();
+        Map<String, Integer> tfB = new HashMap<>();
 
-        Set<String> intersection = new HashSet<>(setA);
-        intersection.retainAll(setB);
+        for (String t : tokensA) tfA.put(t, tfA.getOrDefault(t, 0) + 1);
+        for (String t : tokensB) tfB.put(t, tfB.getOrDefault(t, 0) + 1);
 
-        Set<String> union = new HashSet<>(setA);
-        union.addAll(setB);
+        Set<String> allWords = new HashSet<>(tfA.keySet());
+        allWords.addAll(tfB.keySet());
 
-        if (union.isEmpty()) return 0.0;
-        return (double) intersection.size() / union.size();
+        double dotProduct = 0.0;
+        double magA = 0.0;
+        double magB = 0.0;
+
+        for (String word : allWords) {
+            int countA = tfA.getOrDefault(word, 0);
+            int countB = tfB.getOrDefault(word, 0);
+
+            dotProduct += countA * countB;
+            magA += countA * countA;
+            magB += countB * countB;
+        }
+
+        if (magA == 0.0 || magB == 0.0) return 0.0;
+
+        return dotProduct / (Math.sqrt(magA) * Math.sqrt(magB));
     }
 }

@@ -34,7 +34,10 @@ public class CitizenComplaintController {
     private FileStorageService fileStorageService;
 
     @Autowired
-    private AICategorizationService aiCategorizationService;
+    private ComplaintMLClassifier mlClassifier;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Autowired
     private FeedbackService feedbackService;
@@ -99,10 +102,18 @@ public class CitizenComplaintController {
     public ResponseEntity<?> recommendCategory(@RequestBody Map<String, String> request) {
         String title = request.get("title");
         String description = request.get("description");
-        Long suggestedCategoryId = aiCategorizationService.categorizeComplaintText(title, description);
+        ComplaintMLClassifier.ClassificationOutput result = mlClassifier.classifyComplaint(title, description);
+
+        Long suggestedCategoryId = categoryService.getActiveCategories().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(result.getCategoryName()))
+                .map(c -> c.getId())
+                .findFirst()
+                .orElse(null);
 
         Map<String, Object> response = new HashMap<>();
         response.put("suggestedCategoryId", suggestedCategoryId);
+        response.put("confidenceScore", result.getConfidenceScore());
+        response.put("lowConfidence", result.isLowConfidence());
         return ResponseEntity.ok(response);
     }
 
