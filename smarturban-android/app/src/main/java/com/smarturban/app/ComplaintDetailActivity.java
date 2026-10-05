@@ -85,7 +85,11 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         tvDetailStatus.setText(status);
                         tvDetailDesc.setText(obj.getString("description"));
 
-                        String locName = obj.optString("locationName", "Location");
+                        String locName = obj.optString("locationName", "Location unavailable");
+                        if (locName == null || locName.trim().isEmpty() || "null".equalsIgnoreCase(locName)) {
+                            locName = "Location unavailable";
+                        }
+
                         if (obj.has("latitude") && !obj.isNull("latitude") && obj.has("longitude") && !obj.isNull("longitude")) {
                             latitude = obj.getDouble("latitude");
                             longitude = obj.getDouble("longitude");
