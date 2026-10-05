@@ -17,9 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MyComplaintsActivity extends AppCompatActivity {
 
     private Button chipAll, chipPending, chipInProgress, chipResolved;
@@ -27,7 +24,7 @@ public class MyComplaintsActivity extends AppCompatActivity {
     private TextView tvEmptyMyComplaints;
     private BottomNavigationView bottomNavigationView;
 
-    private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, RESOLVED
+    private String currentFilter = "ALL";
     private JSONArray allComplaintsArray = new JSONArray();
 
     @Override
@@ -57,6 +54,7 @@ public class MyComplaintsActivity extends AppCompatActivity {
         chipResolved.setOnClickListener(v -> setFilter("RESOLVED"));
 
         loadComplaintsFromBackend();
+        loadUnreadNotificationsCount();
     }
 
     @Override
@@ -66,6 +64,7 @@ public class MyComplaintsActivity extends AppCompatActivity {
             bottomNavigationView.setSelectedItemId(R.id.nav_complaints);
         }
         loadComplaintsFromBackend();
+        loadUnreadNotificationsCount();
     }
 
     private void setupBottomNavigation() {
@@ -78,7 +77,7 @@ public class MyComplaintsActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_complaints) {
                 return true;
             } else if (itemId == R.id.nav_notifications) {
-                ToastUtilShow("Notifications");
+                startActivity(new Intent(this, NotificationsActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 startActivity(new Intent(this, ProfileActivity.class));
@@ -88,8 +87,29 @@ public class MyComplaintsActivity extends AppCompatActivity {
         });
     }
 
-    private void ToastUtilShow(String msg) {
-        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show();
+    private void loadUnreadNotificationsCount() {
+        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+        String jwtToken = pref.getString("token", "");
+
+        HttpNetworkClient.sendJsonRequest(ApiConfig.NOTIFICATIONS_URL + "/unread-count", "GET", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
+            @Override
+            public void onSuccess(int statusCode, String responseBody) {
+                if (statusCode == 200 && responseBody != null) {
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        int count = json.optInt("unreadCount", 0);
+                        if (count > 0) {
+                            bottomNavigationView.getOrCreateBadge(R.id.nav_notifications).setNumber(count);
+                        } else {
+                            bottomNavigationView.removeBadge(R.id.nav_notifications);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {}
+        });
     }
 
     private void setFilter(String filter) {

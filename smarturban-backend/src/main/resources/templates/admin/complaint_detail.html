@@ -95,6 +95,53 @@
                                 </div>
                             </div>
 
+                            <!-- AI & ML Complaint Intelligence Section -->
+                            <div class="mb-4 p-3 bg-light border rounded">
+                                <h6 class="fw-bold text-primary mb-3"><i class="fas fa-brain me-2"></i> AI Intelligence & Routing Analytics</h6>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">AI Predicted Category:</label>
+                                        <span class="fw-bold" th:text="${complaint.aiCategory != null ? complaint.aiCategory.name : complaint.category.name}">Road Maintenance</span>
+                                        <span class="badge bg-info text-dark ms-2" th:if="${complaint.aiConfidenceScore != null}" th:text="${'Confidence: ' + #numbers.formatPercent(complaint.aiConfidenceScore, 1, 0)}">85%</span>
+                                        <span th:if="${complaint.adminCategoryOverridden}" class="badge bg-warning text-dark ms-1">Overridden by Admin</span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Auto-Assigned Department:</label>
+                                        <span class="fw-bold" th:text="${complaint.aiDepartment != null ? complaint.aiDepartment.name : (complaint.department != null ? complaint.department.name : 'Unassigned')}">Department</span>
+                                        <span class="badge bg-secondary ms-1" th:text="${'Method: ' + (complaint.routingMethod != null ? complaint.routingMethod : 'CATEGORY_BASED')}">LOCATION_BASED</span>
+                                        <span th:if="${complaint.adminDepartmentOverridden}" class="badge bg-warning text-dark ms-1">Overridden by Admin</span>
+                                    </div>
+
+                                    <div class="col-md-12" th:if="${complaint.isPossibleDuplicate}">
+                                        <div class="alert alert-danger mb-0 py-2">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Possible Duplicate Warning!</strong>
+                                            Similarity Score: <span class="fw-bold" th:text="${#numbers.formatPercent(complaint.duplicateSimilarityScore, 1, 0)}">80%</span>.
+                                            <span th:if="${complaint.relatedComplaint != null}">
+                                                Matches Reference Complaint ID: <a th:href="@{'/admin/complaints/' + ${complaint.relatedComplaint.id}}" class="fw-bold text-danger" th:text="${'#CMP-' + complaint.relatedComplaint.id}">#CMP-10</a>.
+                                            </span>
+
+                                            <!-- Duplicate Review Controls -->
+                                            <div class="mt-2" th:unless="${complaint.duplicateReviewed}">
+                                                <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline me-2">
+                                                    <input type="hidden" name="isValidDuplicate" value="true">
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-check me-1"></i> Confirm Valid Duplicate (Reject)</button>
+                                                </form>
+                                                <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline">
+                                                    <input type="hidden" name="isValidDuplicate" value="false">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i> Dismiss Warning</button>
+                                                </form>
+                                            </div>
+                                            <div class="mt-1 small" th:if="${complaint.duplicateReviewed}">
+                                                <strong>Status:</strong> Reviewed by Admin (<span th:text="${complaint.isValidDuplicate ? 'Confirmed Duplicate' : 'Not a Duplicate'}">Confirmed</span>).
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Location & OpenStreetMap Section -->
                             <div class="mb-3">
                                 <label class="fw-bold text-muted"><i class="fas fa-map-marker-alt text-danger me-1"></i> Geographical Location (OpenStreetMap):</label>
@@ -185,6 +232,20 @@
                                                 th:selected="${complaint.department != null && complaint.department.id == dept.id}">
                                         </option>
                                     </select>
+                                </div>
+
+                                <div class="mb-3 border-top pt-2">
+                                    <label class="form-label fw-bold">Admin Category Override</label>
+                                    <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/override-category'}" method="post" class="d-flex gap-2">
+                                        <select name="categoryId" class="form-select form-select-sm" required>
+                                            <option th:each="cat : ${categories}"
+                                                    th:value="${cat.id}"
+                                                    th:text="${cat.name}"
+                                                    th:selected="${complaint.category != null && complaint.category.id == cat.id}">
+                                            </option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-warning text-nowrap">Override</button>
+                                    </form>
                                 </div>
 
                                 <div class="mb-3">

@@ -1,6 +1,7 @@
 package com.smarturban.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -184,8 +185,15 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                 public void onSuccess(int statusCode, String responseBody) {
                     btnSubmitFeedback.setEnabled(true);
                     if (statusCode == 200) {
-                        Toast.makeText(ComplaintDetailActivity.this, R.string.field_required, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ComplaintDetailActivity.this, R.string.feedback_success, Toast.LENGTH_LONG).show();
                         checkFeedback(complaintId);
+                    } else {
+                        String msg = "Failed to submit feedback";
+                        try {
+                            JSONObject err = new JSONObject(responseBody);
+                            if (err.has("message")) msg = err.getString("message");
+                        } catch (Exception ignored) {}
+                        Toast.makeText(ComplaintDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 }
 

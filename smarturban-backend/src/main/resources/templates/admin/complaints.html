@@ -51,8 +51,9 @@
                             <tr>
                                 <th>Complaint ID</th>
                                 <th>Title</th>
-                                <th>Category</th>
-                                <th>Assigned Department</th>
+                                <th>Category (AI Confidence)</th>
+                                <th>Assigned Department (Routing)</th>
+                                <th>AI Dup Warning</th>
                                 <th>Citizen</th>
                                 <th>Status</th>
                                 <th>Submitted Date</th>
@@ -62,9 +63,22 @@
                             <tbody>
                             <tr th:each="c : ${complaints}">
                                 <td th:text="${'#CMP-' + c.id}">#CMP-1</td>
-                                <td th:text="${c.title}" class="fw-semibold">Title</td>
-                                <td th:text="${c.category.name}">Category</td>
-                                <td th:text="${c.department != null ? c.department.name : 'Unassigned'}" class="fst-italic text-muted">Unassigned</td>
+                                <td class="fw-semibold">
+                                    <span th:text="${c.title}">Title</span>
+                                    <span th:if="${c.adminCategoryOverridden}" class="badge bg-secondary ms-1" title="Category overridden by admin">Override</span>
+                                </td>
+                                <td>
+                                    <span th:text="${c.category.name}">Category</span>
+                                    <span th:if="${c.aiConfidenceScore != null}" class="badge bg-light text-dark border ms-1" th:text="${#numbers.formatPercent(c.aiConfidenceScore, 1, 0)}">85%</span>
+                                </td>
+                                <td>
+                                    <span th:text="${c.department != null ? c.department.name : 'Unassigned'}">Unassigned</span>
+                                    <span th:if="${c.routingMethod != null}" class="badge bg-info text-dark ms-1" th:text="${c.routingMethod}">LOCATION_BASED</span>
+                                </td>
+                                <td>
+                                    <span th:if="${c.isPossibleDuplicate}" class="badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-1"></i> Dup Warning (<span th:text="${#numbers.formatPercent(c.duplicateSimilarityScore, 1, 0)}">75%</span>)</span>
+                                    <span th:unless="${c.isPossibleDuplicate}" class="text-muted small">None</span>
+                                </td>
                                 <td th:text="${c.user.fullName}">Citizen Name</td>
                                 <td>
                                     <span class="badge" th:classappend="${c.status == 'Submitted' ? 'bg-warning text-dark' : (c.status == 'Resolved' ? 'bg-success' : 'bg-info')}" th:text="${c.status}">Submitted</span>

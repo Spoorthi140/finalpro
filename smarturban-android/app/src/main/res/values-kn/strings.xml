@@ -71,7 +71,16 @@
 
     <!-- Notifications Screen -->
     <string name="notifications_title">ಸೂಚನೆಗಳು</string>
-    <string name="no_notifications">ಯಾವುದೇ ಹೊಸ ಸೂಚನೆಗಳು ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="notifications_subtitle">ನಿಮ್ಮ ದೂರುಗಳ ಇತ್ತೀಚಿನ ನವೀಕರಣಗಳು</string>
+    <string name="mark_all_read">ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ</string>
+    <string name="no_notifications">ಯಾವುದೇ ಸೂಚನೆಗಳು ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="unread_label">ಓದದಿರುವುದು</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_title">ನಾಗರಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಮತ್ತು ರೇಟಿಂಗ್</string>
+    <string name="feedback_hint">ಐಚ್ಛಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಕಾಮೆಂಟ್‌ಗಳನ್ನು ಒದಗಿಸಿ...</string>
+    <string name="submit_feedback">ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಿ</string>
+    <string name="feedback_success">ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ.</string>
 
     <!-- Language / Profile Strings -->
     <string name="language_setting">ಭಾಷೆ / Language</string>

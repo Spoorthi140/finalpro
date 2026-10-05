@@ -71,7 +71,16 @@
 
     <!-- Notifications Screen -->
     <string name="notifications_title">Notifications</string>
-    <string name="no_notifications">No new notifications available.</string>
+    <string name="notifications_subtitle">Recent updates on your reported issues</string>
+    <string name="mark_all_read">Mark All as Read</string>
+    <string name="no_notifications">No notifications available.</string>
+    <string name="unread_label">Unread</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_title">Citizen Feedback &amp; Rating</string>
+    <string name="feedback_hint">Provide optional feedback comments...</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="feedback_success">Feedback submitted successfully.</string>
 
     <!-- Language / Profile Strings -->
     <string name="language_setting">Language / ಭಾಷೆ</string>

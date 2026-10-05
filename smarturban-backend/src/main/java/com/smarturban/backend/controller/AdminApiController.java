@@ -2,6 +2,7 @@ package com.smarturban.backend.controller;
 
 import com.smarturban.backend.entity.*;
 import com.smarturban.backend.repository.*;
+import com.smarturban.backend.security.UserDetailsImpl;
 import com.smarturban.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,12 +70,30 @@ public class AdminApiController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            user.setRole("ROLE_CITIZEN"); // Force citizen role for user creation endpoint
+            user.setRole("ROLE_CITIZEN");
             User created = userService.createUserByAdmin(user);
             return ResponseEntity.ok(created);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody User userDetails) {
+        User user = userService.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+        if ("ROLE_ADMIN".equals(user.getRole())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot modify administrator roles/details"));
+        }
+
+        user.setFullName(userDetails.getFullName());
+        user.setPhone(userDetails.getPhone());
+        user.setAddress(userDetails.getAddress());
+        user.setEnabled(userDetails.isEnabled());
+
+        User updated = userService.saveUser(user);
+        return ResponseEntity.ok(updated);
     }
 
     @PutMapping("/users/{id}/toggle")
@@ -110,7 +129,7 @@ public class AdminApiController {
     public ResponseEntity<?> updateComplaintStatus(
             @PathVariable("id") Long id,
             @RequestBody Map<String, Object> body,
-            @AuthenticationPrincipal com.smarturban.backend.security.UserDetailsImpl userDetails) {
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String status = (String) body.get("status");
         Long departmentId = body.get("departmentId") != null && !body.get("departmentId").toString().isEmpty()

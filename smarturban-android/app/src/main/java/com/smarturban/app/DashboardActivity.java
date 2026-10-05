@@ -54,6 +54,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnLogoutIcon.setOnClickListener(v -> performLogout());
 
         loadDashboardData();
+        loadUnreadNotificationsCount();
     }
 
     @Override
@@ -63,6 +64,7 @@ public class DashboardActivity extends AppCompatActivity {
             bottomNavigationView.setSelectedItemId(R.id.nav_home);
         }
         loadDashboardData();
+        loadUnreadNotificationsCount();
     }
 
     private void setupBottomNavigation() {
@@ -75,7 +77,7 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MyComplaintsActivity.class));
                 return true;
             } else if (itemId == R.id.nav_notifications) {
-                ToastUtilShow("Notifications");
+                startActivity(new Intent(this, NotificationsActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 startActivity(new Intent(this, ProfileActivity.class));
@@ -85,8 +87,29 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void ToastUtilShow(String msg) {
-        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show();
+    private void loadUnreadNotificationsCount() {
+        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
+        String jwtToken = pref.getString("token", "");
+
+        HttpNetworkClient.sendJsonRequest(ApiConfig.NOTIFICATIONS_URL + "/unread-count", "GET", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
+            @Override
+            public void onSuccess(int statusCode, String responseBody) {
+                if (statusCode == 200 && responseBody != null) {
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        int count = json.optInt("unreadCount", 0);
+                        if (count > 0) {
+                            bottomNavigationView.getOrCreateBadge(R.id.nav_notifications).setNumber(count);
+                        } else {
+                            bottomNavigationView.removeBadge(R.id.nav_notifications);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {}
+        });
     }
 
     private void loadDashboardData() {
@@ -132,7 +155,6 @@ public class DashboardActivity extends AppCompatActivity {
                                 resolved++;
                             }
 
-                            // Show recent top 3
                             if (i < 3) {
                                 renderRecentComplaintCard(obj);
                             }

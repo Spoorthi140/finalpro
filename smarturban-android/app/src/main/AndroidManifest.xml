@@ -34,6 +34,7 @@
         <activity android:name=".MyComplaintsActivity" />
         <activity android:name=".ComplaintDetailActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".NotificationsActivity" />
 
         <!-- Native Admin Activities -->
         <activity android:name=".AdminDashboardActivity" />

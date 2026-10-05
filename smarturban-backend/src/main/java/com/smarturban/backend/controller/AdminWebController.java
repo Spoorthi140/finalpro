@@ -92,6 +92,32 @@ public class AdminWebController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/users/edit/{id}")
+    public String editUser(@PathVariable("id") Long id,
+                           @RequestParam("fullName") String fullName,
+                           @RequestParam("email") String email,
+                           @RequestParam("phone") String phone,
+                           @RequestParam("address") String address,
+                           @RequestParam("role") String role,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+            user.setFullName(fullName);
+            user.setEmail(email);
+            user.setPhone(phone);
+            user.setAddress(address);
+            user.setRole(role);
+
+            userService.saveUser(user);
+            redirectAttributes.addFlashAttribute("success", "User details updated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/users/toggle/{id}")
     public String toggleUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         User user = userService.findById(id).orElseThrow();
@@ -135,11 +161,13 @@ public class AdminWebController {
         Complaint complaint = complaintService.getComplaintById(id);
         List<ComplaintStatusHistory> history = complaintService.getComplaintHistory(id);
         List<Department> departments = departmentService.getActiveDepartments();
+        List<Category> categories = categoryService.getActiveCategories();
         Optional<ComplaintFeedback> feedback = feedbackService.getFeedbackForComplaint(id);
 
         model.addAttribute("complaint", complaint);
         model.addAttribute("history", history);
         model.addAttribute("departments", departments);
+        model.addAttribute("categories", categories);
         model.addAttribute("feedback", feedback.orElse(null));
 
         return "admin/complaint_detail";
@@ -153,6 +181,25 @@ public class AdminWebController {
                                   RedirectAttributes redirectAttributes) {
         complaintService.updateComplaintStatusAndDepartment(id, status, departmentId, "Administrator", remarks);
         redirectAttributes.addFlashAttribute("success", "Complaint updated successfully.");
+        return "redirect:/admin/complaints/" + id;
+    }
+
+    @PostMapping("/complaints/{id}/override-category")
+    public String overrideCategory(@PathVariable("id") Long id,
+                                   @RequestParam("categoryId") Long categoryId,
+                                   RedirectAttributes redirectAttributes) {
+        complaintService.adminOverrideCategory(id, categoryId);
+        redirectAttributes.addFlashAttribute("success", "Category updated by Admin successfully.");
+        return "redirect:/admin/complaints/" + id;
+    }
+
+    @PostMapping("/complaints/{id}/review-duplicate")
+    public String reviewDuplicate(@PathVariable("id") Long id,
+                                  @RequestParam("isValidDuplicate") boolean isValidDuplicate,
+                                  RedirectAttributes redirectAttributes) {
+        complaintService.adminReviewDuplicate(id, isValidDuplicate);
+        String msg = isValidDuplicate ? "Complaint flagged as Valid Duplicate and rejected." : "Duplicate warning dismissed.";
+        redirectAttributes.addFlashAttribute("success", msg);
         return "redirect:/admin/complaints/" + id;
     }
 

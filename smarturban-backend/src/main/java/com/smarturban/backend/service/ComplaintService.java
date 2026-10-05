@@ -28,16 +28,48 @@ public class ComplaintService {
     private ComplaintStatusHistoryRepository historyRepository;
 
     @Autowired
-    private FcmNotificationService fcmNotificationService;
+    private NotificationService notificationService;
+
+    @Autowired
+    private ComplaintMLClassifier mlClassifier;
+
+    @Autowired
+    private LocationRoutingEngine locationRoutingEngine;
+
+    @Autowired
+    private AIDuplicateDetector aiDuplicateDetector;
 
     @Transactional
     public Complaint createComplaint(User user, ComplaintRequest request, String imageUrl) {
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + request.getCategoryId()));
+        // 1. Run Machine Learning Text Classification
+        ComplaintMLClassifier.ClassificationOutput classification =
+                mlClassifier.classifyComplaint(request.getTitle(), request.getDescription());
+
+        Category aiCategory = categoryRepository.findByName(classification.getCategoryName())
+                .orElseGet(() -> categoryRepository.findByName("Other Urban Infrastructure")
+                        .orElseGet(() -> categoryRepository.findAll().stream().findFirst().orElseThrow()));
+
+        Category activeCategory = aiCategory;
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId()).ifPresent(c -> {
+                // If user selected explicit non-default category, respect it
+            });
+        }
+
+        // 2. Perform GPS Location & Category-Based Department Routing
+        LocationRoutingEngine.RoutingResult routing = locationRoutingEngine.routeComplaint(
+                aiCategory.getName(), request.getLatitude(), request.getLongitude());
+
+        Department department = routing.getDepartment();
+
+        // 3. AI Duplicate Complaint Detection
+        AIDuplicateDetector.DuplicateDetectionResult dupResult = aiDuplicateDetector.checkForDuplicates(
+                request.getTitle(), request.getDescription(), activeCategory.getId(), request.getLatitude(), request.getLongitude());
 
         Complaint complaint = new Complaint();
         complaint.setUser(user);
-        complaint.setCategory(category);
+        complaint.setCategory(activeCategory);
+        complaint.setDepartment(department);
         complaint.setTitle(request.getTitle());
         complaint.setDescription(request.getDescription());
         complaint.setLatitude(request.getLatitude());
@@ -45,6 +77,15 @@ public class ComplaintService {
         complaint.setLocationName(request.getLocationName());
         complaint.setImageUrl(imageUrl);
         complaint.setStatus("Submitted");
+
+        // Set AI & Routing Meta Information
+        complaint.setAiCategory(aiCategory);
+        complaint.setAiConfidenceScore(classification.getConfidenceScore());
+        complaint.setAiDepartment(department);
+        complaint.setRoutingMethod(routing.getRoutingMethod());
+        complaint.setIsPossibleDuplicate(dupResult.isPossibleDuplicate());
+        complaint.setDuplicateSimilarityScore(dupResult.getSimilarityScore());
+        complaint.setRelatedComplaint(dupResult.getRelatedComplaint());
 
         Complaint savedComplaint = complaintRepository.save(complaint);
 
@@ -54,9 +95,18 @@ public class ComplaintService {
                 null,
                 "Submitted",
                 user.getFullName(),
-                "Complaint registered successfully."
+                "Complaint registered. AI categorized as '" + activeCategory.getName() + "' and routed to '" + (department != null ? department.getName() : "Unassigned") + "'."
         );
         historyRepository.save(history);
+
+        // Create Notification
+        notificationService.createNotification(
+                user.getId(),
+                savedComplaint.getId(),
+                "Complaint Registered",
+                "Your complaint '" + savedComplaint.getTitle() + "' has been submitted successfully.",
+                "Complaint Submitted"
+        );
 
         return savedComplaint;
     }
@@ -86,6 +136,10 @@ public class ComplaintService {
         if (departmentId != null) {
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new RuntimeException("Department not found with ID: " + departmentId));
+            if (complaint.getDepartment() == null || !complaint.getDepartment().getId().equals(departmentId)) {
+                complaint.setAdminDepartmentOverridden(true);
+                complaint.setRoutingMethod("MANUAL_OVERRIDE");
+            }
             complaint.setDepartment(department);
         }
 
@@ -101,16 +155,22 @@ public class ComplaintService {
         );
         historyRepository.save(history);
 
-        // Trigger FCM Notification if status changed
-        if (newStatus != null && !newStatus.equalsIgnoreCase(oldStatus)) {
-            User citizen = updatedComplaint.getUser();
-            if (citizen != null && citizen.getFcmToken() != null) {
-                fcmNotificationService.sendStatusUpdateNotification(
-                        citizen.getFcmToken(),
-                        updatedComplaint.getTitle(),
-                        updatedComplaint.getStatus()
-                );
+        // Trigger Notification on Status Update or Department Assignment
+        User citizen = updatedComplaint.getUser();
+        if (citizen != null) {
+            String type = "Resolved".equalsIgnoreCase(updatedComplaint.getStatus()) ? "Complaint Resolved" : "Status Changed";
+            String msg = "Your complaint '" + updatedComplaint.getTitle() + "' status changed to " + updatedComplaint.getStatus() + ".";
+            if (remarks != null && !remarks.isEmpty()) {
+                msg += " Remarks: " + remarks;
             }
+
+            notificationService.createNotification(
+                    citizen.getId(),
+                    updatedComplaint.getId(),
+                    "Complaint Update: " + updatedComplaint.getStatus(),
+                    msg,
+                    type
+            );
         }
 
         return updatedComplaint;
@@ -118,5 +178,28 @@ public class ComplaintService {
 
     public List<ComplaintStatusHistory> getComplaintHistory(Long complaintId) {
         return historyRepository.findByComplaintIdOrderByChangedAtAsc(complaintId);
+    }
+
+    @Transactional
+    public Complaint adminOverrideCategory(Long complaintId, Long newCategoryId) {
+        Complaint complaint = getComplaintById(complaintId);
+        Category newCategory = categoryRepository.findById(newCategoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found ID: " + newCategoryId));
+        complaint.setCategory(newCategory);
+        complaint.setAdminCategoryOverridden(true);
+        return complaintRepository.save(complaint);
+    }
+
+    @Transactional
+    public Complaint adminReviewDuplicate(Long complaintId, boolean isValidDuplicate) {
+        Complaint complaint = getComplaintById(complaintId);
+        complaint.setDuplicateReviewed(true);
+        complaint.setIsValidDuplicate(isValidDuplicate);
+        if (isValidDuplicate) {
+            complaint.setStatus("Rejected"); // Automatically flag confirmed duplicate as resolved/rejected
+        } else {
+            complaint.setIsPossibleDuplicate(false); // Clear duplicate warning if dismissed
+        }
+        return complaintRepository.save(complaint);
     }
 }
