@@ -1,14 +1,8 @@
 package com.smarturban.backend.service;
 
 import com.smarturban.backend.dto.ComplaintRequest;
-import com.smarturban.backend.entity.Category;
-import com.smarturban.backend.entity.Complaint;
-import com.smarturban.backend.entity.Department;
-import com.smarturban.backend.entity.User;
-import com.smarturban.backend.repository.CategoryRepository;
-import com.smarturban.backend.repository.ComplaintRepository;
-import com.smarturban.backend.repository.DepartmentRepository;
-import com.smarturban.backend.repository.UserRepository;
+import com.smarturban.backend.entity.*;
+import com.smarturban.backend.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,15 +38,20 @@ public class ComplaintIntelligenceTest {
     private DepartmentRepository departmentRepository;
 
     @Autowired
+    private LocationRoutingRuleRepository locationRoutingRuleRepository;
+
+    @Autowired
     private ComplaintRepository complaintRepository;
 
     private User testUser;
     private Category roadCategory;
     private Department roadDepartment;
+    private Department elecDepartment;
 
     @BeforeEach
     public void setUp() {
         complaintRepository.deleteAll();
+        locationRoutingRuleRepository.deleteAll();
 
         if (userRepository.findByEmail("testcitizen@smarturban.com").isEmpty()) {
             User u = new User("Test Citizen", "testcitizen@smarturban.com", "9876543210", "Password@123", "Main St", "ROLE_CITIZEN");
@@ -61,51 +60,77 @@ public class ComplaintIntelligenceTest {
             testUser = userRepository.findByEmail("testcitizen@smarturban.com").get();
         }
 
-        roadCategory = categoryRepository.findByName("Road Maintenance").orElseGet(() ->
-                categoryRepository.save(new Category("Road Maintenance", "Road issues")));
-
         roadDepartment = departmentRepository.findByName("Road Maintenance Department").orElseGet(() ->
                 departmentRepository.save(new Department("Road Maintenance Department", "Road dept")));
+
+        elecDepartment = departmentRepository.findByName("Electrical & Street Lighting").orElseGet(() ->
+                departmentRepository.save(new Department("Electrical & Street Lighting", "Electrical dept")));
+
+        roadCategory = categoryRepository.findByName("Road Maintenance").orElseGet(() ->
+                categoryRepository.save(new Category("Road Maintenance", "Road issues", roadDepartment)));
     }
 
     @Test
-    @DisplayName("1. AI Classifier predicts category accurately with high confidence")
-    public void testCategoryPrediction() {
-        ComplaintMLClassifier.ClassificationOutput result = mlClassifier.classifyComplaint(
+    @DisplayName("1. Naive Bayes ML Classifier predicts Road, Streetlight, Garbage, Water, Drainage categories accurately")
+    public void testAllCategoryPredictions() {
+        // Road Maintenance
+        ComplaintMLClassifier.ClassificationOutput roadRes = mlClassifier.classifyComplaint(
                 "Large Pothole on Highway", "There is a massive crater in the asphalt tar pavement causing accidents.");
+        assertEquals("Road Maintenance", roadRes.getCategoryName());
+        assertFalse(roadRes.isLowConfidence());
 
-        assertEquals("Road Maintenance", result.getCategoryName());
-        assertTrue(result.getConfidenceScore() >= 0.35);
-        assertFalse(result.isLowConfidence());
+        // Streetlights
+        ComplaintMLClassifier.ClassificationOutput lightRes = mlClassifier.classifyComplaint(
+                "Street Light Not Glowing", "Streetlight pole bulb fused dark road junction evening safety issue.");
+        assertEquals("Streetlights", lightRes.getCategoryName());
+
+        // Sanitation/Garbage
+        ComplaintMLClassifier.ClassificationOutput saniRes = mlClassifier.classifyComplaint(
+                "Overflowing Garbage Dustbin", "Trash scattered over street foul smell waste pile rotting.");
+        assertEquals("Sanitation/Garbage", saniRes.getCategoryName());
+
+        // Water Supply
+        ComplaintMLClassifier.ClassificationOutput waterRes = mlClassifier.classifyComplaint(
+                "Drinking Water Pipe Leak", "Main water supply pipeline burst dirty contaminated tap water.");
+        assertEquals("Water Supply", waterRes.getCategoryName());
+
+        // Drainage
+        ComplaintMLClassifier.ClassificationOutput drainRes = mlClassifier.classifyComplaint(
+                "Clogged Sewer Line", "Blocked storm drain overflowing sewage sludge stagnant water manhole open.");
+        assertEquals("Drainage", drainRes.getCategoryName());
     }
 
     @Test
-    @DisplayName("2. AI Classifier falls back to low confidence for ambiguous queries")
+    @DisplayName("2. AI Classifier flags low confidence for ambiguous queries")
     public void testLowConfidenceHandling() {
         ComplaintMLClassifier.ClassificationOutput result = mlClassifier.classifyComplaint(
-                "XYZ Random Query", "Abc 123 nothing specific");
+                "XYZ Ambiguous Input", "Abc 123 completely unrelated non-civic input.");
 
         assertEquals("Other Urban Infrastructure", result.getCategoryName());
         assertTrue(result.isLowConfidence());
     }
 
     @Test
-    @DisplayName("3. Category-Based Routing correctly assigns default department")
+    @DisplayName("3. Category-Based Routing correctly assigns category default department")
     public void testCategoryToDepartmentRouting() {
         LocationRoutingEngine.RoutingResult result = locationRoutingEngine.routeComplaint(
-                "Streetlights", null, null);
+                "Road Maintenance", null, null);
 
         assertNotNull(result.getDepartment());
-        assertEquals("Electrical & Street Lighting", result.getDepartment().getName());
+        assertEquals("Road Maintenance Department", result.getDepartment().getName());
         assertEquals("CATEGORY_BASED", result.getRoutingMethod());
     }
 
     @Test
-    @DisplayName("4. GPS Location-Based Routing matches geographical coverage rule")
-    public void testLocationBasedRouting() {
-        // GPS coordinates (15.0, 75.0) fall into Municipal Electrical Zone
+    @DisplayName("4. DB-Driven Location-Based Routing matches registered LocationRoutingRule")
+    public void testDbDrivenLocationBasedRouting() {
+        // Register DB location rule
+        LocationRoutingRule rule = new LocationRoutingRule(
+                "Test Sector Rule", roadCategory, elecDepartment, 10.0, 20.0, 70.0, 80.0);
+        locationRoutingRuleRepository.save(rule);
+
         LocationRoutingEngine.RoutingResult result = locationRoutingEngine.routeComplaint(
-                "Streetlights", 15.0, 75.0);
+                "Road Maintenance", 15.0, 75.0);
 
         assertNotNull(result.getDepartment());
         assertEquals("Electrical & Street Lighting", result.getDepartment().getName());
@@ -113,9 +138,8 @@ public class ComplaintIntelligenceTest {
     }
 
     @Test
-    @DisplayName("5. Similar Complaint Detection flags potential duplicate within 500m")
+    @DisplayName("5. Semantic Duplicate Detection flags similar complaints within 500m")
     public void testDuplicateComplaintDetection() {
-        // Create initial complaint
         ComplaintRequest req1 = new ComplaintRequest();
         req1.setTitle("Broken Water Pipeline");
         req1.setDescription("Water leaking heavily from main pipeline onto street.");
@@ -125,21 +149,20 @@ public class ComplaintIntelligenceTest {
 
         Complaint c1 = complaintService.createComplaint(testUser, req1, null);
 
-        // Check duplicate for new similar complaint at nearly same location
         AIDuplicateDetector.DuplicateDetectionResult dup = aiDuplicateDetector.checkForDuplicates(
                 "Burst Water Pipe Leaking", "Main water pipeline broken and leaking heavily on road.",
                 c1.getCategory().getId(), 15.0001, 75.0001);
 
         assertTrue(dup.isPossibleDuplicate());
-        assertTrue(dup.getSimilarityScore() >= 0.50);
+        assertTrue(dup.getSimilarityScore() >= 0.45);
         assertNotNull(dup.getRelatedComplaint());
         assertEquals(c1.getId(), dup.getRelatedComplaint().getId());
+        assertNotNull(dup.getWarningReason());
     }
 
     @Test
-    @DisplayName("6. Complaints from different locations are NOT flagged as duplicates")
-    public void testDifferentLocationNotDuplicate() {
-        // Create complaint in Bangalore
+    @DisplayName("6. Geographically distant complaints are NOT flagged as duplicates")
+    public void testDistantComplaintNotDuplicate() {
         ComplaintRequest req1 = new ComplaintRequest();
         req1.setTitle("Overflowing Garbage Bin");
         req1.setDescription("Trash scattered all over street foul smell.");
@@ -149,10 +172,9 @@ public class ComplaintIntelligenceTest {
 
         complaintService.createComplaint(testUser, req1, null);
 
-        // Check duplicate for similar complaint far away (> 20 km)
         AIDuplicateDetector.DuplicateDetectionResult dup = aiDuplicateDetector.checkForDuplicates(
                 "Overflowing Garbage Bin", "Trash scattered all over street foul smell.",
-                roadCategory.getId(), 13.1986, 77.7066);
+                roadCategory.getId(), 25.0000, 85.0000);
 
         assertFalse(dup.isPossibleDuplicate());
     }

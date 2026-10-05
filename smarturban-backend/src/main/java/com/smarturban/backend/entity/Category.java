@@ -15,6 +15,10 @@ public class Category {
 
     private String description;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "default_department_id")
+    private Department defaultDepartment;
+
     private boolean enabled = true;
 
     public Category() {}
@@ -22,6 +26,13 @@ public class Category {
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
+        this.enabled = true;
+    }
+
+    public Category(String name, String description, Department defaultDepartment) {
+        this.name = name;
+        this.description = description;
+        this.defaultDepartment = defaultDepartment;
         this.enabled = true;
     }
 
@@ -33,6 +44,9 @@ public class Category {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public Department getDefaultDepartment() { return defaultDepartment; }
+    public void setDefaultDepartment(Department defaultDepartment) { this.defaultDepartment = defaultDepartment; }
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }

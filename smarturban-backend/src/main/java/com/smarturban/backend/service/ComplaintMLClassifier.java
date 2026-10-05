@@ -1,17 +1,11 @@
 package com.smarturban.backend.service;
 
-import com.smarturban.backend.entity.Category;
-import com.smarturban.backend.entity.Department;
-import com.smarturban.backend.repository.CategoryRepository;
-import com.smarturban.backend.repository.DepartmentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 @Service
 public class ComplaintMLClassifier {
@@ -20,12 +14,6 @@ public class ComplaintMLClassifier {
 
     @Value("${smarturban.ai.confidence-threshold:0.35}")
     private double confidenceThreshold;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
 
     public static class ClassificationOutput {
         private final String categoryName;
@@ -43,161 +31,173 @@ public class ComplaintMLClassifier {
         public boolean isLowConfidence() { return lowConfidence; }
     }
 
-    // Ground Truth Dataset for Model Training (Feature Vectors -> Target Class)
-    private static final Map<String, List<String>> TRAINING_CORPUS = new HashMap<>();
+    // Comprehensive Training Corpus for Multinomial Naive Bayes Model
+    private static final Map<String, List<String>> TRAINING_CORPUS = new LinkedHashMap<>();
 
     static {
         TRAINING_CORPUS.put("Road Maintenance", Arrays.asList(
-                "pothole on road asphalt pavement damaged tar street crater broken road surface speed bump caved road edge highway crack maintenance uneven paving bitumen lane avenue drive way street hole",
+                "pothole on main road asphalt pavement damaged tar street crater broken road surface speed bump caved road edge highway crack maintenance uneven paving bitumen lane avenue drive way street hole",
                 "deep pothole on main road causing traffic hazard and tire damage near junction asphalt peeling off completely",
                 "broken pavement tiles and large crater in asphalt road surface dangerous for two wheelers and cars",
-                "caved-in road surface tar erosion broken divider kerbstone damaged road pavement needs immediate repair patch work"
+                "caved-in road surface tar erosion broken divider kerbstone damaged road pavement needs immediate repair patch work",
+                "bad road condition huge potholes tar washed away dangerous road stretch asphalt repair required",
+                "damaged pavement tiles unpaved road crater in asphalt street hole bitumen cracking"
         ));
 
         TRAINING_CORPUS.put("Streetlights", Arrays.asList(
                 "streetlight not working dark bulb pole lamp flickering electricity power outage street light dark road junction evening night safety glow fixture lamp post led light wire broken fused",
                 "multiple streetlights turned off whole street dark at night safety hazard fused bulb high mast light not working",
                 "flickering street light pole leaning hanging electrical wire exposed near lamp post dark alleyway no light",
-                "led street light broken dark street fixture burnt out electrical junction box open near light pole"
+                "led street light broken dark street fixture burnt out electrical junction box open near light pole",
+                "no light on street at night streetlight bulb fused dark road junction streetlight pole broken",
+                "street light power failure light fixture not glowing dark lane safety issue"
         ));
 
         TRAINING_CORPUS.put("Sanitation/Garbage", Arrays.asList(
                 "garbage trash waste bin clean dump overflow litter rubbish foul smell uncleaned dustbin waste pile stinking debris plastic waste collection sweeping dump yard uncleared garbage dump",
                 "overflowing garbage bin on sidewalk trash scattered across street foul smell uncollected municipal waste dump",
                 "garbage collector did not sweep street accumulated plastic waste food waste rotting in public bin stinking area",
-                "illegal dumping of construction waste debris and domestic trash near residential park needs garbage clearing truck"
+                "illegal dumping of construction waste debris and domestic trash near residential park needs garbage clearing truck",
+                "uncleaned dustbin area pile of trash smelling bad street sweeping garbage vehicle missing",
+                "waste dumped on side of road littering plastic bags rotting waste foul odour garbage issue"
         ));
 
         TRAINING_CORPUS.put("Water Supply", Arrays.asList(
                 "water pipe leak tap supply contamination drinking water pipeline burst low pressure dirty water muddy water no water flow municipal water meter leakage valve leak water pipeline broken",
                 "main water supply pipe leaking clean drinking water wasted on street low water pressure in residential houses",
                 "dirty sewage mixed contaminated drinking water coming out of home tap foul smelling muddy water supply pipeline",
-                "no water supply in entire locality pipeline burst near water overhead tank pipe leakage needs immediate plumber attention"
+                "no water supply in entire locality pipeline burst near water overhead tank pipe leakage needs immediate plumber attention",
+                "drinking water pipeline broken tap water muddy contaminated low water pressure issue",
+                "water valve leak supply pipe burst municipal water tank overflow no drinking water available"
         ));
 
         TRAINING_CORPUS.put("Drainage", Arrays.asList(
                 "drain sewer overflow gutter flooding sludge blockage storm drain manhole cover open clogged drain sewage water stagnant water rain water logging blocked drain drain line manhole overflow",
                 "clogged storm drain causing street flooding during rain stagnant sewage water overflowing from open manhole cover",
                 "blocked sewer line foul water entering houses open gutter overflowing with sludge blockage in main drainage network",
-                "broken concrete cover on deep manhole open drain hazard stagnant water breeding mosquitoes in stormwater drain"
+                "broken concrete cover on deep manhole open drain hazard stagnant water breeding mosquitoes in stormwater drain",
+                "sewage pipe blocked stormwater drain overflowing water logging in street open gutter blocked",
+                "sludge accumulation in drainage line sewage water backflow open manhole cover broken"
         ));
 
         TRAINING_CORPUS.put("Other Urban Infrastructure", Arrays.asList(
                 "park bench public toilet wall illegal hoarding encroachment tree branch fallen public park playground noise pollution stray animal issue public property maintenance general civic complaint",
                 "damaged public park fence fallen tree branch blocking pedestrian walkway illegal advertisement board hoarding",
                 "encroachment on public footpath illegal vendor booth stray dogs near playground damaged public toilet door",
-                "general municipal infrastructure issue damaged sign board public garden maintenance city beautification request"
+                "general municipal infrastructure issue damaged sign board public garden maintenance city beautification request",
+                "fallen tree on road blocking traffic stray cattle issue public toilet maintenance playground fence broken",
+                "illegal banner hoarding on pole public park bench damaged public infrastructure repair request"
         ));
     }
 
-    private static final Pattern WORD_PATTERN = Pattern.compile("[^a-z0-9]+");
-
     /**
-     * Preprocesses text into tokenized clean term bag
+     * Tokenizes text into unigrams and bigrams
      */
-    public List<String> tokenizeAndClean(String input) {
-        if (input == null || input.isBlank()) {
+    public List<String> extractFeatures(String text) {
+        if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
-        String cleaned = input.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9\\s]", " ");
+        String cleaned = text.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9\\s]", " ");
         String[] tokens = cleaned.split("\\s+");
-        List<String> list = new ArrayList<>();
-        for (String t : tokens) {
-            if (t.length() > 2) { // Filter out short stop words like "in", "on", "a", "is", "of"
-                list.add(t);
+        List<String> features = new ArrayList<>();
+
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            if (token.length() > 2) {
+                features.add(token); // Unigram
+            }
+            if (i < tokens.length - 1 && tokens[i].length() > 2 && tokens[i + 1].length() > 2) {
+                features.add(tokens[i] + "_" + tokens[i + 1]); // Bigram
             }
         }
-        return list;
+        return features;
     }
 
     /**
-     * Computes TF-IDF vector & Cosine Similarity / Naive Bayes Probability against category corpora
+     * Multinomial Naive Bayes Probabilistic Classifier with Softmax Posterior Probabilities
      */
     public ClassificationOutput classifyComplaint(String title, String description) {
         String combinedText = (title != null ? title : "") + " " + (description != null ? description : "");
-        List<String> inputTokens = tokenizeAndClean(combinedText);
+        List<String> inputFeatures = extractFeatures(combinedText);
 
-        if (inputTokens.isEmpty()) {
+        if (inputFeatures.isEmpty()) {
             return new ClassificationOutput("Other Urban Infrastructure", 0.0, true);
         }
 
-        // Build Vocabulary across Corpus
-        Set<String> vocabulary = new HashSet<>(inputTokens);
-        for (List<String> docs : TRAINING_CORPUS.values()) {
-            for (String doc : docs) {
-                vocabulary.addAll(tokenizeAndClean(doc));
+        // Build Global Vocabulary and Calculate Category Feature Frequencies
+        Set<String> vocabulary = new HashSet<>(inputFeatures);
+        Map<String, Map<String, Integer>> categoryFeatureFreq = new HashMap<>();
+        Map<String, Integer> categoryTotalTokens = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : TRAINING_CORPUS.entrySet()) {
+            String category = entry.getKey();
+            Map<String, Integer> featureFreq = new HashMap<>();
+            int totalTokens = 0;
+
+            for (String doc : entry.getValue()) {
+                List<String> docFeatures = extractFeatures(doc);
+                for (String feat : docFeatures) {
+                    vocabulary.add(feat);
+                    featureFreq.put(feat, featureFreq.getOrDefault(feat, 0) + 1);
+                    totalTokens++;
+                }
             }
+            categoryFeatureFreq.put(category, featureFreq);
+            categoryTotalTokens.put(category, totalTokens);
         }
 
-        // Calculate Term Frequencies for Input
-        Map<String, Integer> inputTf = new HashMap<>();
-        for (String token : inputTokens) {
-            inputTf.put(token, inputTf.getOrDefault(token, 0) + 1);
+        int vocabSize = vocabulary.size();
+        double laplaceAlpha = 1.0;
+
+        // Calculate Log Posterior Probabilities: log P(C) + sum f_i * log P(w_i | C)
+        Map<String, Double> logLikelihoods = new HashMap<>();
+        double priorLogProb = Math.log(1.0 / TRAINING_CORPUS.size()); // Uniform prior across categories
+
+        for (String category : TRAINING_CORPUS.keySet()) {
+            double logProb = priorLogProb;
+            Map<String, Integer> featureFreq = categoryFeatureFreq.get(category);
+            int totalTokens = categoryTotalTokens.get(category);
+
+            for (String feat : inputFeatures) {
+                int count = featureFreq.getOrDefault(feat, 0);
+                // Laplace Smoothing Probability
+                double wordProb = (count + laplaceAlpha) / (totalTokens + laplaceAlpha * vocabSize);
+                logProb += Math.log(wordProb);
+            }
+            logLikelihoods.put(category, logProb);
+        }
+
+        // Softmax Normalization over Log Likelihoods to derive exact posterior probabilities
+        double maxLog = Collections.max(logLikelihoods.values());
+        double expSum = 0.0;
+        Map<String, Double> posteriorProbabilities = new HashMap<>();
+
+        for (Map.Entry<String, Double> entry : logLikelihoods.entrySet()) {
+            double expVal = Math.exp(entry.getValue() - maxLog);
+            posteriorProbabilities.put(entry.getKey(), expVal);
+            expSum += expVal;
         }
 
         String bestCategory = "Other Urban Infrastructure";
-        double maxScore = 0.0;
+        double maxConfidence = 0.0;
 
-        // Compare input vector against each category's aggregated trained TF-IDF model
-        for (Map.Entry<String, List<String>> entry : TRAINING_CORPUS.entrySet()) {
-            String category = entry.getKey();
-            List<String> categoryDocs = entry.getValue();
-
-            // Aggregated Category Term Frequencies
-            Map<String, Integer> categoryTf = new HashMap<>();
-            int totalCategoryTokens = 0;
-            for (String doc : categoryDocs) {
-                List<String> docTokens = tokenizeAndClean(doc);
-                for (String token : docTokens) {
-                    categoryTf.put(token, categoryTf.getOrDefault(token, 0) + 1);
-                    totalCategoryTokens++;
-                }
-            }
-
-            // Calculate Cosine Similarity / Dot product weighting
-            double dotProduct = 0.0;
-            double inputMagSq = 0.0;
-            double catMagSq = 0.0;
-
-            for (String term : inputTf.keySet()) {
-                double tfIn = inputTf.get(term);
-                inputMagSq += tfIn * tfIn;
-
-                if (categoryTf.containsKey(term)) {
-                    // Laplace Smoothed Weighting
-                    double tfCat = (double) categoryTf.get(term) / (totalCategoryTokens + vocabulary.size());
-                    dotProduct += tfIn * tfCat;
-                }
-            }
-
-            for (String term : categoryTf.keySet()) {
-                double tfCat = (double) categoryTf.get(term) / (totalCategoryTokens + vocabulary.size());
-                catMagSq += tfCat * tfCat;
-            }
-
-            double similarity = 0.0;
-            if (inputMagSq > 0 && catMagSq > 0) {
-                similarity = dotProduct / (Math.sqrt(inputMagSq) * Math.sqrt(catMagSq));
-            }
-
-            if (similarity > maxScore) {
-                maxScore = similarity;
-                bestCategory = category;
+        for (Map.Entry<String, Double> entry : posteriorProbabilities.entrySet()) {
+            double normProb = entry.getValue() / expSum;
+            if (normProb > maxConfidence) {
+                maxConfidence = normProb;
+                bestCategory = entry.getKey();
             }
         }
 
-        // Normalize Score to a 0.0 - 1.0 confidence index scale
-        double normalizedConfidence = Math.min(1.0, maxScore * 10.0);
-        // Clean round to 2 decimal places
-        normalizedConfidence = Math.round(normalizedConfidence * 100.0) / 100.0;
+        maxConfidence = Math.round(maxConfidence * 100.0) / 100.0;
+        boolean lowConfidence = maxConfidence < confidenceThreshold;
 
-        boolean lowConfidence = normalizedConfidence < confidenceThreshold;
         if (lowConfidence) {
-            logger.info("Complaint classification confidence ({}) below threshold ({}). Defaulting to low confidence/Other.",
-                    normalizedConfidence, confidenceThreshold);
-            return new ClassificationOutput("Other Urban Infrastructure", normalizedConfidence, true);
+            logger.info("Multinomial Naive Bayes confidence ({}) below threshold ({}). Assigning 'Other Urban Infrastructure'.",
+                    maxConfidence, confidenceThreshold);
+            return new ClassificationOutput("Other Urban Infrastructure", maxConfidence, true);
         }
 
-        return new ClassificationOutput(bestCategory, normalizedConfidence, false);
+        return new ClassificationOutput(bestCategory, maxConfidence, false);
     }
 }

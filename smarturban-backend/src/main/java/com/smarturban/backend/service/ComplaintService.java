@@ -51,9 +51,10 @@ public class ComplaintService {
 
         Category activeCategory = aiCategory;
         if (request.getCategoryId() != null) {
-            categoryRepository.findById(request.getCategoryId()).ifPresent(c -> {
-                // If user selected explicit non-default category, respect it
-            });
+            Category userSelected = categoryRepository.findById(request.getCategoryId()).orElse(null);
+            if (userSelected != null) {
+                activeCategory = userSelected;
+            }
         }
 
         // 2. Perform GPS Location & Category-Based Department Routing

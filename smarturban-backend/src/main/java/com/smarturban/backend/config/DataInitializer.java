@@ -34,23 +34,35 @@ public class DataInitializer {
             DepartmentRepository departmentRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
-            // Seed Categories
-            if (categoryRepository.count() == 0) {
-                categoryRepository.save(new Category("Road Maintenance", "Issues related to damaged roads, potholes, asphalt, and sidewalks."));
-                categoryRepository.save(new Category("Streetlights", "Non-functional, broken, or flickering streetlight fixtures."));
-                categoryRepository.save(new Category("Sanitation/Garbage", "Uncollected garbage, overflow bins, and street cleaning issues."));
-                categoryRepository.save(new Category("Water Supply", "Water leakage, contamination, or low pressure supply."));
-                categoryRepository.save(new Category("Drainage", "Blocked drains, overflowing sewage, and open gutters."));
-                categoryRepository.save(new Category("Other Urban Infrastructure", "Parks, bus shelters, public toilets, and other civic infrastructure."));
+            // Seed Departments first
+            Department roadDept = null;
+            Department elecDept = null;
+            Department saniDept = null;
+            Department waterDept = null;
+            Department drainDept = null;
+
+            if (departmentRepository.count() == 0) {
+                roadDept = departmentRepository.save(new Department("Road Maintenance Department", "Handles road repairs, paving, and sidewalk maintenance."));
+                elecDept = departmentRepository.save(new Department("Electrical & Street Lighting", "Handles municipal streetlights and power distribution infrastructure."));
+                saniDept = departmentRepository.save(new Department("Sanitation & Waste Management", "Handles solid waste collection, street sweeping, and sanitation."));
+                waterDept = departmentRepository.save(new Department("Water Supply & Sewerage Board", "Handles drinking water distribution and sewage pipelines."));
+                drainDept = departmentRepository.save(new Department("Storm Water Drainage Department", "Handles municipal drainage systems and flood prevention."));
+            } else {
+                roadDept = departmentRepository.findByName("Road Maintenance Department").orElse(null);
+                elecDept = departmentRepository.findByName("Electrical & Street Lighting").orElse(null);
+                saniDept = departmentRepository.findByName("Sanitation & Waste Management").orElse(null);
+                waterDept = departmentRepository.findByName("Water Supply & Sewerage Board").orElse(null);
+                drainDept = departmentRepository.findByName("Storm Water Drainage Department").orElse(null);
             }
 
-            // Seed Departments
-            if (departmentRepository.count() == 0) {
-                departmentRepository.save(new Department("Road Maintenance Department", "Handles road repairs, paving, and sidewalk maintenance."));
-                departmentRepository.save(new Department("Electrical & Street Lighting", "Handles municipal streetlights and power distribution infrastructure."));
-                departmentRepository.save(new Department("Sanitation & Waste Management", "Handles solid waste collection, street sweeping, and sanitation."));
-                departmentRepository.save(new Department("Water Supply & Sewerage Board", "Handles drinking water distribution and sewage pipelines."));
-                departmentRepository.save(new Department("Storm Water Drainage Department", "Handles municipal drainage systems and flood prevention."));
+            // Seed Categories with Default Departments
+            if (categoryRepository.count() == 0) {
+                categoryRepository.save(new Category("Road Maintenance", "Issues related to damaged roads, potholes, asphalt, and sidewalks.", roadDept));
+                categoryRepository.save(new Category("Streetlights", "Non-functional, broken, or flickering streetlight fixtures.", elecDept));
+                categoryRepository.save(new Category("Sanitation/Garbage", "Uncollected garbage, overflow bins, and street cleaning issues.", saniDept));
+                categoryRepository.save(new Category("Water Supply", "Water leakage, contamination, or low pressure supply.", waterDept));
+                categoryRepository.save(new Category("Drainage", "Blocked drains, overflowing sewage, and open gutters.", drainDept));
+                categoryRepository.save(new Category("Other Urban Infrastructure", "Parks, bus shelters, public toilets, and other civic infrastructure.", roadDept));
             }
 
             // Seed Configured Admin Account

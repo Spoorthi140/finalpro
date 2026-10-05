@@ -36,7 +36,7 @@ public class AIDuplicateDetector {
     }
 
     /**
-     * Semantic text similarity using term frequency vector space model & geographic proximity calculation.
+     * Evaluates semantic text vector similarity and geographic distance to flag potential duplicates.
      */
     public DuplicateDetectionResult checkForDuplicates(String title, String description, Long categoryId, Double latitude, Double longitude) {
         List<Complaint> candidates = complaintRepository.findByCategoryId(categoryId);
@@ -45,7 +45,7 @@ public class AIDuplicateDetector {
         }
 
         String newText = (title != null ? title : "") + " " + (description != null ? description : "");
-        List<String> newTokens = mlClassifier.tokenizeAndClean(newText);
+        List<String> newFeatures = mlClassifier.extractFeatures(newText);
 
         Complaint highestMatchComplaint = null;
         double maxSimilarity = 0.0;
@@ -59,32 +59,36 @@ public class AIDuplicateDetector {
 
             double distanceKm = -1.0;
             boolean isGeographicallyNearby = false;
-            if (latitude != null && longitude != null && existing.getLatitude() != null && existing.getLongitude() != null) {
+            if (latitude != null && longitude != null && existing.getLatitude() != null && existing.getLongitude() != null
+                    && LocationRoutingEngine.isValidCoordinate(latitude, longitude)
+                    && LocationRoutingEngine.isValidCoordinate(existing.getLatitude(), existing.getLongitude())) {
+
                 distanceKm = LocationRoutingEngine.calculateHaversineDistance(
                         latitude, longitude, existing.getLatitude(), existing.getLongitude());
+
                 if (distanceKm <= 0.5) { // Within 500 meters
                     isGeographicallyNearby = true;
-                } else if (distanceKm > 10.0) { // If > 10km away, do not flag as duplicate
+                } else if (distanceKm > 10.0) { // If > 10km away, isolate from duplicate flagging
                     continue;
                 }
             }
 
-            // Compute Vector Space Cosine Semantic Text Similarity
+            // Compute Sublinear TF Vector Space Cosine Semantic Similarity
             String existingText = (existing.getTitle() != null ? existing.getTitle() : "") + " " + (existing.getDescription() != null ? existing.getDescription() : "");
-            List<String> existingTokens = mlClassifier.tokenizeAndClean(existingText);
+            List<String> existingFeatures = mlClassifier.extractFeatures(existingText);
 
-            double textSimilarity = computeVectorCosineSimilarity(newTokens, existingTokens);
+            double semanticSimilarity = computeSublinearCosineSimilarity(newFeatures, existingFeatures);
 
-            // Composite Weighted Similarity Score incorporating text semantics & geo-proximity
+            // Composite Weighted Similarity Score incorporating semantic text features & geo-proximity
             double compositeSimilarity;
             String reasonSignal;
 
             if (isGeographicallyNearby) {
-                compositeSimilarity = (textSimilarity * 0.6) + 0.4;
-                reasonSignal = String.format(Locale.ROOT, "High text similarity (%.0f%%) and close GPS proximity (%.2f km)", textSimilarity * 100, distanceKm);
+                compositeSimilarity = (semanticSimilarity * 0.6) + 0.4;
+                reasonSignal = String.format(Locale.ROOT, "High semantic text similarity (%.0f%%) and close GPS proximity (%.2f km)", semanticSimilarity * 100, distanceKm);
             } else {
-                compositeSimilarity = textSimilarity;
-                reasonSignal = String.format(Locale.ROOT, "High semantic text similarity (%.0f%%)", textSimilarity * 100);
+                compositeSimilarity = semanticSimilarity;
+                reasonSignal = String.format(Locale.ROOT, "High semantic text similarity (%.0f%%)", semanticSimilarity * 100);
             }
 
             if (compositeSimilarity > maxSimilarity) {
@@ -94,41 +98,41 @@ public class AIDuplicateDetector {
             }
         }
 
-        // Clean round to 2 decimal places
         maxSimilarity = Math.round(maxSimilarity * 100.0) / 100.0;
-
-        boolean isPossibleDuplicate = maxSimilarity >= 0.50 && highestMatchComplaint != null;
+        boolean isPossibleDuplicate = maxSimilarity >= 0.45 && highestMatchComplaint != null;
 
         return new DuplicateDetectionResult(isPossibleDuplicate, maxSimilarity, highestMatchComplaint, matchReason);
     }
 
-    private double computeVectorCosineSimilarity(List<String> tokensA, List<String> tokensB) {
-        if (tokensA.isEmpty() || tokensB.isEmpty()) return 0.0;
+    /**
+     * Sublinear Term Frequency Cosine Similarity
+     */
+    private double computeSublinearCosineSimilarity(List<String> featuresA, List<String> featuresB) {
+        if (featuresA.isEmpty() || featuresB.isEmpty()) return 0.0;
 
-        Map<String, Integer> tfA = new HashMap<>();
-        Map<String, Integer> tfB = new HashMap<>();
+        Map<String, Integer> countA = new HashMap<>();
+        Map<String, Integer> countB = new HashMap<>();
 
-        for (String t : tokensA) tfA.put(t, tfA.getOrDefault(t, 0) + 1);
-        for (String t : tokensB) tfB.put(t, tfB.getOrDefault(t, 0) + 1);
+        for (String f : featuresA) countA.put(f, countA.getOrDefault(f, 0) + 1);
+        for (String f : featuresB) countB.put(f, countB.getOrDefault(f, 0) + 1);
 
-        Set<String> allWords = new HashSet<>(tfA.keySet());
-        allWords.addAll(tfB.keySet());
+        Set<String> allFeatures = new HashSet<>(countA.keySet());
+        allFeatures.addAll(countB.keySet());
 
         double dotProduct = 0.0;
-        double magA = 0.0;
-        double magB = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
 
-        for (String word : allWords) {
-            int countA = tfA.getOrDefault(word, 0);
-            int countB = tfB.getOrDefault(word, 0);
+        for (String feat : allFeatures) {
+            double tfA = countA.containsKey(feat) ? (1.0 + Math.log(countA.get(feat))) : 0.0;
+            double tfB = countB.containsKey(feat) ? (1.0 + Math.log(countB.get(feat))) : 0.0;
 
-            dotProduct += countA * countB;
-            magA += countA * countA;
-            magB += countB * countB;
+            dotProduct += tfA * tfB;
+            normA += tfA * tfA;
+            normB += tfB * tfB;
         }
 
-        if (magA == 0.0 || magB == 0.0) return 0.0;
-
-        return dotProduct / (Math.sqrt(magA) * Math.sqrt(magB));
+        if (normA == 0.0 || normB == 0.0) return 0.0;
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 }
