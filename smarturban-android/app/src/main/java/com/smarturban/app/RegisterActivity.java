@@ -72,17 +72,26 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, String responseBody) {
                     btnRegister.setEnabled(true);
-                    if (statusCode == 200) {
+                    if (statusCode == 200 || statusCode == 201) {
                         Toast.makeText(RegisterActivity.this, R.string.registration_success, Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        Toast.makeText(RegisterActivity.this, R.string.field_required, Toast.LENGTH_LONG).show();
+                        String msg = "Registration failed";
+                        try {
+                            if (responseBody != null) {
+                                JSONObject err = new JSONObject(responseBody);
+                                if (err.has("message")) msg = err.getString("message");
+                            }
+                        } catch (Exception ignored) {}
+                        Toast.makeText(RegisterActivity.this, msg, Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     btnRegister.setEnabled(true);
+                    String errDetail = e != null && e.getLocalizedMessage() != null ? e.getLocalizedMessage() : "Connection failed";
+                    Toast.makeText(RegisterActivity.this, "Registration failed: " + errDetail, Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {

@@ -93,14 +93,22 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                        String msg = getString(R.string.login_failed);
+                        try {
+                            if (responseBody != null) {
+                                JSONObject err = new JSONObject(responseBody);
+                                if (err.has("message")) msg = err.getString("message");
+                            }
+                        } catch (Exception ignored) {}
+                        Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     btnLogin.setEnabled(true);
-                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                    String errDetail = e != null && e.getLocalizedMessage() != null ? e.getLocalizedMessage() : "Connection failed";
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed) + ": " + errDetail, Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {
