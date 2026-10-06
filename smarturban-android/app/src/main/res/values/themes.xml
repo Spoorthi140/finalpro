@@ -2,20 +2,20 @@
     <!-- Base application theme -->
     <style name="Theme.SmartUrban" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand colors -->
-        <item name="colorPrimary">#0284C7</item>
-        <item name="colorPrimaryVariant">#0369A1</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
 
         <!-- Secondary brand colors -->
-        <item name="colorSecondary">#0D9488</item>
-        <item name="colorSecondaryVariant">#0F766E</item>
-        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_variant</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
 
         <!-- Text and Input Default Colors for Light Backgrounds -->
-        <item name="android:textColorPrimary">#0F172A</item>
-        <item name="android:textColorSecondary">#475569</item>
-        <item name="android:textColorHint">#64748B</item>
-        <item name="android:editTextColor">#0F172A</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:editTextColor">@color/edit_text_color</item>
 
         <!-- Status bar color -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -25,6 +25,6 @@
     <style name="Theme.SmartUrban.NoActionBar" parent="Theme.SmartUrban">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">#1E293B</item>
+        <item name="android:statusBarColor">@color/status_bar_splash</item>
     </style>
 </resources>
