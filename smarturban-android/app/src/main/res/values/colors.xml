@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#0284C7</color>
+    <color name="primary_variant">#0369A1</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <!-- Secondary Brand Colors -->
+    <color name="secondary">#0D9488</color>
+    <color name="secondary_variant">#0F766E</color>
+    <color name="on_secondary">#FFFFFF</color>
+
+    <!-- Text and Surface Colors -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_hint">#64748B</color>
+    <color name="edit_text_color">#0F172A</color>
+    <color name="status_bar_splash">#1E293B</color>
+
+    <!-- Navigation Item Tint Colors -->
     <color name="nav_item_icon">#0284C7</color>
     <color name="nav_item_text">#0F172A</color>
 </resources>
