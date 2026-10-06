@@ -104,6 +104,11 @@ public class AdminWebController {
             User user = userService.findById(id)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
+            if ("admin@smarturban.com".equalsIgnoreCase(user.getEmail()) && !"admin@smarturban.com".equalsIgnoreCase(email)) {
+                redirectAttributes.addFlashAttribute("error", "Cannot change primary administrator email address.");
+                return "redirect:/admin/users";
+            }
+
             user.setFullName(fullName);
             user.setEmail(email);
             user.setPhone(phone);

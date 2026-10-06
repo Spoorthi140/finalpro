@@ -63,8 +63,11 @@ public class AdminApiController {
 
     // User Management APIs
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<List<com.smarturban.backend.dto.UserDto>> getAllUsers() {
+        List<com.smarturban.backend.dto.UserDto> dtoList = userRepository.findAll().stream()
+                .map(com.smarturban.backend.dto.UserDto::new)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(dtoList);
     }
 
     @PostMapping("/users")
@@ -72,7 +75,7 @@ public class AdminApiController {
         try {
             user.setRole("ROLE_CITIZEN");
             User created = userService.createUserByAdmin(user);
-            return ResponseEntity.ok(created);
+            return ResponseEntity.ok(new com.smarturban.backend.dto.UserDto(created));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -83,8 +86,8 @@ public class AdminApiController {
         User user = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-        if ("ROLE_ADMIN".equals(user.getRole())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Cannot modify administrator roles/details"));
+        if ("ROLE_ADMIN".equals(user.getRole()) || "admin@smarturban.com".equalsIgnoreCase(user.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot modify primary administrator roles or email"));
         }
 
         user.setFullName(userDetails.getFullName());
@@ -93,7 +96,7 @@ public class AdminApiController {
         user.setEnabled(userDetails.isEnabled());
 
         User updated = userService.saveUser(user);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(new com.smarturban.backend.dto.UserDto(updated));
     }
 
     @PutMapping("/users/{id}/toggle")

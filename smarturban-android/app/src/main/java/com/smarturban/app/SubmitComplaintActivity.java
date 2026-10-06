@@ -137,30 +137,18 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(SubmitComplaintActivity.this, android.R.layout.simple_spinner_dropdown_item, categoryNames);
                         spCategory.setAdapter(adapter);
                     } catch (Exception e) {
-                        setupFallbackCategories();
+                        Toast.makeText(SubmitComplaintActivity.this, "Unable to load categories from backend", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    setupFallbackCategories();
+                    Toast.makeText(SubmitComplaintActivity.this, "Unable to load categories from backend", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(Exception e) {
-                setupFallbackCategories();
+                Toast.makeText(SubmitComplaintActivity.this, "Network Error loading categories", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void setupFallbackCategories() {
-        categoryIds.clear();
-        categoryNames.clear();
-        String[] defaults = new String[]{"Road Maintenance", "Streetlights", "Sanitation/Garbage", "Water Supply", "Drainage", "Other Urban Infrastructure"};
-        for (int i = 0; i < defaults.length; i++) {
-            categoryIds.add((long) (i + 1));
-            categoryNames.add(defaults[i]);
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categoryNames);
-        spCategory.setAdapter(adapter);
     }
 
     private void captureGpsLocation() {
@@ -277,8 +265,17 @@ public class SubmitComplaintActivity extends AppCompatActivity {
             return;
         }
 
+        if (categoryIds.isEmpty()) {
+            Toast.makeText(this, "Categories not loaded. Please try again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         int selectedPos = spCategory.getSelectedItemPosition();
-        long categoryId = (selectedPos >= 0 && selectedPos < categoryIds.size()) ? categoryIds.get(selectedPos) : 1L;
+        if (selectedPos < 0 || selectedPos >= categoryIds.size()) {
+            Toast.makeText(this, "Please select a valid complaint category.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        long categoryId = categoryIds.get(selectedPos);
 
         SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
         String jwtToken = pref.getString("token", "");
