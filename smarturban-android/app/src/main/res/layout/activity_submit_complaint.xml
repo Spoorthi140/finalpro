@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <!-- Top App Bar with Back Button -->
+    <LinearLayout
+        android:id="@+id/top_bar_report"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#0F172A"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btn_back_report"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#FFFFFF"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/report_complaint_title"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Scrollable Report Form Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar_report"
+        android:fillViewport="true"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Category -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/category_label"
+                android:textColor="#0F172A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/sp_category"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp"
+                android:background="#FFFFFF"
+                android:paddingHorizontal="12dp" />
+
+            <!-- Complaint Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/complaint_title_label"
+                android:textColor="#0F172A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_title"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp"
+                android:background="#FFFFFF"
+                android:paddingHorizontal="14dp"
+                android:textColor="#0F172A"
+                android:textColorHint="#64748B"
+                android:hint="@string/complaint_title_hint" />
+
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/complaint_description_label"
+                android:textColor="#0F172A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_description"
+                android:layout_width="match_parent"
+                android:layout_height="110dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp"
+                android:background="#FFFFFF"
+                android:gravity="top"
+                android:padding="12dp"
+                android:textColor="#0F172A"
+                android:textColorHint="#64748B"
+                android:hint="@string/complaint_desc_hint" />
+
+            <!-- Photo Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/attach_photo_title"
+                android:textColor="#0F172A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="10dp">
+
+                <Button
+                    android:id="@+id/btn_camera"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/btn_camera"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#475569" />
+
+                <Button
+                    android:id="@+id/btn_gallery"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/btn_gallery"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#475569" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_preview_container"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/img_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="#CBD5E1" />
+
+                <Button
+                    android:id="@+id/btn_remove_photo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_margin="8dp"
+                    android:text="@string/btn_remove_photo"
+                    android:textSize="11sp"
+                    android:backgroundTint="#EF4444"
+                    android:textColor="#FFFFFF" />
+            </RelativeLayout>
+
+            <!-- Location Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/location_heading"
+                android:textColor="#0F172A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/tv_location_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/location_not_captured"
+                        android:textColor="#334155"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/btn_use_current_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/use_current_location"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#0284C7" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- OpenStreetMap View -->
+            <org.osmdroid.views.MapView
+                android:id="@+id/map_view_report"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btn_confirm_location"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/confirm_location"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#0D9488"
+                android:visibility="gone" />
+
+            <!-- Submit Complaint Button -->
+            <Button
+                android:id="@+id/btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/submit_complaint_btn"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#16A34A" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

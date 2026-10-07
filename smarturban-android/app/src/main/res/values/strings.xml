@@ -1,0 +1,110 @@
+<resources>
+    <string name="app_name">SmartUrban</string>
+    <string name="welcome_smarturban">Welcome to SmartUrban</string>
+    <string name="tagline">Smart Urban Infrastructure Complaint Tracking System</string>
+
+    <!-- Auth Strings -->
+    <string name="login_title">Citizen Login</string>
+    <string name="register_title">Citizen Registration</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone">Phone Number</string>
+    <string name="address">Address</string>
+    <string name="login_btn">Sign In</string>
+    <string name="register_btn">Register Account</string>
+    <string name="dont_have_account">Don\'t have an account? Register here</string>
+    <string name="already_have_account">Already registered? Login here</string>
+
+    <!-- Dashboard Strings -->
+    <string name="dashboard_title">SmartUrban Citizen Dashboard</string>
+    <string name="hello_citizen">Hello, Citizen 👋</string>
+    <string name="welcome_citizen">Citizen</string>
+    <string name="category">Category</string>
+    <string name="complaint_title">Complaint Title</string>
+    <string name="status">Status</string>
+    <string name="complaint_description">Complaint Description</string>
+    <string name="location">Location</string>
+    <string name="status_history">Status History</string>
+    <string name="profile">Profile</string>
+    <string name="location_not_captured">Location not captured</string>
+    <string name="welcome_dashboard">Welcome to SmartUrban Complaint Dashboard</string>
+    <string name="overview_heading">Your Complaints Overview</string>
+    <string name="stat_total">Total</string>
+    <string name="stat_pending">Pending</string>
+    <string name="stat_in_progress">In Progress</string>
+    <string name="stat_resolved">Resolved</string>
+
+    <string name="btn_report_complaint_card">+ Report Complaint</string>
+    <string name="recent_complaints_heading">Recent Complaints</string>
+    <string name="no_recent_complaints">No recent complaints recorded.</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_complaints">Complaints</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- My Complaints Page -->
+    <string name="my_complaints_title">My Complaints</string>
+    <string name="my_complaints_subtitle">Track and manage your complaints</string>
+    <string name="filter_all">All</string>
+    <string name="filter_pending">Pending</string>
+    <string name="filter_in_progress">In Progress</string>
+    <string name="filter_resolved">Resolved</string>
+    <string name="view_details">View Details →</string>
+    <string name="no_complaints_matching">No complaints found for the selected filter.</string>
+
+    <!-- Report Complaint Page -->
+    <string name="report_complaint_title">Report a Complaint</string>
+    <string name="category_label">Category *</string>
+    <string name="complaint_title_label">Complaint Title *</string>
+    <string name="complaint_title_hint">e.g. Broken Streetlight on 5th Avenue</string>
+    <string name="complaint_description_label">Description *</string>
+    <string name="complaint_desc_hint">Provide details about the infrastructure problem...</string>
+
+    <string name="attach_photo_title">Attach Photo (Optional)</string>
+    <string name="btn_camera">Camera</string>
+    <string name="btn_gallery">Gallery</string>
+    <string name="btn_remove_photo">Remove Photo</string>
+
+    <string name="location_heading">LOCATION *</string>
+    <string name="use_current_location">Use Current Location</string>
+    <string name="confirm_location">Confirm Location</string>
+    <string name="location_confirmed_msg">Location Confirmed!</string>
+    <string name="location_not_confirmed_msg">Please confirm location before submitting.</string>
+    <string name="location_unavailable">Location unavailable. Please enable location and try again.</string>
+    <string name="submit_complaint_btn">Submit Complaint</string>
+    <string name="submitting">Submitting complaint...</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_subtitle">Recent updates on your reported issues</string>
+    <string name="mark_all_read">Mark All as Read</string>
+    <string name="no_notifications">No notifications available.</string>
+    <string name="unread_label">Unread</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_title">Citizen Feedback &amp; Rating</string>
+    <string name="feedback_hint">Provide optional feedback comments...</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="feedback_success">Feedback submitted successfully.</string>
+
+    <!-- Language / Profile Strings -->
+    <string name="language_setting">Language / ಭಾಷೆ</string>
+    <string name="lang_english">English</string>
+    <string name="lang_kannada">ಕನ್ನಡ (Kannada)</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="profile_updated">Profile updated successfully</string>
+
+    <!-- Validation & Messages -->
+    <string name="field_required">This field is required</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="invalid_email">Invalid email format</string>
+    <string name="login_failed">Login failed. Check credentials.</string>
+    <string name="registration_success">Registration successful!</string>
+    <string name="complaint_submitted">Complaint submitted successfully!</string>
+    <string name="login_success">Login Successful</string>
+    <string name="gps_captured">GPS Location Captured</string>
+</resources>

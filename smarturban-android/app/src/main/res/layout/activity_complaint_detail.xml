@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tv_detail_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="#CMP-1"
+            android:textColor="#0284C7"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/complaint_title"
+            android:textColor="#0F172A"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/img_detail_photo"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#CBD5E1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/status"
+            android:textColor="#64748B"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_detail_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Submitted"
+            android:textColor="#16A34A"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/complaint_description"
+            android:textColor="#64748B"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_detail_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="#FFFFFF"
+            android:padding="12dp"
+            android:text="@string/complaint_description"
+            android:textColor="#334155" />
+
+        <!-- OpenStreetMap Location Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/location"
+            android:textColor="#64748B"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_detail_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="#FFFFFF"
+            android:padding="12dp"
+            android:text="@string/location"
+            android:textColor="#334155" />
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <!-- Citizen Rating & Feedback Form Section (for Resolved Complaints) -->
+        <LinearLayout
+            android:id="@+id/layout_feedback_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:background="#FFFFFF"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/feedback_title"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RatingBar
+                android:id="@+id/rating_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:numStars="5"
+                android:stepSize="1.0"
+                android:rating="5" />
+
+            <EditText
+                android:id="@+id/et_feedback_comments"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="10dp"
+                android:background="#F1F5F9"
+                android:gravity="top"
+                android:padding="10dp"
+                android:textColor="#0F172A"
+                android:textColorHint="#64748B"
+                android:hint="@string/feedback_hint" />
+
+            <Button
+                android:id="@+id/btn_submit_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/submit_feedback"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#16A34A" />
+
+            <TextView
+                android:id="@+id/tv_submitted_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#0D9488"
+                android:textStyle="italic"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/status_history"
+            android:textColor="#0F172A"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/container_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+</ScrollView>

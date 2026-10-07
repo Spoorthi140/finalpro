@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartUrban - User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+        .sidebar { min-height: calc(100vh - 60px); background-color: #2c3e50; }
+        .sidebar .nav-link { color: #ecf0f1; padding: 12px 20px; font-weight: 500; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #34495e; color: #3498db; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
+            <img th:src="@{/images/smarturban_logo.png}" alt="SmartUrban Logo">
+            <span class="fw-bold fs-5">SmartUrban Admin</span>
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3"><i class="fas fa-user-circle me-1"></i> Administrator</span>
+            <form th:action="@{/admin/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 d-none d-md-block sidebar py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/complaints"><i class="fas fa-clipboard-list me-2"></i> Complaints</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/admin/users"><i class="fas fa-users me-2"></i> User Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/departments"><i class="fas fa-building me-2"></i> Departments</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/categories"><i class="fas fa-tags me-2"></i> Categories</a></li>
+            </ul>
+        </div>
+
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-secondary"><i class="fas fa-users me-2"></i> User Management</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fas fa-user-plus me-1"></i> Add New User</button>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="u : ${users}">
+                                <td th:text="${u.id}">1</td>
+                                <td th:text="${u.fullName}" class="fw-semibold">John Doe</td>
+                                <td th:text="${u.email}">john@example.com</td>
+                                <td th:text="${u.phone}">9876543210</td>
+                                <td>
+                                    <span class="badge" th:classappend="${u.role == 'ROLE_ADMIN' ? 'bg-danger' : 'bg-secondary'}" th:text="${u.role}">ROLE_CITIZEN</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${u.enabled ? 'bg-success' : 'bg-warning text-dark'}" th:text="${u.enabled ? 'Active' : 'Disabled'}">Active</span>
+                                </td>
+                                <td>
+                                    <!-- Edit User Button -->
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="${'#editUserModal' + u.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <!-- Toggle Status Button -->
+                                    <form th:action="@{'/admin/users/toggle/' + ${u.id}}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm" th:classappend="${u.enabled ? 'btn-outline-warning' : 'btn-outline-success'}">
+                                            <i class="fas" th:classappend="${u.enabled ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Button -->
+                                    <form th:action="@{'/admin/users/delete/' + ${u.id}}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                    </form>
+
+                                    <!-- Edit User Modal -->
+                                    <div class="modal fade" th:id="${'editUserModal' + u.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form th:action="@{'/admin/users/edit/' + ${u.id}}" method="post">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold">Edit User Details</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Full Name</label>
+                                                            <input type="text" name="fullName" class="form-control" th:value="${u.fullName}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Email Address</label>
+                                                            <input type="email" name="email" class="form-control" th:value="${u.email}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Phone Number</label>
+                                                            <input type="text" name="phone" class="form-control" th:value="${u.phone}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Address</label>
+                                                            <textarea name="address" class="form-control" rows="2" th:text="${u.address}"></textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Role</label>
+                                                            <select name="role" class="form-select">
+                                                                <option value="ROLE_CITIZEN" th:selected="${u.role == 'ROLE_CITIZEN'}">Citizen</option>
+                                                                <option value="ROLE_ADMIN" th:selected="${u.role == 'ROLE_ADMIN'}">Administrator</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/admin/users/add}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="fullName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea name="address" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-select">
+                            <option value="ROLE_CITIZEN">Citizen</option>
+                            <option value="ROLE_ADMIN">Administrator</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

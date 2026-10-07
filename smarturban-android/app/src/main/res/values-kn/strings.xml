@@ -1,0 +1,110 @@
+<resources>
+    <string name="app_name">SmartUrban</string>
+    <string name="welcome_smarturban">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್‌ಗೆ ಸ್ವಾಗತ</string>
+    <string name="tagline">ಸ್ಮಾರ್ಟ್ ನಗರ ಮೂಲಸೌಕರ್ಯ ದೂರು ಟ್ರ್ಯಾಕಿಂಗ್ ವ್ಯವಸ್ಥೆ</string>
+
+    <!-- Auth Strings -->
+    <string name="login_title">ನಾಗರಿಕ ಲಾಗಿನ್</string>
+    <string name="register_title">ನಾಗರಿಕ ನೋಂದಣಿ</string>
+    <string name="email">ಇಮೇಲ್ ವಿಳಾಸ</string>
+    <string name="password">ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="confirm_password">ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ</string>
+    <string name="full_name">ಪೂರ್ಣ ಹೆಸರು</string>
+    <string name="phone">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
+    <string name="address">ವಿಳಾಸ</string>
+    <string name="login_btn">ಸೈನ್ ಇನ್</string>
+    <string name="register_btn">ಖಾತೆ ನೋಂದಾಯಿಸಿ</string>
+    <string name="dont_have_account">ಖಾತೆ ಇಲ್ಲವೇ? ಇಲ್ಲಿ ನೋಂದಾಯಿಸಿ</string>
+    <string name="already_have_account">ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಲಾಗಿದೆಯೇ? ಲಾಗಿನ್ ಮಾಡಿ</string>
+
+    <!-- Dashboard Strings -->
+    <string name="dashboard_title">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ನಾಗರಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="hello_citizen">ನಮಸ್ಕಾರ, ನಾಗರಿಕ 👋</string>
+    <string name="welcome_citizen">ನಾಗರಿಕ</string>
+    <string name="category">ವರ್ಗ</string>
+    <string name="complaint_title">ದೂರಿನ ಶೀರ್ಷಿಕೆ</string>
+    <string name="status">ಸ್ಥಿತಿ</string>
+    <string name="complaint_description">ದೂರಿನ ವಿವರಣೆ</string>
+    <string name="location">ಸ್ಥಳ</string>
+    <string name="status_history">ಸ್ಥಿತಿ ಇತಿಹಾಸ</string>
+    <string name="profile">ಪ್ರೊಫೈಲ್</string>
+    <string name="location_not_captured">ಸ್ಥಳ ಸೆರೆಹಿಡಿಯಲಾಗಿಲ್ಲ</string>
+    <string name="welcome_dashboard">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ದೂರು ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಸ್ವಾಗತ</string>
+    <string name="overview_heading">ನಿಮ್ಮ ದೂರುಗಳ ವಿವರಣೆ</string>
+    <string name="stat_total">ಒಟ್ಟು</string>
+    <string name="stat_pending">ಬಾಕಿ</string>
+    <string name="stat_in_progress">ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
+    <string name="stat_resolved">ಬಗೆಹರಿಸಲಾಗಿದೆ</string>
+
+    <string name="btn_report_complaint_card">+ ದೂರು ಸಲ್ಲಿಸಿ</string>
+    <string name="recent_complaints_heading">ಇತ್ತೀಚಿನ ದೂರುಗಳು</string>
+    <string name="no_recent_complaints">ಯಾವುದೇ ಇತ್ತೀಚಿನ ದೂರುಗಳು ದಾಖಲಾಗಿಲ್ಲ.</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">ಮುಖ್ಯಪುಟ</string>
+    <string name="nav_complaints">ದೂರುಗಳು</string>
+    <string name="nav_notifications">ಸೂಚನೆಗಳು</string>
+    <string name="nav_profile">ಪ್ರೊಫೈಲ್</string>
+
+    <!-- My Complaints Page -->
+    <string name="my_complaints_title">ನನ್ನ ದೂರುಗಳು</string>
+    <string name="my_complaints_subtitle">ನಿಮ್ಮ ದೂರುಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ ಮತ್ತು ನಿರ್ವಹಿಸಿ</string>
+    <string name="filter_all">ಎಲ್ಲಾ</string>
+    <string name="filter_pending">ಬಾಕಿ</string>
+    <string name="filter_in_progress">ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
+    <string name="filter_resolved">ಬಗೆಹರಿಸಲಾಗಿದೆ</string>
+    <string name="view_details">ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →</string>
+    <string name="no_complaints_matching">ಆಯ್ಕೆಮಾಡಿದ ಫಿಲ್ಟರ್‌ಗೆ ಯಾವುದೇ ದೂರುಗಳು ಕಂಡುಬಂದಿಲ್ಲ.</string>
+
+    <!-- Report Complaint Page -->
+    <string name="report_complaint_title">ದೂರು ನೀಡಿ</string>
+    <string name="category_label">ವರ್ಗ *</string>
+    <string name="complaint_title_label">ದೂರಿನ ಶೀರ್ಷಿಕೆ *</string>
+    <string name="complaint_title_hint">ಉದಾ: ೫ನೇ ಅವೆನ್ಯೂನಲ್ಲಿ ಬೀದಿ ದೀಪ ಕೆಟ್ಟಿದೆ</string>
+    <string name="complaint_description_label">ವಿವರಣೆ *</string>
+    <string name="complaint_desc_hint">ಮೂಲಸೌಕರ್ಯ ಸಮಸ್ಯೆಯ ವಿವರಗಳನ್ನು ಒದಗಿಸಿ...</string>
+
+    <string name="attach_photo_title">ಫೋಟೋ ಲಗತ್ತಿಸಿ (ಐಚ್ಛಿಕ)</string>
+    <string name="btn_camera">ಕ್ಯಾಮೆರಾ</string>
+    <string name="btn_gallery">ಗ್ಯಾಲರಿ</string>
+    <string name="btn_remove_photo">ಫೋಟೋ ತೆಗೆದುಹಾಕಿ</string>
+
+    <string name="location_heading">ಸ್ಥಳ *</string>
+    <string name="use_current_location">ಪ್ರಸ್ತುತ ಸ್ಥಳವನ್ನು ಬಳಸಿ</string>
+    <string name="confirm_location">ಸ್ಥಳವನ್ನು ದೃಢೀಕರಿಸಿ</string>
+    <string name="location_confirmed_msg">ಸ್ಥಳ ದೃಢೀಕರಿಸಲಾಗಿದೆ!</string>
+    <string name="location_not_confirmed_msg">ಸಲ್ಲಿಸುವ ಮೊದಲು ಸ್ಥಳವನ್ನು ದೃಢೀಕರಿಸಿ.</string>
+    <string name="location_unavailable">ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಸ್ಥಳವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="submit_complaint_btn">ದೂರು ಸಲ್ಲಿಸಿ</string>
+    <string name="submitting">ದೂರನ್ನು ಸಲ್ಲಿಸಲಾಗುತ್ತಿದೆ...</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">ಸೂಚನೆಗಳು</string>
+    <string name="notifications_subtitle">ನಿಮ್ಮ ದೂರುಗಳ ಇತ್ತೀಚಿನ ನವೀಕರಣಗಳು</string>
+    <string name="mark_all_read">ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ</string>
+    <string name="no_notifications">ಯಾವುದೇ ಸೂಚನೆಗಳು ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="unread_label">ಓದದಿರುವುದು</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_title">ನಾಗರಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಮತ್ತು ರೇಟಿಂಗ್</string>
+    <string name="feedback_hint">ಐಚ್ಛಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಕಾಮೆಂಟ್‌ಗಳನ್ನು ಒದಗಿಸಿ...</string>
+    <string name="submit_feedback">ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಿ</string>
+    <string name="feedback_success">ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ.</string>
+
+    <!-- Language / Profile Strings -->
+    <string name="language_setting">ಭಾಷೆ / Language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_kannada">ಕನ್ನಡ (Kannada)</string>
+    <string name="update_profile">ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಿ</string>
+    <string name="profile_updated">ಪ್ರೊಫೈಲ್ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ</string>
+
+    <!-- Validation & Messages -->
+    <string name="field_required">ಈ ಕ್ಷೇತ್ರವು ಕಡ್ಡಾಯವಾಗಿದೆ</string>
+    <string name="password_mismatch">ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ</string>
+    <string name="invalid_email">ಅಮಾನ್ಯ ಇಮೇಲ್ ವಿನ್ಯಾಸ</string>
+    <string name="login_failed">ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ.</string>
+    <string name="registration_success">ನೋಂದಣಿ ಯಶಸ್ವಿಯಾಗಿದೆ!</string>
+    <string name="complaint_submitted">ದೂರು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಕೆಯಾಗಿದೆ!</string>
+    <string name="login_success">ಲಾಗಿನ್ ಯಶಸ್ವಿಯಾಗಿದೆ</string>
+    <string name="gps_captured">ಜಿಪಿಎಸ್ ಸ್ಥಳ ಗ್ರಹಿಸಲಾಗಿದೆ</string>
+</resources>

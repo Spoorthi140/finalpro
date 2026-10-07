@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartUrban - Complaint Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet OpenStreetMap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+        .sidebar { min-height: calc(100vh - 60px); background-color: #2c3e50; }
+        .sidebar .nav-link { color: #ecf0f1; padding: 12px 20px; font-weight: 500; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #34495e; color: #3498db; }
+        .complaint-img { max-height: 280px; width: 100%; object-fit: cover; border-radius: 8px; }
+        #osm-map { height: 260px; width: 100%; border-radius: 8px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
+            <img th:src="@{/images/smarturban_logo.png}" alt="SmartUrban Logo">
+            <span class="fw-bold fs-5">SmartUrban Admin</span>
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3"><i class="fas fa-user-circle me-1"></i> Administrator</span>
+            <form th:action="@{/admin/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 d-none d-md-block sidebar py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/admin/complaints"><i class="fas fa-clipboard-list me-2"></i> Complaints</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/users"><i class="fas fa-users me-2"></i> User Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/departments"><i class="fas fa-building me-2"></i> Departments</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/categories"><i class="fas fa-tags me-2"></i> Categories</a></li>
+            </ul>
+        </div>
+
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-secondary"><i class="fas fa-file-alt me-2"></i> Complaint Details <span class="badge bg-secondary" th:text="${'#CMP-' + complaint.id}">#CMP-1</span></h2>
+                <a href="/admin/complaints" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> Back to Complaints</a>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row g-4">
+                <!-- Complaint Information -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0 fw-bold" th:text="${complaint.title}">Complaint Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3" th:if="${complaint.imageUrl != null}">
+                                <label class="fw-bold text-muted d-block mb-1">Attached Complaint Media:</label>
+                                <img th:src="${complaint.imageUrl}" alt="Complaint Image" class="complaint-img border">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Description:</label>
+                                <p class="card-text bg-light p-3 rounded" th:text="${complaint.description}">Description text...</p>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-muted">Category:</label>
+                                    <p class="fw-semibold" th:text="${complaint.category.name}">Road Maintenance</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-muted">Current Status:</label>
+                                    <p><span class="badge bg-primary" th:text="${complaint.status}">Submitted</span></p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-muted">Submitted By:</label>
+                                    <p th:text="${complaint.user.fullName + ' (' + complaint.user.email + ')'}">Citizen Name</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-muted">Contact Phone:</label>
+                                    <p th:text="${complaint.user.phone}">Phone</p>
+                                </div>
+                            </div>
+
+                            <!-- AI & ML Complaint Intelligence Section -->
+                            <div class="mb-4 p-3 bg-light border rounded">
+                                <h6 class="fw-bold text-primary mb-3"><i class="fas fa-brain me-2"></i> AI Intelligence & Routing Analytics</h6>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">AI Predicted Category:</label>
+                                        <span class="fw-bold" th:text="${complaint.aiCategory != null ? complaint.aiCategory.name : complaint.category.name}">Road Maintenance</span>
+                                        <span class="badge bg-info text-dark ms-2" th:if="${complaint.aiConfidenceScore != null}" th:text="${'Confidence: ' + #numbers.formatPercent(complaint.aiConfidenceScore, 1, 0)}">85%</span>
+                                        <span th:if="${complaint.adminCategoryOverridden}" class="badge bg-warning text-dark ms-1">Overridden by Admin</span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Auto-Assigned Department:</label>
+                                        <span class="fw-bold" th:text="${complaint.aiDepartment != null ? complaint.aiDepartment.name : (complaint.department != null ? complaint.department.name : 'Unassigned')}">Department</span>
+                                        <span class="badge bg-secondary ms-1" th:text="${'Method: ' + (complaint.routingMethod != null ? complaint.routingMethod : 'CATEGORY_BASED')}">LOCATION_BASED</span>
+                                        <span th:if="${complaint.adminDepartmentOverridden}" class="badge bg-warning text-dark ms-1">Overridden by Admin</span>
+                                    </div>
+
+                                    <div class="col-md-12" th:if="${complaint.isPossibleDuplicate}">
+                                        <div class="alert alert-danger mb-0 py-2">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Possible Duplicate Warning!</strong>
+                                            Similarity Score: <span class="fw-bold" th:text="${#numbers.formatPercent(complaint.duplicateSimilarityScore, 1, 0)}">80%</span>.
+                                            <span th:if="${complaint.relatedComplaint != null}">
+                                                Matches Reference Complaint ID: <a th:href="@{'/admin/complaints/' + ${complaint.relatedComplaint.id}}" class="fw-bold text-danger" th:text="${'#CMP-' + complaint.relatedComplaint.id}">#CMP-10</a>.
+                                            </span>
+
+                                            <!-- Duplicate Review Controls -->
+                                            <div class="mt-2" th:unless="${complaint.duplicateReviewed}">
+                                                <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline me-2">
+                                                    <input type="hidden" name="isValidDuplicate" value="true">
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-check me-1"></i> Confirm Valid Duplicate</button>
+                                                </form>
+                                                <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/review-duplicate'}" method="post" class="d-inline">
+                                                    <input type="hidden" name="isValidDuplicate" value="false">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i> Dismiss Warning</button>
+                                                </form>
+                                            </div>
+                                            <div class="mt-1 small" th:if="${complaint.duplicateReviewed}">
+                                                <strong>Status:</strong> Reviewed by Admin (<span th:text="${complaint.isValidDuplicate ? 'Confirmed Duplicate' : 'Not a Duplicate'}">Confirmed</span>).
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Location & OpenStreetMap Section -->
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted"><i class="fas fa-map-marker-alt text-danger me-1"></i> Geographical Location (OpenStreetMap):</label>
+                                <p th:text="${complaint.locationName != null ? complaint.locationName : 'Geographical coordinates provided'}">Location</p>
+                                <div th:if="${complaint.latitude != null && complaint.longitude != null}">
+                                    <div class="small text-muted mb-2">
+                                        <strong>Latitude:</strong> <span id="lat-val" th:text="${complaint.latitude}">0.0</span>,
+                                        <strong>Longitude:</strong> <span id="lng-val" th:text="${complaint.longitude}">0.0</span>
+                                    </div>
+                                    <div id="osm-map"></div>
+                                </div>
+                                <div th:if="${complaint.latitude == null || complaint.longitude == null}" class="alert alert-light text-muted border">
+                                    <i class="fas fa-info-circle me-1"></i> GPS Location coordinates unavailable for this record.
+                                </div>
+                            </div>
+
+                            <!-- Citizen Rating & Feedback Section -->
+                            <div class="mb-3 border-top pt-3" th:if="${feedback != null}">
+                                <label class="fw-bold text-success"><i class="fas fa-star text-warning me-1"></i> Citizen Feedback & Rating:</label>
+                                <div class="bg-light p-3 rounded">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <strong class="me-2">Rating:</strong>
+                                        <span class="text-warning">
+                                            <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, feedback.rating)}"></i>
+                                        </span>
+                                        <span class="ms-2 font-weight-bold" th:text="${'(' + feedback.rating + ' / 5)'}"></span>
+                                    </div>
+                                    <div>
+                                        <strong>Comments:</strong>
+                                        <p class="mb-0 text-dark fst-italic" th:text="${feedback.comments != null ? feedback.comments : 'No written feedback provided.'}"></p>
+                                    </div>
+                                    <div class="small text-muted mt-1" th:text="${'Submitted on: ' + #temporals.format(feedback.createdAt, 'yyyy-MM-dd HH:mm')}">Date</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status History -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2 text-info"></i> Status Progress History</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item px-0" th:each="h : ${history}">
+                                    <div class="d-flex justify-content-between">
+                                        <strong th:text="${h.newStatus}">Submitted</strong>
+                                        <small class="text-muted" th:text="${#temporals.format(h.changedAt, 'yyyy-MM-dd HH:mm')}">Date</small>
+                                    </div>
+                                    <div class="small text-muted mb-1">
+                                        Changed by <span th:text="${h.changedBy}">User</span>
+                                        <span th:if="${h.previousStatus != null}" th:text="${' (from ' + h.previousStatus + ')'}"></span>
+                                    </div>
+                                    <div class="fst-italic small text-secondary" th:if="${h.remarks != null}" th:text="${'Remarks: ' + h.remarks}">Remarks</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Status & Assignment -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-tasks me-2"></i> Update Status & Assignment</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/update'}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Update Complaint Status</label>
+                                    <select name="status" class="form-select" required>
+                                        <option value="Submitted" th:selected="${complaint.status == 'Submitted'}">Submitted</option>
+                                        <option value="Under Review" th:selected="${complaint.status == 'Under Review'}">Under Review</option>
+                                        <option value="Assigned" th:selected="${complaint.status == 'Assigned'}">Assigned</option>
+                                        <option value="In Progress" th:selected="${complaint.status == 'In Progress'}">In Progress</option>
+                                        <option value="Resolved" th:selected="${complaint.status == 'Resolved'}">Resolved</option>
+                                        <option value="Rejected" th:selected="${complaint.status == 'Rejected'}">Rejected</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Assign to Municipal Department</label>
+                                    <select name="departmentId" class="form-select">
+                                        <option value="">-- Select Department --</option>
+                                        <option th:each="dept : ${departments}"
+                                                th:value="${dept.id}"
+                                                th:text="${dept.name}"
+                                                th:selected="${complaint.department != null && complaint.department.id == dept.id}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Remarks / Action Log</label>
+                                    <textarea name="remarks" class="form-control" rows="3" placeholder="Enter administrative notes or status updates..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2"><i class="fas fa-save me-1"></i> Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-tags me-2"></i> Admin Category Override</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/override-category'}" method="post" class="d-flex gap-2">
+                                <select name="categoryId" class="form-select form-select-sm" required>
+                                    <option th:each="cat : ${categories}"
+                                            th:value="${cat.id}"
+                                            th:text="${cat.name}"
+                                            th:selected="${complaint.category != null && complaint.category.id == cat.id}">
+                                    </option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-warning text-nowrap">Override</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Leaflet OpenStreetMap JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var lat = /*[[${complaint.latitude}]]*/ null;
+    var lng = /*[[${complaint.longitude}]]*/ null;
+    var title = /*[[${complaint.title}]]*/ "Complaint Location";
+
+    if (lat && lng && document.getElementById('osm-map')) {
+        var map = L.map('osm-map').setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([lat, lng]).addTo(map).bindPopup("<b>" + title + "</b>").openPopup();
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

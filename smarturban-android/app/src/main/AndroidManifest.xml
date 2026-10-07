@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/smarturban_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/smarturban_logo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SmartUrban"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SmartUrban.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".DashboardActivity" />
+        <activity android:name=".SubmitComplaintActivity" />
+        <activity android:name=".MyComplaintsActivity" />
+        <activity android:name=".ComplaintDetailActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".NotificationsActivity" />
+
+    </application>
+
+</manifest>
