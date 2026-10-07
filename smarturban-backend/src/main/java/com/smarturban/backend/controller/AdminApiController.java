@@ -124,8 +124,11 @@ public class AdminApiController {
 
     // Complaint Management APIs
     @GetMapping("/complaints")
-    public ResponseEntity<List<Complaint>> getAllComplaints() {
-        return ResponseEntity.ok(complaintService.getAllComplaints());
+    public ResponseEntity<List<com.smarturban.backend.dto.ComplaintResponse>> getAllComplaints() {
+        List<com.smarturban.backend.dto.ComplaintResponse> responseList = complaintService.getAllComplaints().stream()
+                .map(com.smarturban.backend.dto.ComplaintResponse::new)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responseList);
     }
 
     @PutMapping("/complaints/{id}/status")

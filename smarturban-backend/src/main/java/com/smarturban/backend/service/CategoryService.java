@@ -27,6 +27,13 @@ public class CategoryService {
     }
 
     public Category saveCategory(Category category) {
+        if (category.getId() == null && category.getName() != null) {
+            boolean exists = categoryRepository.findAll().stream()
+                    .anyMatch(c -> c.getName().equalsIgnoreCase(category.getName().trim()));
+            if (exists) {
+                throw new RuntimeException("A category with the name '" + category.getName() + "' already exists.");
+            }
+        }
         return categoryRepository.save(category);
     }
 
