@@ -135,6 +135,7 @@ public class DashboardActivity extends AppCompatActivity {
             }
             @Override public void onError(Exception e) {
                 android.util.Log.e("DashboardActivity", "Failed to fetch profile", e);
+                runOnUiThread(() -> android.widget.Toast.makeText(DashboardActivity.this, R.string.connection_failed, android.widget.Toast.LENGTH_SHORT).show());
             }
         });
 
@@ -186,6 +187,7 @@ public class DashboardActivity extends AppCompatActivity {
             }
             @Override public void onError(Exception e) {
                 android.util.Log.e("DashboardActivity", "Failed to fetch complaints list", e);
+                runOnUiThread(() -> android.widget.Toast.makeText(DashboardActivity.this, R.string.connection_failed, android.widget.Toast.LENGTH_SHORT).show());
             }
         });
     }

@@ -93,7 +93,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         if (obj.has("latitude") && !obj.isNull("latitude") && obj.has("longitude") && !obj.isNull("longitude")) {
                             latitude = obj.getDouble("latitude");
                             longitude = obj.getDouble("longitude");
-                            tvDetailLocation.setText(locName + " (" + String.format("%.4f", latitude) + ", " + String.format("%.4f", longitude) + ")");
+                            tvDetailLocation.setText(getString(R.string.location_coords_fmt, locName, latitude, longitude));
 
                             setupOpenStreetMap(latitude, longitude, obj.getString("title"));
                         } else {
@@ -116,6 +116,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 android.util.Log.e("ComplaintDetailActivity", "Failed to fetch complaint details", e);
+                runOnUiThread(() -> Toast.makeText(ComplaintDetailActivity.this, R.string.connection_failed, Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -212,6 +213,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                 @Override
                 public void onError(Exception e) {
                     btnSubmitFeedback.setEnabled(true);
+                    runOnUiThread(() -> Toast.makeText(ComplaintDetailActivity.this, R.string.connection_failed, Toast.LENGTH_SHORT).show());
                 }
             });
         } catch (Exception ignored) {}

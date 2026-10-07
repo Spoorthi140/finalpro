@@ -107,6 +107,10 @@ public class NotificationsActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 android.util.Log.e("NotificationsActivity", "Failed to fetch notifications", e);
+                runOnUiThread(() -> {
+                    tvEmptyNotifications.setVisibility(View.VISIBLE);
+                    Toast.makeText(NotificationsActivity.this, R.string.connection_failed, Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }

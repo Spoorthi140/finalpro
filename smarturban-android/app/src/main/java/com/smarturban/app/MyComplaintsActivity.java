@@ -169,6 +169,10 @@ public class MyComplaintsActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 android.util.Log.e("MyComplaintsActivity", "Failed to fetch complaints", e);
+                runOnUiThread(() -> {
+                    tvEmptyMyComplaints.setVisibility(View.VISIBLE);
+                    android.widget.Toast.makeText(MyComplaintsActivity.this, R.string.connection_failed, android.widget.Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }

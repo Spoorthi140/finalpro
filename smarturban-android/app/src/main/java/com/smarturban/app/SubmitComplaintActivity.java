@@ -205,7 +205,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
         longitude = lng;
         locationName = getAddressFromCoordinates(lat, lng);
 
-        tvLocationDisplay.setText(getString(R.string.location_fmt, locationName) + "\nLat: " + String.format("%.4f", lat) + ", Long: " + String.format("%.4f", lng));
+        tvLocationDisplay.setText(getString(R.string.location_lat_long_display, locationName, lat, lng));
 
         setupOpenStreetMap(lat, lng);
         btnConfirmLocation.setVisibility(View.VISIBLE);
@@ -241,10 +241,10 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
                 if (address.getLocality() != null) sb.append(address.getLocality()).append(", ");
                 if (address.getAdminArea() != null) sb.append(address.getAdminArea());
-                return sb.length() > 0 ? sb.toString() : "GPS Location";
+                return sb.length() > 0 ? sb.toString() : getString(R.string.gps_location_label);
             }
         } catch (Exception ignored) {}
-        return "GPS (" + String.format("%.4f", lat) + ", " + String.format("%.4f", lng) + ")";
+        return getString(R.string.gps_coords_fallback, lat, lng);
     }
 
     private void submitComplaintToBackend() {

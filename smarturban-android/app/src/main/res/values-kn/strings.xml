@@ -27,6 +27,10 @@
     <string name="cmp_id_fmt">#CMP-%1$d</string>
     <string name="date_fmt">ದಿನಾಂಕ: %1$s</string>
     <string name="location_fmt">📍 %1$s</string>
+    <string name="location_coords_fmt">%1$s (%2$.4f, %3$.4f)</string>
+    <string name="location_lat_long_display">📍 %1$s\nಅಕ್ಷಾಂಶ: %2$.4f, ರೇಖಾಂಶ: %3$.4f</string>
+    <string name="gps_coords_fallback">ಜಿಪಿಎಸ್ (%1$.4f, %2$.4f)</string>
+    <string name="gps_location_label">ಜಿಪಿಎಸ್ ಸ್ಥಳ</string>
     <string name="complaint_title">ದೂರಿನ ಶೀರ್ಷಿಕೆ</string>
     <string name="status">ಸ್ಥಿತಿ</string>
     <string name="complaint_description">ದೂರಿನ ವಿವರಣೆ</string>
