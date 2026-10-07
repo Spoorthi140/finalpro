@@ -27,11 +27,12 @@ public class DepartmentService {
     }
 
     public Department saveDepartment(Department department) {
-        if (department.getId() == null && department.getName() != null) {
+        if (department.getName() != null) {
+            String trimmedName = department.getName().trim();
             boolean exists = departmentRepository.findAll().stream()
-                    .anyMatch(d -> d.getName().equalsIgnoreCase(department.getName().trim()));
+                    .anyMatch(d -> d.getName().equalsIgnoreCase(trimmedName) && !d.getId().equals(department.getId()));
             if (exists) {
-                throw new RuntimeException("A department with the name '" + department.getName() + "' already exists.");
+                throw new RuntimeException("A department with the name '" + trimmedName + "' already exists.");
             }
         }
         return departmentRepository.save(department);

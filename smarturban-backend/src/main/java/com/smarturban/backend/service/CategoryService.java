@@ -27,11 +27,12 @@ public class CategoryService {
     }
 
     public Category saveCategory(Category category) {
-        if (category.getId() == null && category.getName() != null) {
+        if (category.getName() != null) {
+            String trimmedName = category.getName().trim();
             boolean exists = categoryRepository.findAll().stream()
-                    .anyMatch(c -> c.getName().equalsIgnoreCase(category.getName().trim()));
+                    .anyMatch(c -> c.getName().equalsIgnoreCase(trimmedName) && !c.getId().equals(category.getId()));
             if (exists) {
-                throw new RuntimeException("A category with the name '" + category.getName() + "' already exists.");
+                throw new RuntimeException("A category with the name '" + trimmedName + "' already exists.");
             }
         }
         return categoryRepository.save(category);

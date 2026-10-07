@@ -108,7 +108,7 @@ public class AdminApiController {
         }
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new com.smarturban.backend.dto.UserDto(user));
     }
 
     @DeleteMapping("/users/{id}")
@@ -145,7 +145,7 @@ public class AdminApiController {
         String adminName = userDetails != null ? userDetails.getFullName() : "Administrator";
 
         Complaint updated = complaintService.updateComplaintStatusAndDepartment(id, status, departmentId, adminName, remarks);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(new com.smarturban.backend.dto.ComplaintResponse(updated));
     }
 
     // Category Management APIs
