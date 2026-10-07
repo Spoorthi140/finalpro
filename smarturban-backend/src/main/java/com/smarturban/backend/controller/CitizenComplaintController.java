@@ -95,7 +95,7 @@ public class CitizenComplaintController {
 
         Complaint complaint = complaintService.createComplaint(user, request, imageUrl);
 
-        return ResponseEntity.ok(complaint);
+        return ResponseEntity.ok(new com.smarturban.backend.dto.ComplaintResponse(complaint));
     }
 
     @PostMapping("/complaints/ai-recommend-category")
@@ -118,9 +118,12 @@ public class CitizenComplaintController {
     }
 
     @GetMapping("/complaints")
-    public ResponseEntity<List<Complaint>> getMyComplaints(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<com.smarturban.backend.dto.ComplaintResponse>> getMyComplaints(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<Complaint> complaints = complaintService.getComplaintsByUser(userDetails.getId());
-        return ResponseEntity.ok(complaints);
+        List<com.smarturban.backend.dto.ComplaintResponse> responseList = complaints.stream()
+                .map(com.smarturban.backend.dto.ComplaintResponse::new)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responseList);
     }
 
     @GetMapping("/complaints/{id}")
@@ -130,7 +133,7 @@ public class CitizenComplaintController {
         if (!complaint.getUser().getId().equals(userDetails.getId()) && !"ROLE_ADMIN".equals(userDetails.getAuthorities().iterator().next().getAuthority())) {
             return ResponseEntity.status(403).body("Access Denied");
         }
-        return ResponseEntity.ok(complaint);
+        return ResponseEntity.ok(new com.smarturban.backend.dto.ComplaintResponse(complaint));
     }
 
     @GetMapping("/complaints/{id}/history")

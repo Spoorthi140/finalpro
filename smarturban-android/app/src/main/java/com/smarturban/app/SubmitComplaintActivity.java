@@ -134,7 +134,8 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                             categoryNames.add(obj.getString("name"));
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(SubmitComplaintActivity.this, android.R.layout.simple_spinner_dropdown_item, categoryNames);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(SubmitComplaintActivity.this, R.layout.spinner_selected_item, categoryNames);
+                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                         spCategory.setAdapter(adapter);
                     } catch (Exception e) {
                         Toast.makeText(SubmitComplaintActivity.this, "Unable to load categories from backend", Toast.LENGTH_SHORT).show();

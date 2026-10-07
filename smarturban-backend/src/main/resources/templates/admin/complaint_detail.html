@@ -204,7 +204,7 @@
 
                 <!-- Update Status & Assignment -->
                 <div class="col-md-5">
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm mb-4">
                         <div class="card-header bg-primary text-white py-3">
                             <h5 class="mb-0 fw-bold"><i class="fas fa-tasks me-2"></i> Update Status & Assignment</h5>
                         </div>
@@ -234,26 +234,30 @@
                                     </select>
                                 </div>
 
-                                <div class="mb-3 border-top pt-2">
-                                    <label class="form-label fw-bold">Admin Category Override</label>
-                                    <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/override-category'}" method="post" class="d-flex gap-2">
-                                        <select name="categoryId" class="form-select form-select-sm" required>
-                                            <option th:each="cat : ${categories}"
-                                                    th:value="${cat.id}"
-                                                    th:text="${cat.name}"
-                                                    th:selected="${complaint.category != null && complaint.category.id == cat.id}">
-                                            </option>
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-outline-warning text-nowrap">Override</button>
-                                    </form>
-                                </div>
-
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Remarks / Action Log</label>
                                     <textarea name="remarks" class="form-control" rows="3" placeholder="Enter administrative notes or status updates..."></textarea>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary w-100 py-2"><i class="fas fa-save me-1"></i> Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-tags me-2"></i> Admin Category Override</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{'/admin/complaints/' + ${complaint.id} + '/override-category'}" method="post" class="d-flex gap-2">
+                                <select name="categoryId" class="form-select form-select-sm" required>
+                                    <option th:each="cat : ${categories}"
+                                            th:value="${cat.id}"
+                                            th:text="${cat.name}"
+                                            th:selected="${complaint.category != null && complaint.category.id == cat.id}">
+                                    </option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-warning text-nowrap">Override</button>
                             </form>
                         </div>
                     </div>

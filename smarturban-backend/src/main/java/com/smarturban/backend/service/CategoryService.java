@@ -29,4 +29,10 @@ public class CategoryService {
     public Category saveCategory(Category category) {
         return categoryRepository.save(category);
     }
+
+    public void deleteOrDeactivateCategory(Long id) {
+        Category category = getCategoryById(id);
+        category.setEnabled(false);
+        categoryRepository.save(category);
+    }
 }

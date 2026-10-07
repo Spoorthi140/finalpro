@@ -224,19 +224,89 @@ public class AdminWebController {
         return "redirect:/admin/departments";
     }
 
+    @PostMapping("/departments/edit/{id}")
+    public String editDepartment(@PathVariable("id") Long id,
+                                 @RequestParam("name") String name,
+                                 @RequestParam("description") String description,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            Department department = departmentService.getDepartmentById(id);
+            department.setName(name);
+            department.setDescription(description);
+            departmentService.saveDepartment(department);
+            redirectAttributes.addFlashAttribute("success", "Department updated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/departments";
+    }
+
+    @PostMapping("/departments/delete/{id}")
+    public String deleteDepartment(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            departmentService.deleteOrDeactivateDepartment(id);
+            redirectAttributes.addFlashAttribute("success", "Department deactivated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/departments";
+    }
+
     @GetMapping("/categories")
     public String categoryManagement(Model model) {
         List<Category> categories = categoryService.getAllCategories();
+        List<Department> departments = departmentService.getActiveDepartments();
         model.addAttribute("categories", categories);
+        model.addAttribute("departments", departments);
         return "admin/categories";
     }
 
     @PostMapping("/categories/add")
     public String addCategory(@RequestParam("name") String name,
                               @RequestParam("description") String description,
+                              @RequestParam(value = "defaultDepartmentId", required = false) Long defaultDepartmentId,
                               RedirectAttributes redirectAttributes) {
-        categoryService.saveCategory(new Category(name, description));
+        Department defaultDept = null;
+        if (defaultDepartmentId != null) {
+            defaultDept = departmentService.getDepartmentById(defaultDepartmentId);
+        }
+        categoryService.saveCategory(new Category(name, description, defaultDept));
         redirectAttributes.addFlashAttribute("success", "Category saved successfully.");
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/categories/edit/{id}")
+    public String editCategory(@PathVariable("id") Long id,
+                               @RequestParam("name") String name,
+                               @RequestParam("description") String description,
+                               @RequestParam(value = "defaultDepartmentId", required = false) Long defaultDepartmentId,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            category.setName(name);
+            category.setDescription(description);
+            if (defaultDepartmentId != null) {
+                Department defaultDept = departmentService.getDepartmentById(defaultDepartmentId);
+                category.setDefaultDepartment(defaultDept);
+            } else {
+                category.setDefaultDepartment(null);
+            }
+            categoryService.saveCategory(category);
+            redirectAttributes.addFlashAttribute("success", "Category updated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/categories/delete/{id}")
+    public String deleteCategory(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.deleteOrDeactivateCategory(id);
+            redirectAttributes.addFlashAttribute("success", "Category deactivated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/admin/categories";
     }
 }

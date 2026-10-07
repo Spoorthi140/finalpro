@@ -29,4 +29,10 @@ public class DepartmentService {
     public Department saveDepartment(Department department) {
         return departmentRepository.save(department);
     }
+
+    public void deleteOrDeactivateDepartment(Long id) {
+        Department department = getDepartmentById(id);
+        department.setEnabled(false);
+        departmentRepository.save(department);
+    }
 }

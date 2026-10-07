@@ -160,16 +160,20 @@ public class ComplaintService {
         User citizen = updatedComplaint.getUser();
         if (citizen != null) {
             String type = "Resolved".equalsIgnoreCase(updatedComplaint.getStatus()) ? "Complaint Resolved" : "Status Changed";
-            String msg = "Your complaint '" + updatedComplaint.getTitle() + "' status changed to " + updatedComplaint.getStatus() + ".";
-            if (remarks != null && !remarks.isEmpty()) {
-                msg += " Remarks: " + remarks;
+            StringBuilder msg = new StringBuilder();
+            msg.append("Your complaint status has been changed to ").append(updatedComplaint.getStatus()).append(".");
+            if (updatedComplaint.getDepartment() != null) {
+                msg.append(" Department: ").append(updatedComplaint.getDepartment().getName()).append(".");
+            }
+            if (remarks != null && !remarks.trim().isEmpty()) {
+                msg.append(" Remarks: ").append(remarks);
             }
 
             notificationService.createNotification(
                     citizen.getId(),
                     updatedComplaint.getId(),
-                    "Complaint Update: " + updatedComplaint.getStatus(),
-                    msg,
+                    "Complaint #CMP-" + updatedComplaint.getId() + " Updated",
+                    msg.toString(),
                     type
             );
         }
