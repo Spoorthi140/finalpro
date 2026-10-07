@@ -103,12 +103,16 @@ public class DashboardActivity extends AppCompatActivity {
                         } else {
                             bottomNavigationView.removeBadge(R.id.nav_notifications);
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("DashboardActivity", "Error parsing unread notifications count", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("DashboardActivity", "Failed to fetch unread notifications count", e);
+            }
         });
     }
 
@@ -124,10 +128,14 @@ public class DashboardActivity extends AppCompatActivity {
                         JSONObject json = new JSONObject(responseBody);
                         String name = json.optString("fullName", getString(R.string.welcome_citizen));
                         tvHelloCitizen.setText("Hello, " + name + " 👋");
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("DashboardActivity", "Error parsing profile data", e);
+                    }
                 }
             }
-            @Override public void onError(Exception e) {}
+            @Override public void onError(Exception e) {
+                android.util.Log.e("DashboardActivity", "Failed to fetch profile", e);
+            }
         });
 
         HttpNetworkClient.sendJsonRequest(ApiConfig.MY_COMPLAINTS_URL, "GET", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
@@ -171,10 +179,14 @@ public class DashboardActivity extends AppCompatActivity {
                             tvEmptyRecent.setVisibility(View.GONE);
                         }
 
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("DashboardActivity", "Error parsing complaints list", e);
+                    }
                 }
             }
-            @Override public void onError(Exception e) {}
+            @Override public void onError(Exception e) {
+                android.util.Log.e("DashboardActivity", "Failed to fetch complaints list", e);
+            }
         });
     }
 
@@ -212,7 +224,9 @@ public class DashboardActivity extends AppCompatActivity {
             });
 
             containerRecentComplaints.addView(cardView);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            android.util.Log.e("DashboardActivity", "Error rendering recent complaint card", e);
+        }
     }
 
     private void performLogout() {

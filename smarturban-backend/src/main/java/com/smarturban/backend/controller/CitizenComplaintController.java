@@ -137,7 +137,12 @@ public class CitizenComplaintController {
     }
 
     @GetMapping("/complaints/{id}/history")
-    public ResponseEntity<List<ComplaintStatusHistory>> getComplaintHistory(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getComplaintHistory(@PathVariable("id") Long id,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Complaint complaint = complaintService.getComplaintById(id);
+        if (!complaint.getUser().getId().equals(userDetails.getId()) && !"ROLE_ADMIN".equals(userDetails.getAuthorities().iterator().next().getAuthority())) {
+            return ResponseEntity.status(403).body("Access Denied");
+        }
         return ResponseEntity.ok(complaintService.getComplaintHistory(id));
     }
 

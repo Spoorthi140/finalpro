@@ -107,12 +107,16 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                             layoutFeedbackSection.setVisibility(View.GONE);
                         }
 
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("ComplaintDetailActivity", "Error parsing complaint details", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("ComplaintDetailActivity", "Failed to fetch complaint details", e);
+            }
         });
     }
 
@@ -157,12 +161,16 @@ public class ComplaintDetailActivity extends AppCompatActivity {
 
                         tvSubmittedFeedback.setVisibility(View.VISIBLE);
                         tvSubmittedFeedback.setText("Rating: " + rating + " Stars\nComments: " + (comments.isEmpty() ? "None" : comments));
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("ComplaintDetailActivity", "Error parsing feedback", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("ComplaintDetailActivity", "Failed to fetch feedback", e);
+            }
         });
     }
 
@@ -238,12 +246,16 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                             historyItem.setTextColor(0xFF475569);
                             containerHistory.addView(historyItem);
                         }
-                    } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    android.util.Log.e("ComplaintDetailActivity", "Error parsing history", e);
+                }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+        public void onError(Exception e) {
+            android.util.Log.e("ComplaintDetailActivity", "Failed to fetch complaint history", e);
+        }
         });
     }
 

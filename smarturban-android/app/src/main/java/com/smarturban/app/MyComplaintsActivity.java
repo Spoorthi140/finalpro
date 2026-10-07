@@ -103,12 +103,16 @@ public class MyComplaintsActivity extends AppCompatActivity {
                         } else {
                             bottomNavigationView.removeBadge(R.id.nav_notifications);
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("MyComplaintsActivity", "Error parsing unread count", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("MyComplaintsActivity", "Failed to fetch unread count", e);
+            }
         });
     }
 
@@ -156,12 +160,16 @@ public class MyComplaintsActivity extends AppCompatActivity {
                     try {
                         allComplaintsArray = new JSONArray(responseBody);
                         renderComplaintsList();
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("MyComplaintsActivity", "Error parsing complaints response", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("MyComplaintsActivity", "Failed to fetch complaints", e);
+            }
         });
     }
 
@@ -239,6 +247,8 @@ public class MyComplaintsActivity extends AppCompatActivity {
             });
 
             containerMyComplaints.addView(cardView);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            android.util.Log.e("MyComplaintsActivity", "Error rendering complaint item card", e);
+        }
     }
 }

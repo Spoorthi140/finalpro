@@ -98,12 +98,16 @@ public class NotificationsActivity extends AppCompatActivity {
                                 renderNotificationItem(obj);
                             }
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        android.util.Log.e("NotificationsActivity", "Error parsing notifications", e);
+                    }
                 }
             }
 
             @Override
-            public void onError(Exception e) {}
+            public void onError(Exception e) {
+                android.util.Log.e("NotificationsActivity", "Failed to fetch notifications", e);
+            }
         });
     }
 
@@ -147,7 +151,9 @@ public class NotificationsActivity extends AppCompatActivity {
             });
 
             containerNotifications.addView(cardView);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            android.util.Log.e("NotificationsActivity", "Error rendering notification item", e);
+        }
     }
 
     private void markAsRead(long notifId) {
