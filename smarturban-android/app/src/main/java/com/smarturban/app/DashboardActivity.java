@@ -127,7 +127,7 @@ public class DashboardActivity extends AppCompatActivity {
                     try {
                         JSONObject json = new JSONObject(responseBody);
                         String name = json.optString("fullName", getString(R.string.welcome_citizen));
-                        tvHelloCitizen.setText("Hello, " + name + " 👋");
+                        tvHelloCitizen.setText(getString(R.string.hello_citizen_fmt, name));
                     } catch (Exception e) {
                         android.util.Log.e("DashboardActivity", "Error parsing profile data", e);
                     }
@@ -206,16 +206,16 @@ public class DashboardActivity extends AppCompatActivity {
             String date = obj.optString("createdAt", "");
             if (date.length() >= 10) date = date.substring(0, 10);
 
-            String category = "General";
+            String category = getString(R.string.general_category);
             if (obj.has("category") && !obj.isNull("category")) {
-                category = obj.getJSONObject("category").optString("name", "General");
+                category = obj.getJSONObject("category").optString("name", getString(R.string.general_category));
             }
 
-            tvId.setText("#CMP-" + cmpId);
+            tvId.setText(getString(R.string.cmp_id_fmt, cmpId));
             tvTitle.setText(title);
-            tvCat.setText(getString(R.string.category) + ": " + category);
+            tvCat.setText(getString(R.string.category_fmt, category));
             tvStatus.setText(status);
-            tvDate.setText("Date: " + date);
+            tvDate.setText(getString(R.string.date_fmt, date));
 
             cardView.setOnClickListener(v -> {
                 Intent intent = new Intent(DashboardActivity.this, ComplaintDetailActivity.class);

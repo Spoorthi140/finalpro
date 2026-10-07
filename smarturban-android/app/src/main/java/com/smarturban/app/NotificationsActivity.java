@@ -182,7 +182,7 @@ public class NotificationsActivity extends AppCompatActivity {
         HttpNetworkClient.sendJsonRequest(url, "PUT", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
             @Override
             public void onSuccess(int statusCode, String responseBody) {
-                Toast.makeText(NotificationsActivity.this, "Notifications marked as read", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NotificationsActivity.this, R.string.notif_marked_read, Toast.LENGTH_SHORT).show();
                 loadNotifications();
             }
 

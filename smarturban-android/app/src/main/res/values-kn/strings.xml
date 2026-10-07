@@ -20,8 +20,13 @@
     <!-- Dashboard Strings -->
     <string name="dashboard_title">ಸ್ಮಾರ್ಟ್ ಅರ್ಬನ್ ನಾಗರಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
     <string name="hello_citizen">ನಮಸ್ಕಾರ, ನಾಗರಿಕ 👋</string>
+    <string name="hello_citizen_fmt">ನಮಸ್ಕಾರ, %1$s 👋</string>
     <string name="welcome_citizen">ನಾಗರಿಕ</string>
     <string name="category">ವರ್ಗ</string>
+    <string name="category_fmt">ವರ್ಗ: %1$s</string>
+    <string name="cmp_id_fmt">#CMP-%1$d</string>
+    <string name="date_fmt">ದಿನಾಂಕ: %1$s</string>
+    <string name="location_fmt">📍 %1$s</string>
     <string name="complaint_title">ದೂರಿನ ಶೀರ್ಷಿಕೆ</string>
     <string name="status">ಸ್ಥಿತಿ</string>
     <string name="complaint_description">ದೂರಿನ ವಿವರಣೆ</string>
@@ -84,12 +89,31 @@
     <string name="mark_all_read">ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ</string>
     <string name="no_notifications">ಯಾವುದೇ ಸೂಚನೆಗಳು ಲಭ್ಯವಿಲ್ಲ.</string>
     <string name="unread_label">ಓದದಿರುವುದು</string>
+    <string name="notif_marked_read">ಸೂಚನೆಗಳನ್ನು ಓದಿದಂತೆ ಗುರುತಿಸಲಾಗಿದೆ</string>
 
     <!-- Feedback Strings -->
     <string name="feedback_title">ನಾಗರಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಮತ್ತು ರೇಟಿಂಗ್</string>
     <string name="feedback_hint">ಐಚ್ಛಿಕ ಪ್ರತಿಕ್ರಿಯೆ ಕಾಮೆಂಟ್‌ಗಳನ್ನು ಒದಗಿಸಿ...</string>
     <string name="submit_feedback">ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಿ</string>
     <string name="feedback_success">ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ.</string>
+    <string name="rating_stars_fmt">ರೇಟಿಂಗ್: %1$d ನಕ್ಷತ್ರಗಳು\nಪ್ರತಿಕ್ರಿಯೆ: %2$s</string>
+    <string name="none">ಯಾವುದೂ ಇಲ್ಲ</string>
+    <string name="feedback_submit_failed">ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಲು ವಿಫಲವಾಗಿದೆ</string>
+
+    <!-- History & Additional Dynamic Strings -->
+    <string name="history_item_fmt">• [%1$s] %2$s ರವರಿಂದ %3$s ರಂದು %4$s</string>
+    <string name="remarks_prefix">\n  ಟಿಪ್ಪಣಿಗಳು: </string>
+    <string name="admin_app_restriction">ಆಡಳಿತಾಧಿಕಾರಿ ಖಾತೆಗಳು ವೆಬ್ ಅಡ್ಮಿನ್ ಪ್ಯಾನೆಲ್ ಬಳಸಬೇಕು.</string>
+    <string name="connection_failed">ಸಂಪರ್ಕ ವಿಫಲವಾಗಿದೆ</string>
+    <string name="reg_failed_prefix">ನೋಂದಣಿ ವಿಫಲವಾಗಿದೆ</string>
+    <string name="categories_load_failed">ಬ್ಯಾಕೆಂಡ್‌ನಿಂದ ವರ್ಗಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.</string>
+    <string name="network_error_categories">ವರ್ಗಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ನೆಟ್‌ವರ್ಕ್ ದೋಷ.</string>
+    <string name="categories_not_loaded">ವರ್ಗಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="select_valid_category">ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ದೂರಿನ ವರ್ಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ.</string>
+    <string name="submit_failed_status">ದೂರು ಸಲ್ಲಿಸಲು ವಿಫಲವಾಗಿದೆ (%1$d)</string>
+    <string name="network_error_fmt">ನೆಟ್‌ವರ್ಕ್ ದೋಷ: %1$s</string>
+    <string name="general_category">ಸಾಮಾನ್ಯ</string>
+    <string name="system_user">ಸಿಸ್ಟಮ್</string>
 
     <!-- Language / Profile Strings -->
     <string name="language_setting">ಭಾಷೆ / Language</string>

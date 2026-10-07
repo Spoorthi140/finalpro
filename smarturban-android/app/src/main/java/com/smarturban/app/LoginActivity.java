@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             long userId = responseJson.optLong("id");
 
                             if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
-                                Toast.makeText(LoginActivity.this, "Administrator accounts must use the Web Admin Panel.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, R.string.admin_app_restriction, Toast.LENGTH_LONG).show();
                                 return;
                             }
 
@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(Exception e) {
                     btnLogin.setEnabled(true);
-                    String errDetail = e != null && e.getLocalizedMessage() != null ? e.getLocalizedMessage() : "Connection failed";
+                    String errDetail = e != null && e.getLocalizedMessage() != null ? e.getLocalizedMessage() : getString(R.string.connection_failed);
                     Toast.makeText(LoginActivity.this, getString(R.string.login_failed) + ": " + errDetail, Toast.LENGTH_LONG).show();
                 }
             });

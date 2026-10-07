@@ -79,15 +79,15 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                 if (statusCode == 200 && responseBody != null) {
                     try {
                         JSONObject obj = new JSONObject(responseBody);
-                        tvDetailId.setText("#CMP-" + obj.getLong("id"));
+                        tvDetailId.setText(getString(R.string.cmp_id_fmt, obj.getLong("id")));
                         tvDetailTitle.setText(obj.getString("title"));
                         String status = obj.optString("status", "Submitted");
                         tvDetailStatus.setText(status);
                         tvDetailDesc.setText(obj.getString("description"));
 
-                        String locName = obj.optString("locationName", "Location unavailable");
+                        String locName = obj.optString("locationName", getString(R.string.location_unavailable));
                         if (locName == null || locName.trim().isEmpty() || "null".equalsIgnoreCase(locName)) {
-                            locName = "Location unavailable";
+                            locName = getString(R.string.location_unavailable);
                         }
 
                         if (obj.has("latitude") && !obj.isNull("latitude") && obj.has("longitude") && !obj.isNull("longitude")) {
@@ -160,7 +160,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         btnSubmitFeedback.setVisibility(View.GONE);
 
                         tvSubmittedFeedback.setVisibility(View.VISIBLE);
-                        tvSubmittedFeedback.setText("Rating: " + rating + " Stars\nComments: " + (comments.isEmpty() ? "None" : comments));
+                        tvSubmittedFeedback.setText(getString(R.string.rating_stars_fmt, rating, comments.isEmpty() ? getString(R.string.none) : comments));
                     } catch (Exception e) {
                         android.util.Log.e("ComplaintDetailActivity", "Error parsing feedback", e);
                     }
@@ -200,7 +200,7 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         Toast.makeText(ComplaintDetailActivity.this, R.string.feedback_success, Toast.LENGTH_LONG).show();
                         checkFeedback(complaintId);
                     } else {
-                        String msg = "Failed to submit feedback";
+                        String msg = getString(R.string.feedback_submit_failed);
                         try {
                             JSONObject err = new JSONObject(responseBody);
                             if (err.has("message")) msg = err.getString("message");
@@ -234,14 +234,15 @@ public class ComplaintDetailActivity extends AppCompatActivity {
                         for (int i = 0; i < array.length(); i++) {
                             JSONObject obj = array.getJSONObject(i);
                             String newStatus = obj.optString("newStatus", "");
-                            String changedBy = obj.optString("changedBy", "System");
+                            String changedBy = obj.optString("changedBy", getString(R.string.system_user));
                             String changedAt = obj.optString("changedAt", "");
                             String remarks = obj.optString("remarks", "");
 
                             if (changedAt.length() >= 16) changedAt = changedAt.substring(0, 16).replace("T", " ");
 
+                            String remarksStr = remarks.isEmpty() ? "" : getString(R.string.remarks_prefix) + remarks;
                             TextView historyItem = new TextView(ComplaintDetailActivity.this);
-                            historyItem.setText("• [" + newStatus + "] by " + changedBy + " at " + changedAt + (remarks.isEmpty() ? "" : "\n  Remarks: " + remarks));
+                            historyItem.setText(getString(R.string.history_item_fmt, newStatus, changedBy, changedAt, remarksStr));
                             historyItem.setPadding(0, 8, 0, 8);
                             historyItem.setTextColor(0xFF475569);
                             containerHistory.addView(historyItem);

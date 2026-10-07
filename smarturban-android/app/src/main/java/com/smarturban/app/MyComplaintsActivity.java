@@ -221,24 +221,24 @@ public class MyComplaintsActivity extends AppCompatActivity {
             long cmpId = obj.getLong("id");
             String title = obj.getString("title");
             String status = obj.optString("status", "Submitted");
-            String locName = obj.optString("locationName", "Location unavailable");
+            String locName = obj.optString("locationName", getString(R.string.location_unavailable));
             if (locName == null || locName.trim().isEmpty() || "null".equalsIgnoreCase(locName)) {
-                locName = "Location unavailable";
+                locName = getString(R.string.location_unavailable);
             }
             String date = obj.optString("createdAt", "");
             if (date.length() >= 10) date = date.substring(0, 10);
 
-            String category = "General";
+            String category = getString(R.string.general_category);
             if (obj.has("category") && !obj.isNull("category")) {
-                category = obj.getJSONObject("category").optString("name", "General");
+                category = obj.getJSONObject("category").optString("name", getString(R.string.general_category));
             }
 
-            tvId.setText("#CMP-" + cmpId);
+            tvId.setText(getString(R.string.cmp_id_fmt, cmpId));
             tvTitle.setText(title);
-            tvCat.setText(getString(R.string.category) + ": " + category);
-            tvLocation.setText("📍 " + locName);
+            tvCat.setText(getString(R.string.category_fmt, category));
+            tvLocation.setText(getString(R.string.location_fmt, locName));
             tvStatus.setText(status);
-            tvDate.setText("📅 Date: " + date);
+            tvDate.setText(getString(R.string.date_fmt, date));
 
             cardView.setOnClickListener(v -> {
                 Intent intent = new Intent(MyComplaintsActivity.this, ComplaintDetailActivity.class);

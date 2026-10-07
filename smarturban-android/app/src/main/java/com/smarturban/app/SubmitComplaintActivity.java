@@ -138,16 +138,16 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                         spCategory.setAdapter(adapter);
                     } catch (Exception e) {
-                        Toast.makeText(SubmitComplaintActivity.this, "Unable to load categories from backend", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SubmitComplaintActivity.this, R.string.categories_load_failed, Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(SubmitComplaintActivity.this, "Unable to load categories from backend", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SubmitComplaintActivity.this, R.string.categories_load_failed, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(Exception e) {
-                Toast.makeText(SubmitComplaintActivity.this, "Network Error loading categories", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SubmitComplaintActivity.this, R.string.network_error_categories, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -205,7 +205,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
         longitude = lng;
         locationName = getAddressFromCoordinates(lat, lng);
 
-        tvLocationDisplay.setText("📍 " + locationName + "\nLat: " + String.format("%.4f", lat) + ", Long: " + String.format("%.4f", lng));
+        tvLocationDisplay.setText(getString(R.string.location_fmt, locationName) + "\nLat: " + String.format("%.4f", lat) + ", Long: " + String.format("%.4f", lng));
 
         setupOpenStreetMap(lat, lng);
         btnConfirmLocation.setVisibility(View.VISIBLE);
@@ -267,13 +267,13 @@ public class SubmitComplaintActivity extends AppCompatActivity {
         }
 
         if (categoryIds.isEmpty()) {
-            Toast.makeText(this, "Categories not loaded. Please try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.categories_not_loaded, Toast.LENGTH_LONG).show();
             return;
         }
 
         int selectedPos = spCategory.getSelectedItemPosition();
         if (selectedPos < 0 || selectedPos >= categoryIds.size()) {
-            Toast.makeText(this, "Please select a valid complaint category.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.select_valid_category, Toast.LENGTH_SHORT).show();
             return;
         }
         long categoryId = categoryIds.get(selectedPos);
@@ -296,7 +296,7 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(SubmitComplaintActivity.this, "Failed to submit complaint (" + statusCode + ")", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SubmitComplaintActivity.this, getString(R.string.submit_failed_status, statusCode), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -304,7 +304,8 @@ public class SubmitComplaintActivity extends AppCompatActivity {
                     public void onError(Exception e) {
                         btnSubmit.setEnabled(true);
                         btnSubmit.setText(R.string.submit_complaint_btn);
-                        Toast.makeText(SubmitComplaintActivity.this, "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        String errDetail = e != null && e.getLocalizedMessage() != null ? e.getLocalizedMessage() : getString(R.string.connection_failed);
+                        Toast.makeText(SubmitComplaintActivity.this, getString(R.string.network_error_fmt, errDetail), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

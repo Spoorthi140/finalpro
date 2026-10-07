@@ -20,8 +20,13 @@
     <!-- Dashboard Strings -->
     <string name="dashboard_title">SmartUrban Citizen Dashboard</string>
     <string name="hello_citizen">Hello, Citizen 👋</string>
+    <string name="hello_citizen_fmt">Hello, %1$s 👋</string>
     <string name="welcome_citizen">Citizen</string>
     <string name="category">Category</string>
+    <string name="category_fmt">Category: %1$s</string>
+    <string name="cmp_id_fmt">#CMP-%1$d</string>
+    <string name="date_fmt">Date: %1$s</string>
+    <string name="location_fmt">📍 %1$s</string>
     <string name="complaint_title">Complaint Title</string>
     <string name="status">Status</string>
     <string name="complaint_description">Complaint Description</string>
@@ -84,12 +89,31 @@
     <string name="mark_all_read">Mark All as Read</string>
     <string name="no_notifications">No notifications available.</string>
     <string name="unread_label">Unread</string>
+    <string name="notif_marked_read">Notifications marked as read</string>
 
     <!-- Feedback Strings -->
     <string name="feedback_title">Citizen Feedback &amp; Rating</string>
     <string name="feedback_hint">Provide optional feedback comments...</string>
     <string name="submit_feedback">Submit Feedback</string>
     <string name="feedback_success">Feedback submitted successfully.</string>
+    <string name="rating_stars_fmt">Rating: %1$d Stars\nComments: %2$s</string>
+    <string name="none">None</string>
+    <string name="feedback_submit_failed">Failed to submit feedback</string>
+
+    <!-- History & Additional Dynamic Strings -->
+    <string name="history_item_fmt">• [%1$s] by %2$s at %3$s%4$s</string>
+    <string name="remarks_prefix">\n  Remarks: </string>
+    <string name="admin_app_restriction">Administrator accounts must use the Web Admin Panel.</string>
+    <string name="connection_failed">Connection failed</string>
+    <string name="reg_failed_prefix">Registration failed</string>
+    <string name="categories_load_failed">Unable to load categories from backend.</string>
+    <string name="network_error_categories">Network Error loading categories.</string>
+    <string name="categories_not_loaded">Categories not loaded. Please try again.</string>
+    <string name="select_valid_category">Please select a valid complaint category.</string>
+    <string name="submit_failed_status">Failed to submit complaint (%1$d)</string>
+    <string name="network_error_fmt">Network Error: %1$s</string>
+    <string name="general_category">General</string>
+    <string name="system_user">System</string>
 
     <!-- Language / Profile Strings -->
     <string name="language_setting">Language / ಭಾಷೆ</string>
