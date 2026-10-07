@@ -48,4 +48,8 @@ public class FeedbackService {
     public Optional<ComplaintFeedback> getFeedbackForComplaint(Long complaintId) {
         return feedbackRepository.findByComplaintId(complaintId);
     }
+
+    public java.util.List<ComplaintFeedback> getAllFeedback() {
+        return feedbackRepository.findAll();
+    }
 }

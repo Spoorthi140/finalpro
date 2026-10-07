@@ -309,4 +309,18 @@ public class AdminWebController {
         }
         return "redirect:/admin/categories";
     }
+
+    @GetMapping("/feedback")
+    public String feedbackManagement(Model model) {
+        List<ComplaintFeedback> feedbackList = feedbackService.getAllFeedback();
+        double avgRating = feedbackList.stream()
+                .mapToInt(ComplaintFeedback::getRating)
+                .average()
+                .orElse(0.0);
+
+        model.addAttribute("feedbackList", feedbackList);
+        model.addAttribute("totalFeedback", feedbackList.size());
+        model.addAttribute("avgRating", avgRating);
+        return "admin/feedback";
+    }
 }

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartUrban - Citizen Feedback & Ratings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+        .sidebar { min-height: calc(100vh - 60px); background-color: #2c3e50; }
+        .sidebar .nav-link { color: #ecf0f1; padding: 12px 20px; font-weight: 500; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #34495e; color: #3498db; }
+        .stat-card { border: none; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
+            <img th:src="@{/images/smarturban_logo.png}" alt="SmartUrban Logo">
+            <span class="fw-bold fs-5">SmartUrban Admin</span>
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3"><i class="fas fa-user-circle me-1"></i> Administrator</span>
+            <form th:action="@{/admin/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 d-none d-md-block sidebar py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/complaints"><i class="fas fa-clipboard-list me-2"></i> Complaints</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/admin/feedback"><i class="fas fa-star me-2"></i> Feedback & Ratings</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/users"><i class="fas fa-users me-2"></i> User Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/departments"><i class="fas fa-building me-2"></i> Departments</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/categories"><i class="fas fa-tags me-2"></i> Categories</a></li>
+            </ul>
+        </div>
+
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <h2 class="mb-4 text-secondary"><i class="fas fa-star text-warning me-2"></i> Citizen Feedback & Satisfaction Analytics</h2>
+
+            <!-- Feedback Summary Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card stat-card bg-primary text-white p-3 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50">Total Feedback Received</h6>
+                                <h2 class="fw-bold mb-0" th:text="${totalFeedback}">0</h2>
+                            </div>
+                            <i class="fas fa-comments fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card stat-card bg-warning text-dark p-3 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-black-50">Average Satisfaction Rating</h6>
+                                <h2 class="fw-bold mb-0" th:text="${#numbers.formatDecimal(avgRating, 1, 1) + ' / 5.0 ⭐'}">0.0 / 5.0 ⭐</h2>
+                            </div>
+                            <i class="fas fa-star fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Records Table -->
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Complaint ID</th>
+                                <th>Citizen</th>
+                                <th>Rating</th>
+                                <th>Comments</th>
+                                <th>Submitted Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="f : ${feedbackList}">
+                                <td>
+                                    <a th:href="@{'/admin/complaints/' + ${f.complaint.id}}" class="fw-bold text-decoration-none" th:text="${'#CMP-' + f.complaint.id}">#CMP-1</a>
+                                </td>
+                                <td th:text="${f.citizen.fullName}">Citizen Name</td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, f.rating)}"></i>
+                                    </span>
+                                    <span class="ms-1 fw-bold" th:text="${'(' + f.rating + '/5)'}"></span>
+                                </td>
+                                <td th:text="${f.comments != null ? f.comments : 'No comments provided'}" class="fst-italic">Comments</td>
+                                <td th:text="${#temporals.format(f.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(feedbackList)}">
+                                <td colspan="5" class="text-center py-4 text-muted">No citizen feedback records found yet.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
