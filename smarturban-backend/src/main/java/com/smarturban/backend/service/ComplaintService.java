@@ -203,4 +203,38 @@ public class ComplaintService {
         // Record review confirmation without automatically rejecting/deleting the complaint
         return complaintRepository.save(complaint);
     }
+
+    public List<Complaint> searchAndFilterComplaints(String query, String status, Long categoryId, Long departmentId, String startDate, String endDate) {
+        List<Complaint> all = getAllComplaints();
+        return all.stream().filter(c -> {
+            if (query != null && !query.trim().isEmpty()) {
+                String q = query.trim().toLowerCase(java.util.Locale.ROOT);
+                boolean matchesTitle = c.getTitle() != null && c.getTitle().toLowerCase(java.util.Locale.ROOT).contains(q);
+                boolean matchesId = c.getId() != null && (("#cmp-" + c.getId()).contains(q) || String.valueOf(c.getId()).contains(q));
+                if (!matchesTitle && !matchesId) return false;
+            }
+            if (status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status)) {
+                if (!status.equalsIgnoreCase(c.getStatus())) return false;
+            }
+            if (categoryId != null) {
+                if (c.getCategory() == null || !c.getCategory().getId().equals(categoryId)) return false;
+            }
+            if (departmentId != null) {
+                if (c.getDepartment() == null || !c.getDepartment().getId().equals(departmentId)) return false;
+            }
+            if (startDate != null && !startDate.trim().isEmpty()) {
+                try {
+                    java.time.LocalDate start = java.time.LocalDate.parse(startDate.trim());
+                    if (c.getCreatedAt() != null && c.getCreatedAt().toLocalDate().isBefore(start)) return false;
+                } catch (Exception ignored) {}
+            }
+            if (endDate != null && !endDate.trim().isEmpty()) {
+                try {
+                    java.time.LocalDate end = java.time.LocalDate.parse(endDate.trim());
+                    if (c.getCreatedAt() != null && c.getCreatedAt().toLocalDate().isAfter(end)) return false;
+                } catch (Exception ignored) {}
+            }
+            return true;
+        }).collect(java.util.stream.Collectors.toList());
+    }
 }

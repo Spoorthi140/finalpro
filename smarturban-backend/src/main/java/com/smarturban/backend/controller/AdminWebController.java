@@ -51,17 +51,41 @@ public class AdminWebController {
         long resolvedComplaints = complaintRepository.countByStatus("Resolved");
         long rejectedComplaints = complaintRepository.countByStatus("Rejected");
 
+        long resolutionPercentage = totalComplaints > 0 ? Math.round((double) resolvedComplaints / totalComplaints * 100.0) : 0;
+
+        List<Complaint> allComplaints = complaintService.getAllComplaints();
+
+        // Grouping by Category
+        java.util.Map<String, Long> categoryStats = allComplaints.stream()
+                .filter(c -> c.getCategory() != null)
+                .collect(java.util.stream.Collectors.groupingBy(c -> c.getCategory().getName(), java.util.stream.Collectors.counting()));
+
+        // Grouping by Department
+        java.util.Map<String, Long> departmentStats = allComplaints.stream()
+                .filter(c -> c.getDepartment() != null)
+                .collect(java.util.stream.Collectors.groupingBy(c -> c.getDepartment().getName(), java.util.stream.Collectors.counting()));
+
+        // Monthly Trend
+        java.util.Map<String, Long> monthlyTrend = allComplaints.stream()
+                .filter(c -> c.getCreatedAt() != null)
+                .collect(java.util.stream.Collectors.groupingBy(
+                        c -> c.getCreatedAt().getMonth().name().substring(0, 3) + " " + c.getCreatedAt().getYear(),
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.counting()
+                ));
+
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("totalComplaints", totalComplaints);
         model.addAttribute("pendingComplaints", pendingComplaints);
         model.addAttribute("inProgressComplaints", inProgressComplaints);
         model.addAttribute("resolvedComplaints", resolvedComplaints);
         model.addAttribute("rejectedComplaints", rejectedComplaints);
+        model.addAttribute("resolutionPercentage", resolutionPercentage);
+        model.addAttribute("categoryStats", categoryStats);
+        model.addAttribute("departmentStats", departmentStats);
+        model.addAttribute("monthlyTrend", monthlyTrend);
 
-        List<Complaint> recentComplaints = complaintService.getAllComplaints();
-        if (recentComplaints.size() > 5) {
-            recentComplaints = recentComplaints.subList(0, 5);
-        }
+        List<Complaint> recentComplaints = allComplaints.size() > 5 ? allComplaints.subList(0, 5) : allComplaints;
         model.addAttribute("recentComplaints", recentComplaints);
 
         return "admin/dashboard";
@@ -153,11 +177,30 @@ public class AdminWebController {
     }
 
     @GetMapping("/complaints")
-    public String complaintManagement(Model model) {
-        List<Complaint> complaints = complaintService.getAllComplaints();
+    public String complaintManagement(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(value = "departmentId", required = false) Long departmentId,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            Model model) {
+
+        List<Complaint> complaints = complaintService.searchAndFilterComplaints(query, status, categoryId, departmentId, startDate, endDate);
         List<Department> departments = departmentService.getActiveDepartments();
+        List<Category> categories = categoryService.getActiveCategories();
+
         model.addAttribute("complaints", complaints);
         model.addAttribute("departments", departments);
+        model.addAttribute("categories", categories);
+
+        model.addAttribute("paramQuery", query);
+        model.addAttribute("paramStatus", status);
+        model.addAttribute("paramCategoryId", categoryId);
+        model.addAttribute("paramDepartmentId", departmentId);
+        model.addAttribute("paramStartDate", startDate);
+        model.addAttribute("paramEndDate", endDate);
+
         return "admin/complaints";
     }
 

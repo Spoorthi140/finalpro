@@ -1,11 +1,9 @@
 target/
-build/
 .gradle/
+build/
 .idea/
 *.iml
-*.log
-.DS_Store
+uploads/
 smarturban-backend/target/
-smarturban-android/build/
 smarturban-android/app/build/
 smarturban-android/.gradle/

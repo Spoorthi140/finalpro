@@ -50,50 +50,72 @@
 
             <!-- Stats Row -->
             <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card stat-card bg-primary text-white p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50">Total Registered Users</h6>
-                                <h2 class="fw-bold mb-0" th:text="${totalUsers}">0</h2>
-                            </div>
-                            <i class="fas fa-users fa-2x opacity-50"></i>
+                <div class="col-md-2">
+                    <div class="card stat-card bg-primary text-white p-3 h-100">
+                        <div>
+                            <h6 class="text-white-50 small">Total Users</h6>
+                            <h3 class="fw-bold mb-0" th:text="${totalUsers}">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card stat-card bg-info text-white p-3 h-100">
+                        <div>
+                            <h6 class="text-white-50 small">Total Complaints</h6>
+                            <h3 class="fw-bold mb-0" th:text="${totalComplaints}">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card stat-card bg-warning text-dark p-3 h-100">
+                        <div>
+                            <h6 class="text-black-50 small">Pending</h6>
+                            <h3 class="fw-bold mb-0" th:text="${pendingComplaints}">0</h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card stat-card bg-info text-white p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50">Total Complaints</h6>
-                                <h2 class="fw-bold mb-0" th:text="${totalComplaints}">0</h2>
-                            </div>
-                            <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                    <div class="card stat-card bg-success text-white p-3 h-100">
+                        <div>
+                            <h6 class="text-white-50 small">Resolved</h6>
+                            <h3 class="fw-bold mb-0" th:text="${resolvedComplaints}">0</h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card stat-card bg-warning text-dark p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-black-50">Pending Complaints</h6>
-                                <h2 class="fw-bold mb-0" th:text="${pendingComplaints}">0</h2>
-                            </div>
-                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                    <div class="card stat-card bg-dark text-white p-3 h-100">
+                        <div>
+                            <h6 class="text-white-50 small">Resolution Rate</h6>
+                            <h3 class="fw-bold mb-0 text-success" th:text="${resolutionPercentage + '%'}">0%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="fw-bold mb-0 text-secondary"><i class="fas fa-chart-pie me-2"></i> Complaints by Infrastructure Category</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoryChart" style="max-height: 250px;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="card stat-card bg-success text-white p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50">Resolved Complaints</h6>
-                                <h2 class="fw-bold mb-0" th:text="${resolvedComplaints}">0</h2>
-                            </div>
-                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="fw-bold mb-0 text-secondary"><i class="fas fa-chart-bar me-2"></i> Complaints by Municipal Department</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="departmentChart" style="max-height: 250px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -144,5 +166,48 @@
         </main>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var categoryData = /*[[${categoryStats}]]*/ {};
+    var departmentData = /*[[${departmentStats}]]*/ {};
+
+    var catLabels = Object.keys(categoryData);
+    var catValues = Object.values(categoryData);
+
+    var deptLabels = Object.keys(departmentData);
+    var deptValues = Object.values(departmentData);
+
+    if (document.getElementById('categoryChart') && catLabels.length > 0) {
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catValues,
+                    backgroundColor: ['#0284C7', '#0D9488', '#D97706', '#2563EB', '#16A34A', '#64748B']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    if (document.getElementById('departmentChart') && deptLabels.length > 0) {
+        new Chart(document.getElementById('departmentChart'), {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    label: 'Complaints Assigned',
+                    data: deptValues,
+                    backgroundColor: '#0284C7'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+    }
+    /*]]>*/
+</script>
 </body>
 </html>
