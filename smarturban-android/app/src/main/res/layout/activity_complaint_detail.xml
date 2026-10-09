@@ -14,7 +14,6 @@
             android:id="@+id/tv_detail_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="#CMP-1"
             android:textColor="#0284C7"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -51,7 +50,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Submitted"
             android:textColor="#16A34A"
             android:textSize="16sp"
             android:textStyle="bold" />

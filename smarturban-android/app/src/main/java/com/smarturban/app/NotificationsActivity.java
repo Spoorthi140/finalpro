@@ -23,7 +23,6 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private LinearLayout containerNotifications;
     private TextView tvEmptyNotifications;
-    private Button btnMarkAllRead;
     private BottomNavigationView bottomNavigationView;
 
     @Override
@@ -38,12 +37,9 @@ public class NotificationsActivity extends AppCompatActivity {
 
         containerNotifications = findViewById(R.id.container_notifications);
         tvEmptyNotifications = findViewById(R.id.tv_empty_notifications);
-        btnMarkAllRead = findViewById(R.id.btn_mark_all_read);
         bottomNavigationView = findViewById(R.id.bottom_navigation_notifications);
 
         setupBottomNavigation();
-
-        btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
 
         loadNotifications();
     }
@@ -122,7 +118,6 @@ public class NotificationsActivity extends AppCompatActivity {
             TextView tvTitle = cardView.findViewById(R.id.tv_notif_title);
             TextView tvMessage = cardView.findViewById(R.id.tv_notif_message);
             TextView tvDate = cardView.findViewById(R.id.tv_notif_date);
-            TextView tvUnreadTag = cardView.findViewById(R.id.tv_notif_unread_tag);
             MaterialCardView card = (MaterialCardView) cardView;
 
             long notifId = obj.getLong("id");
@@ -138,10 +133,8 @@ public class NotificationsActivity extends AppCompatActivity {
             tvDate.setText(date);
 
             if (!isRead) {
-                tvUnreadTag.setVisibility(View.VISIBLE);
                 card.setCardBackgroundColor(Color.parseColor("#F1F5F9"));
             } else {
-                tvUnreadTag.setVisibility(View.GONE);
                 card.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
             }
 
@@ -169,24 +162,6 @@ public class NotificationsActivity extends AppCompatActivity {
         HttpNetworkClient.sendJsonRequest(url, "PUT", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
             @Override
             public void onSuccess(int statusCode, String responseBody) {
-                loadNotifications();
-            }
-
-            @Override
-            public void onError(Exception e) {}
-        });
-    }
-
-    private void markAllAsRead() {
-        SharedPreferences pref = getSharedPreferences("SmartUrbanPref", MODE_PRIVATE);
-        String jwtToken = pref.getString("token", "");
-
-        String url = ApiConfig.NOTIFICATIONS_URL + "/read-all";
-
-        HttpNetworkClient.sendJsonRequest(url, "PUT", null, jwtToken, new HttpNetworkClient.ApiResponseCallback() {
-            @Override
-            public void onSuccess(int statusCode, String responseBody) {
-                Toast.makeText(NotificationsActivity.this, R.string.notif_marked_read, Toast.LENGTH_SHORT).show();
                 loadNotifications();
             }
 

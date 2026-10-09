@@ -135,4 +135,6 @@
     <string name="complaint_submitted">Complaint submitted successfully!</string>
     <string name="login_success">Login Successful</string>
     <string name="gps_captured">GPS Location Captured</string>
+    <string name="toggle">Toggle</string>
+    <string name="delete">Delete</string>
 </resources>

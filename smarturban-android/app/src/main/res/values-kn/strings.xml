@@ -135,4 +135,6 @@
     <string name="complaint_submitted">ದೂರು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಕೆಯಾಗಿದೆ!</string>
     <string name="login_success">ಲಾಗಿನ್ ಯಶಸ್ವಿಯಾಗಿದೆ</string>
     <string name="gps_captured">ಜಿಪಿಎಸ್ ಸ್ಥಳ ಗ್ರಹಿಸಲಾಗಿದೆ</string>
+    <string name="toggle">ಟಾಗಲ್</string>
+    <string name="delete">ಅಳಿಸಿ</string>
 </resources>

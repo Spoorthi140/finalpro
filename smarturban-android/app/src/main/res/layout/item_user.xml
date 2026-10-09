@@ -17,7 +17,6 @@
             android:id="@+id/tv_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="John Citizen"
             android:textColor="#0F172A"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -27,7 +26,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="citizen@smarturban.com"
             android:textColor="#64748B"
             android:textSize="13sp" />
     </LinearLayout>
@@ -36,7 +34,7 @@
         android:id="@+id/btn_user_toggle"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
-        android:text="Toggle"
+        android:text="@string/toggle"
         android:textSize="11sp"
         android:backgroundTint="#F59E0B"
         android:layout_marginEnd="6dp" />
@@ -45,7 +43,7 @@
         android:id="@+id/btn_user_delete"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
-        android:text="Delete"
+        android:text="@string/delete"
         android:textSize="11sp"
         android:backgroundTint="#EF4444" />
 

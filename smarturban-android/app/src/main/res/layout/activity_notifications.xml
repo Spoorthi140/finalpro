@@ -17,9 +17,8 @@
         android:elevation="4dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -38,15 +37,6 @@
                 android:textColor="#94A3B8"
                 android:textSize="13sp" />
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_mark_all_read"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="@string/mark_all_read"
-            android:textSize="11sp"
-            android:backgroundTint="#0284C7"
-            android:textColor="#FFFFFF" />
     </LinearLayout>
 
     <!-- Scrollable Notifications List -->
